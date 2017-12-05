@@ -1,4 +1,4 @@
-import java.awt.*;
+package alg;
 
 public class GameManager {
     // Variable in which we can keep the current state of the game.

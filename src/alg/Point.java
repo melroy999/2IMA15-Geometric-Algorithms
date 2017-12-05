@@ -1,9 +1,11 @@
+package alg;
+
 import java.awt.geom.Ellipse2D;
 
 public class Point {
     // The position of the points.
-    private final int x;
-    private final int y;
+    public final int x;
+    public final int y;
 
     // Graphical representation of the point.
     public final Ellipse2D shape;

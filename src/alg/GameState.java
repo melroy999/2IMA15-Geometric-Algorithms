@@ -1,7 +1,6 @@
-import java.awt.*;
-import java.awt.geom.*;
+package alg;
+
 import java.util.ArrayList;
-import java.util.HashSet;
 
 public class GameState {
     // The points put down by the blue and red players.
