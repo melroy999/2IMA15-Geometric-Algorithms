@@ -8,7 +8,7 @@ import java.util.List;
  */
 public class Edge implements Iterable<Edge> {
     // The vertex this half edge originates from.
-    public final Vertex origin;
+    public Vertex origin;
 
     // The face to the left of this half edge.
     public Face incidentFace;
