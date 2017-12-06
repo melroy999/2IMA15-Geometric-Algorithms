@@ -30,7 +30,7 @@ public class Face {
     /**
      * Special class for the outer face.
      */
-    public class OuterFace extends Face {
+    public static class OuterFace extends Face {
         public OuterFace() {
             super(-1);
         }

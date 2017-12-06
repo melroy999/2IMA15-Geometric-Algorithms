@@ -14,6 +14,9 @@ public class Mesh {
     private final HashMap<Integer, Edge> edges = new HashMap<>();
     private final HashMap<Integer, Face> faces = new HashMap<>();
 
+    // The outer face.
+    Face outerFace = new Face.OuterFace();
+
     /**
      * Get a list of all vertices in the mesh.
      *
@@ -145,9 +148,32 @@ public class Mesh {
         if(!viIsSimple && !vjIsSimple) {
             // This is more complicated when we have split the outside plane, since we do not know what the inside is.
             if(vi_vj.incidentFace instanceof Face.OuterFace) {
-                //TODO how do we see the difference between the inside, and the outside of the figure?
+                // TODO how do we see the difference between the inside, and the outside of the figure?
+                // TODO whether the current implementation makes sense.
                 // Since we normally would have convex areas when having only 4 vertices, we could use that.
                 // Could we do something with the sum of the (counter)clockwise angles?
+
+                // I think that we always have a lower sum of angles inside of the figure than outside.
+                // Lets use that.
+                if(getCycleAngleSum(vi_vj) > getCycleAngleSum(vi_vj.twin)) {
+                    // If vi_vj is larger, it will be at the outside. So initialize a new face at the twin inside.
+                    Face face = outerFace;
+                    face.outerComponent = vi_vj.twin;
+
+                    // Now set the new face on all edges we have in the twin's cycle.
+                    for(Edge edge : vi_vj.twin) {
+                        edge.incidentFace = face;
+                    }
+                } else {
+                    // If vi_vj is smaller, it will be at the inside. So initialize a new face at the edge inside.
+                    Face face = outerFace;
+                    face.outerComponent = vi_vj;
+
+                    // Now set the new face on all edges we have in the twin's cycle.
+                    for(Edge edge : vi_vj) {
+                        edge.incidentFace = face;
+                    }
+                }
             } else {
                 // If it is not an outer face, we just replace all of the faces of the twin cycle.
                 // Obviously make sure that the face has a reference to at least one edge pointing towards it.
@@ -159,7 +185,17 @@ public class Mesh {
                     edge.incidentFace = face;
                 }
             }
+        } else if(viIsSimple && vjIsSimple) {
+            // TODO where do we assign the outer faces for the initial vertices that are inserted...?
+            // If they are both simple, I assume that they are both in the outer face,
+            // and thus we should assign the outer face to both sides.
+            Face face = outerFace;
+            face.outerComponent = vi_vj;
+            vi_vj.incidentFace = face;
+            vi_vj.twin.incidentFace = face;
         }
+
+        // TODO make sure that the edges and faces are added to list.
 
         // Return the edge.
         return vi_vj;
@@ -337,6 +373,20 @@ public class Mesh {
             // Set the incident edge on null, as the vertex becomes disconnected.
             edge.origin.incidentEdge = null;
         }
+    }
+
+    /**
+     * Get the sum of all the angles between edges in the cycle.
+     *
+     * @param edge The starting edge.
+     * @return The sum.
+     */
+    private double getCycleAngleSum(Edge edge) {
+        double sum = 0;
+        for(Edge e : edge) {
+            sum += e.vector.angle(e.next.vector);
+        }
+        return sum;
     }
 
     public class UnableToInsertEdgeException extends Exception {

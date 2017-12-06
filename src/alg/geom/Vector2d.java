@@ -39,4 +39,25 @@ public class Vector2d extends Point2D.Double {
     public double det(Vector2d v) {
         return x * v.y - y * v.x;
     }
+
+    /**
+     * Get the angle between this vector and the given vector, in clockwise order.
+     *
+     * @param v The vertex we compare to.
+     * @return The clockwise angle between the vectors.
+     */
+    public double angle(Vector2d v) {
+        double dot = this.dotProduct(v);
+        double det = this.det(v);
+        return Math.toDegrees(Math.atan2(det, dot));
+    }
+
+    /**
+     * Get the length of the vector.
+     *
+     * @return The length of the vector.
+     */
+    public double length() {
+        return Math.sqrt(x * x + y * y);
+    }
 }
