@@ -10,6 +10,27 @@ public class Mesh {
     // The list of vertices, mapped from integer to vertex such that we can access vertices by their id.
     private final HashMap<Integer, Vertex> vertices = new HashMap<>();
 
+
+    /**
+     * Find the edge with vertex with id i as origin, moving to vertex j.
+     *
+     * @param i The id of the first vertex.
+     * @param j The id of the second vertex.
+     * @return The vertex if it exists, null otherwise.
+     */
+    public Edge findEdge(int i, int j) throws MissingVertexException {
+        // First, check if the vertices exist.
+        if(!vertices.containsKey(i) || !vertices.containsKey(j)) {
+            throw new MissingVertexException();
+        }
+
+        // Fetch the origin vertex.
+        Vertex vi = vertices.get(i);
+
+        // Iterate over all vertices originating from vi.
+        return null;
+    }
+
     /**
      * Insert the given point object as a vertex into the mesh.
      *
