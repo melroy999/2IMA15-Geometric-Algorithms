@@ -14,6 +14,9 @@ public class Mesh {
     private final HashMap<Integer, Edge> edges = new HashMap<>();
     private final HashMap<Integer, Face> faces = new HashMap<>();
 
+    // A boolean for tracking special cases.
+    boolean encounteredStart = false;
+
     // The outer face.
     Face outerFace = new Face.OuterFace();
 
@@ -102,7 +105,7 @@ public class Mesh {
      * @param j The endpoint of the edge.
      * @return The edge as an object if created successfully, null otherwise.
      */
-    public Edge insertEdge(int i, int j) throws MissingVertexException, UnableToInsertEdgeException {
+    public Edge insertEdge(int i, int j) throws MissingVertexException, UnableToInsertEdgeException, InnerComponentsNotSupportedException {
         // First, check if the vertices exist.
         if(!vertices.containsKey(i) || !vertices.containsKey(j)) {
             throw new MissingVertexException();
@@ -148,6 +151,9 @@ public class Mesh {
         if(!viIsSimple && !vjIsSimple) {
             // This is more complicated when we have split the outside plane, since we do not know what the inside is.
             if(vi_vj.incidentFace instanceof Face.OuterFace) {
+                // We don't want to end up here a second time, as we cannot be certain that it is the outer face.
+                if(encounteredStart) throw new InnerComponentsNotSupportedException();
+
                 // TODO how do we see the difference between the inside, and the outside of the figure?
                 // TODO whether the current implementation makes sense.
                 // Since we normally would have convex areas when having only 4 vertices, we could use that.
@@ -174,6 +180,9 @@ public class Mesh {
                         edge.incidentFace = face;
                     }
                 }
+
+                // Change the flag.
+                encounteredStart = true;
             } else {
                 // If it is not an outer face, we just replace all of the faces of the twin cycle.
                 // Obviously make sure that the face has a reference to at least one edge pointing towards it.
