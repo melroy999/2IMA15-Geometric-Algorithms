@@ -1,12 +1,10 @@
-package alg.halfedge;
+package alg.structure.halfedge;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
- * Faces in a half-edge data structure.
+ * Faces in a half-edge graph structure.
  */
 public class Face {
     // Here, we have one half edge that is part of the cycle around the face.

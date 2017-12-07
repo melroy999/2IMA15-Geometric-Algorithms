@@ -1,10 +1,10 @@
-package alg.halfedge;
+package alg.structure.halfedge;
 
 import java.awt.*;
 import java.util.Iterator;
 
 /**
- * Vertices in a half-edge data structure.
+ * Vertices in a half-edge graph structure.
  */
 public class Vertex implements Iterable<Edge> {
     // The coordinates of the vertex in the plane.

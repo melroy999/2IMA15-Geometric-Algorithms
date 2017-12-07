@@ -1,4 +1,4 @@
-package alg.geom;
+package alg.structure.geom;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

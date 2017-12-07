@@ -1,4 +1,4 @@
-package alg.halfedge;
+package alg.structure.halfedge;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,4 +1,4 @@
-package alg.halfedge;
+package alg.structure.halfedge;
 
 import java.awt.*;
 import java.util.Collection;

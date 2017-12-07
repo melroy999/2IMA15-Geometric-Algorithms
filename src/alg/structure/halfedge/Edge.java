@@ -1,11 +1,11 @@
-package alg.halfedge;
+package alg.structure.halfedge;
 
-import alg.geom.Vector2d;
+import alg.structure.geom.Vector2d;
 
 import java.util.Iterator;
 
 /**
- * Edges in a half-edge data structure.
+ * Edges in a half-edge graph structure.
  */
 public class Edge implements Iterable<Edge> {
     // The vertex this half edge originates from.

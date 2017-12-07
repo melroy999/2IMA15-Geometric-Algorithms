@@ -1,11 +1,9 @@
-package alg.geom;
-
-import java.awt.geom.Point2D;
+package alg.structure.geom;
 
 /**
  * A class that can do some vector calculations.
  */
-public class Vector2d extends Point2D.Double {
+public class Vector2d extends Point2d {
     /**
      * Constructs and initializes a <code>Point2D</code> with the
      * specified coordinates.
