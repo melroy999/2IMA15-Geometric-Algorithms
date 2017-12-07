@@ -115,7 +115,7 @@ public class FaceSearcher extends DAG<Face> {
     /**
      * Exception for replacing the same face twice.
      */
-    private class AlreadyReplacedException extends Exception {
+    public class AlreadyReplacedException extends Exception {
 
     }
 }

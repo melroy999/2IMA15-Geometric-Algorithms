@@ -1,5 +1,6 @@
 package alg.structure.halfedge;
 
+import alg.structure.geom.Point2d;
 import alg.structure.geom.Vector2d;
 
 import java.util.Iterator;
@@ -86,6 +87,28 @@ public class Edge implements Iterable<Edge> {
                 return current[0];
             }
         };
+    }
+
+    /**
+     * Check if the given point is on this edge.
+     *
+     * @param p The point we want to check the existence of on the line.
+     * @return True if the point is on the line, otherwise false.
+     */
+    public boolean isPointOnEdge(Point2d p) {
+        // Check if the sum of the lengths of a -> b + b -> c == a -> c.
+        return almostEqual(this.origin.distance(p) + p.distance(this.twin.origin),
+                this.origin.distance(this.twin.origin));
+    }
+
+    /**
+     * Check whether the two numbers are almost equal, using the smallest distance between one double and the next.
+     * @param a The left side of the equation.
+     * @param b The right side of the equation.
+     * @return True when the numbers are extremely close to one another.
+     */
+    private static boolean almostEqual(double a, double b){
+        return Math.abs(a-b) < Math.max(Math.ulp(a), Math.ulp(b));
     }
 
     /**
