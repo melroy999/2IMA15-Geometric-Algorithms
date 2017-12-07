@@ -46,13 +46,6 @@ public class Edge implements Iterable<Edge> {
         id = counter++;
     }
 
-    @Override
-    public String toString() {
-        return "Edge{" +
-                "origin=" + origin +
-                '}';
-    }
-
     /**
      * Iterate over all the edges that can be found in the next cycle.
      *
@@ -105,7 +98,7 @@ public class Edge implements Iterable<Edge> {
         // First, we need to get 'vectors' of all the edges in question.
         Vector2d a = this.vector;
         Vector2d b = edge.vector;
-        Vector2d c = this.vector;
+        Vector2d c = this.twin.next.vector;
 
         // First, get the determinant of a and c, to determine the approximate size of the angle ac.
         double det = a.det(c);

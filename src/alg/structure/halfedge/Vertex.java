@@ -1,15 +1,14 @@
 package alg.structure.halfedge;
 
+import alg.structure.geom.Point2d;
+
 import java.awt.*;
 import java.util.Iterator;
 
 /**
  * Vertices in a half-edge graph structure.
  */
-public class Vertex implements Iterable<Edge> {
-    // The coordinates of the vertex in the plane.
-    public final int x, y;
-
+public class Vertex extends Point2d implements Iterable<Edge> {
     // One of the half edges originating from this vertex.
     public Edge incidentEdge;
 
@@ -23,9 +22,8 @@ public class Vertex implements Iterable<Edge> {
      * @param x The x-coordinate of the vertex.
      * @param y The y-coordinate of the vertex.
      */
-    public Vertex(int x, int y) {
-        this.x = x;
-        this.y = y;
+    public Vertex(double x, double y) {
+        super(x, y);
         this.id = counter++;
     }
 
@@ -79,22 +77,6 @@ public class Vertex implements Iterable<Edge> {
                 return current[0];
             }
         };
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof Vertex) {
-            Vertex p = (Vertex) obj;
-            return x == p.x && y == p.y;
-        }
-        return super.equals(obj);
-    }
-
-    @Override
-    public int hashCode() {
-        long bits = java.lang.Double.doubleToLongBits(x);
-        bits ^= java.lang.Double.doubleToLongBits(y) * 31;
-        return (((int) bits) ^ ((int) (bits >> 32)));
     }
 
     @Override

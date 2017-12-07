@@ -3,7 +3,7 @@ package alg;
 import alg.structure.geom.Point2d;
 import alg.structure.geom.Triangle2d;
 import alg.structure.graph.DAG;
-import alg.structure.graph.Face;
+import alg.structure.halfedge.Face;
 import alg.structure.graph.Node;
 
 import java.util.ArrayList;
@@ -94,7 +94,8 @@ public class FaceSearcher extends DAG<Face> {
      */
     private Face findFace(Point2d p, Node<Face> node) {
         // First, check if the point can be in this node, before proceeding checking the children.
-        if(node.value.contains(p) != Triangle2d.Location.OUTSIDE) {
+        Triangle2d.Location location = node.value.contains(p);
+        if(location != Triangle2d.Location.OUTSIDE) {
             // Check if we have children, if not, this is a leaf node and we return it as a result.
             if(node.children.isEmpty()) {
                 return node.value;

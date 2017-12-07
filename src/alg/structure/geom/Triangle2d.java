@@ -1,5 +1,7 @@
 package alg.structure.geom;
 
+import alg.structure.halfedge.Face;
+
 /**
  * A graph structure representing a triangle, with some triangle based operations.
  */
@@ -51,6 +53,6 @@ public class Triangle2d {
      * An enumeration that represents the position of a point relative to the triangle.
      */
     public enum Location {
-        INSIDE, BORDER, OUTSIDE
+        INSIDE, BORDER, OUTSIDE;
     }
 }
