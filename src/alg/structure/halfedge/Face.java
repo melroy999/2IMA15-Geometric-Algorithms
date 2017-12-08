@@ -66,4 +66,11 @@ public class Face {
             return Triangle2d.Location.INSIDE;
         }
     }
+
+    @Override
+    public String toString() {
+        return "Face{" +
+                "triangle=" + triangle +
+                '}';
+    }
 }

@@ -9,4 +9,11 @@ import java.util.List;
 public class DAG<T> {
     // The DAG might have multiple starting points, represented as a list of nodes.
     protected final List<Node<T>> roots = new ArrayList<>();
+
+    @Override
+    public String toString() {
+        return "DAG{" +
+                "roots=" + roots +
+                '}';
+    }
 }

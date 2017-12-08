@@ -55,4 +55,13 @@ public class Triangle2d {
     public enum Location {
         INSIDE, BORDER, OUTSIDE;
     }
+
+    @Override
+    public String toString() {
+        return "Triangle2d{" +
+                "p1=" + p1 +
+                ", p2=" + p2 +
+                ", p3=" + p3 +
+                '}';
+    }
 }

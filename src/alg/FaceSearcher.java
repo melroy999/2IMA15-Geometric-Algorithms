@@ -14,6 +14,7 @@ import java.util.List;
  * We extend the DAG data structure, as we need access to its data.
  */
 public class FaceSearcher extends DAG<Face> {
+
     /**
      * Insert a new node at the root level.
      */
@@ -102,7 +103,7 @@ public class FaceSearcher extends DAG<Face> {
             }
 
             // Otherwise, iterate over all children and do the same check.
-            for(Node<Face> child : roots) {
+            for(Node<Face> child : node.children) {
                 Face hit = findFace(p, child);
                 if(hit != null) return hit;
             }

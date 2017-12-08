@@ -13,10 +13,18 @@ import java.util.*;
  */
 public class TriangleMesh {
     // The mesh also tracks the face searcher.
-    FaceSearcher searcher = new FaceSearcher();
+    private FaceSearcher searcher = new FaceSearcher();
 
     // List of vertices that are currently in the mesh.
     private final HashMap<Integer, Vertex> vertices = new HashMap<>();
+
+    public FaceSearcher getSearcher() {
+        return searcher;
+    }
+
+    public HashMap<Integer, Vertex> getVertices() {
+        return vertices;
+    }
 
     /**
      * Initialize the triangle mesh, which includes the creation of a very large initial triangle for Delauney.
@@ -41,16 +49,20 @@ public class TriangleMesh {
         // Create the required edges.
         // Since we know the order in which the vertices are inserted, we know which half-edge is the inside edge.
         // We know that v1 -> v2 -> v3 is in ccw order, thus v1 -> v2, v2 -> v3 and v3 -> v1 have 'face' as neighbor.
+        Edge v1_v3 = new Edge(v1, v3);
+        Edge v2_v1 = new Edge(v2, v1);
+        Edge v3_v2 = new Edge(v3, v2);
+
         Edge v1_v2 = new Edge(v1, v2);
-        v1_v2.twin = new Edge(v2, v1);
+        v1_v2.twin = v2_v1;
         v1_v2.twin.twin = v1_v2;
 
         Edge v2_v3 = new Edge(v2, v3);
-        v2_v3.twin = new Edge(v3, v2);
+        v2_v3.twin = v3_v2;
         v2_v3.twin.twin = v2_v3;
 
         Edge v3_v1 = new Edge(v3, v1);
-        v3_v1.twin = new Edge(v1, v3);
+        v3_v1.twin = v1_v3;
         v3_v1.twin.twin = v3_v1;
 
         // Make sure that the edges point to the correct neighbors.
@@ -74,7 +86,17 @@ public class TriangleMesh {
         Face.outerFace.outerComponent = v1_v2.twin;
     }
 
-    public void insertVertex(Vertex v) throws PointInsertedInOuterFaceException, EdgeNotfoundException, FaceSearcher.AlreadyReplacedException {
+    /**
+     * Insert a vertex into the mesh. Here, edges to all visible vertices are created automatically.
+     *
+     * @param v The vertex we want to insert.
+     * @throws EdgeNotfoundException It may occur that a vertex is on a line, but we cannot find the line.
+     * @throws FaceSearcher.AlreadyReplacedException When we try to replace a face that has been replaced already.
+     * @throws PointInsertedInOuterFaceException Since we start with a large triangle,
+     * we should not encounter insertions that are outside of the initial triangle face.
+     * Since we do not support that, throw an exception.
+     */
+    public void insertVertex(Vertex v) throws PointInsertedInOuterFaceException, FaceSearcher.AlreadyReplacedException, EdgeNotfoundException {
         // First, determine in which face the point is inserted.
         Face face = searcher.findFace(v);
 
@@ -96,6 +118,13 @@ public class TriangleMesh {
         this.vertices.put(v.id, v);
     }
 
+    /**
+     * Insert a vertex inside of the given face.
+     *
+     * @param v The vertex we want to add.
+     * @param face The face we want to insert the vertex into.
+     * @throws FaceSearcher.AlreadyReplacedException When we try to replace a face that has been replaced already.
+     */
     private void insertVertexInsideFace(Vertex v, Face face) throws FaceSearcher.AlreadyReplacedException {
         // We should track which faces we add, such that we can update our search structure.
         List<Face> faces = new ArrayList<>();
@@ -104,7 +133,7 @@ public class TriangleMesh {
         List<Vertex> vertices = new ArrayList<>();
 
         // Iterate over all the edges in the cycle, such that we can draw all new triangle faces.
-        for(Edge e : face.outerComponent) {
+        for(Edge e : face.outerComponent.list()) {
             // Create the triangle.
             faces.add(addTriangle(e, v));
             vertices.add(e.origin);
@@ -129,6 +158,14 @@ public class TriangleMesh {
         searcher.replaceFaces(Collections.singletonList(face), faces);
     }
 
+    /**
+     * Insert a vertex on an edge of the given face.
+     *
+     * @param v The vertex we want to add.
+     * @param face The face that contains the edge we want to insert the vertex onto.
+     * @throws EdgeNotfoundException It may occur that a vertex is on a line, but we cannot find the line.
+     * @throws FaceSearcher.AlreadyReplacedException When we try to replace a face that has been replaced already.
+     */
     private void insertVertexOnEdge(Vertex v, Face face) throws EdgeNotfoundException, FaceSearcher.AlreadyReplacedException {
         // If on the edge, find the two face neighbor of the edge. Connect to all the vertices in the two faces.
         // First we need to find the edge, iterate over all edges in the face and find the edge.
@@ -171,6 +208,13 @@ public class TriangleMesh {
         v_v2.twin.twin = v_v2;
     }
 
+    /**
+     * Insert the vertex on one of the two faces neighboring the edge we replace.
+     *
+     * @param v The vertex we want to insert.
+     * @param face The face we will observe during the insertions.
+     * @throws FaceSearcher.AlreadyReplacedException When we try to replace a face that has been replaced already.
+     */
     private void insertVertexOnEdgeForFace(Vertex v, Face face) throws FaceSearcher.AlreadyReplacedException {
         // We should track which faces we add, such that we can update our search structure.
         List<Face> faces = new ArrayList<>();
@@ -179,7 +223,7 @@ public class TriangleMesh {
         List<Vertex> vertices = new ArrayList<>();
 
         // Iterate over all the edges in the cycle, such that we can draw all new triangle faces.
-        for(Edge e : face.outerComponent) {
+        for(Edge e : face.outerComponent.list()) {
             // We skip the edge that will be removed.
             if(e == face.outerComponent) {
                 continue;
@@ -188,11 +232,8 @@ public class TriangleMesh {
             // Create the triangle.
             faces.add(addTriangle(e, v));
 
-            // We want to skip adding the vertex when the vertex is the origin of the next of the outer component.
-            // This way, we will not have either of the endpoints of e in the list, as they need special care for merge.
-            if(e.origin != face.outerComponent.next.origin) {
-                vertices.add(e.origin);
-            }
+            // Add all vertices.
+            vertices.add(e.origin);
 
             // Reset the incident edge of e.origin to e, such that we can easily backtrack.
             // Important, since otherwise we cannot set the twin references correctly.
@@ -201,7 +242,8 @@ public class TriangleMesh {
 
         // Since we can be certain about the order of insertion (ccw order),
         // we can now use the list of vertices to fix the twin references.
-        for(int i = 0; i < vertices.size(); i++) {
+        // We use -1 here, since we want to skip the last vertex, as we do not want to connect the last to the first.
+        for(int i = 0; i < vertices.size() - 1; i++) {
             Vertex v1 = vertices.get(i);
             Vertex v2 = vertices.get((i + 1) % vertices.size());
 

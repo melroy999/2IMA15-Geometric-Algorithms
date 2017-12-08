@@ -29,4 +29,12 @@ public class Point2d {
     public double distance(Point2d v) {
         return Math.sqrt(Math.pow(x - v.x, 2) + Math.pow(y - v.y, 2));
     }
+
+    @Override
+    public String toString() {
+        return "Point2d{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
+    }
 }
