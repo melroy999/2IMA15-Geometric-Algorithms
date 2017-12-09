@@ -33,9 +33,13 @@ class TriangleMeshTest {
     }
 
     @Test
-    void insertVertexInside() throws TriangleMesh.PointInsertedInOuterFaceException, TriangleMesh.EdgeNotfoundException, FaceSearcher.AlreadyReplacedException {
+    void insertVertexInside() throws TriangleMesh.PointInsertedInOuterFaceException, TriangleMesh.EdgeNotfoundException, FaceSearcher.AlreadyReplacedException, TriangleMesh.MissingVertexException {
         // Simple test where we insert a vertex into the large triangle.
         TriangleMesh mesh = new TriangleMesh();
+
+        // Note down the ids of the original lines.
+        Integer[] results = mesh.getVertices().values().stream().map(v -> v.id).toArray(Integer[]::new);
+
         Vertex v = new Vertex(0, 0);
         mesh.insertVertex(v);
 
@@ -45,7 +49,13 @@ class TriangleMeshTest {
 
         Assertions.assertEquals(3, faces.size());
 
-        // TODO more testing...
+        // Make sure that the original boundary edges still exist after insertion.
+        for(int i = 0; i < results.length; i++) {
+            int k = results[i];
+            int l = results[(i + 1) % results.length];
+            Assertions.assertNotNull(mesh.findEdge(k, l));
+            System.out.println("Before: Edge " + k + " to " + l + " exist.");
+        }
     }
 
     @Test

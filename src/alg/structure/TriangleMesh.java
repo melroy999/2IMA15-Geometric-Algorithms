@@ -86,6 +86,79 @@ public class TriangleMesh {
         Face.outerFace.outerComponent = v1_v2.twin;
     }
 
+    public void swapEdge(Edge e) throws MissingVertexException, FaceSearcher.AlreadyReplacedException {
+        // Derive the vertices we want to draw an edge between, using the edge input.
+        // Since we use CCW, the point "above" the line is the origin of the previous line.
+        // The one "below" it, is the origin of the previous edge of the twin edge of the edge.
+        Vertex v1 = e.previous.origin;
+        Vertex v2 = e.twin.previous.origin;
+        Vertex v = e.origin;
+        Vertex w = e.next.origin;
+
+        // Print what we are doing.
+        System.out.println("Replacing edge " + v.id + " to " + w.id + " with " + v2.id + " to " + v1.id + ".");
+
+        // Swap the edge e with the edge v1 to v2. First create the two new edges we want to use.
+        Edge v1_v2 = new Edge(v1, v2);
+        v1_v2.twin = new Edge(v2, v1);
+        v1_v2.twin.twin = v1_v2;
+
+        /*
+         We want to replace "e" with an edge from v1 to v2.
+
+                v1
+              /    \
+             /      \
+           tl        tr
+          /            \
+         v --- edge --- w
+         v -- edge.t -- w
+          \            /
+           bl        br
+             \      /
+              \    /
+                v2
+         */
+
+        // Determine what the neighboring edges will be.
+        Edge tl = e.previous;
+        Edge tr = e.next;
+        Edge bl = e.twin.next;
+        Edge br = e.twin.previous;
+
+        // Using the diagram above, we have the following neighbor assignments:
+        tl.next = bl;
+        bl.previous = tl;
+        bl.next = v1_v2.twin;
+        v1_v2.twin.previous = bl;
+        v1_v2.twin.next = tl;
+        tl.previous = v1_v2.twin;
+
+        br.next = tr;
+        tr.previous = br;
+        tr.next = v1_v2;
+        v1_v2.previous = tr;
+        v1_v2.next = br;
+        br.previous = v1_v2;
+
+        // Now, do the face swaps and new face assignments!
+        Face f1 = new Face(v1, v, v2);
+        Face f2 = new Face(v1, v2, w);
+        f1.outerComponent = v1_v2.twin;
+        f2.outerComponent = v1_v2;
+
+        for(Edge edge : f1.outerComponent) {
+            edge.incidentFace = f1;
+        }
+
+        for(Edge edge : f2.outerComponent) {
+            edge.incidentFace = f2;
+        }
+
+        // We replace the original faces with two other faces.
+        searcher.replaceFaces(Arrays.asList(e.incidentFace, e.twin.incidentFace), Arrays.asList(f1, f2));
+    }
+
     /**
      * Insert a vertex into the mesh. Here, edges to all visible vertices are created automatically.
      *
@@ -302,7 +375,7 @@ public class TriangleMesh {
      * @param j The id of the second vertex.
      * @return The vertex if it exists, null otherwise.
      */
-    private Edge findEdge(int i, int j) throws MissingVertexException {
+    public Edge findEdge(int i, int j) throws MissingVertexException {
         // First, check if the vertices exist.
         if(!vertices.containsKey(i) || !vertices.containsKey(j)) {
             throw new MissingVertexException();
@@ -312,10 +385,22 @@ public class TriangleMesh {
         Vertex vi = vertices.get(i);
         Vertex vj = vertices.get(j);
 
+        // Find the edge.
+        return findEdge(vi, vj);
+    }
+
+    /**
+     * Find the edge with vertex with id i as origin, moving to vertex j.
+     *
+     * @param v1 The id first vertex.
+     * @param v2 The id second vertex.
+     * @return The vertex if it exists, null otherwise.
+     */
+    private Edge findEdge(Vertex v1, Vertex v2) {
         // Iterate over all vertices originating from vi, such that we can find one with endpoint vj.
-        for(Edge e : vi) {
+        for(Edge e : v1) {
             // Get the twin of the edge, as it may have origin vj.
-            if(e.twin.origin.id == vj.id) {
+            if(e.twin.origin.id == v2.id) {
                 return e;
             }
         }

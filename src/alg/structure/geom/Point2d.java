@@ -1,5 +1,6 @@
 package alg.structure.geom;
 
+import alg.Point;
 import alg.structure.halfedge.Vertex;
 
 /**
@@ -21,6 +22,16 @@ public class Point2d {
     }
 
     /**
+     * Construct a simple two dimensional point.
+     *
+     * @param p The integer point to base this double point on.
+     */
+    public Point2d(Point p) {
+        this.x = p.x;
+        this.y = p.y;
+    }
+
+    /**
      * The euclidean distance between this point and another.
      *
      * @param v The point we want to know the distance to.
@@ -37,4 +48,17 @@ public class Point2d {
                 ", y=" + y +
                 '}';
     }
+
+    public Point2d add(Point2d p) {
+        return new Point2d(x + p.x, y + p.y);
+    }
+
+    public Point2d subtract(Point2d p) {
+        return new Point2d(x - p.x, y - p.y);
+    }
+
+    public Point2d mult(double d) {
+        return new Point2d(d * x, d * y);
+    }
+
 }

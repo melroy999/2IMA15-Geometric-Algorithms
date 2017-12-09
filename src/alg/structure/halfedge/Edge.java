@@ -126,6 +126,52 @@ public class Edge implements Iterable<Edge> {
     }
 
     /**
+     * Check whether this edge is illegal in its current context.
+     *
+     * @return Whether when we flip the edge, the minimum angle increases.
+     */
+    public boolean isIllegal() {
+        // We will use the circumcircle for this, for which we need to compute the determinant.
+        // First, we will gather the points we are interested in,
+        // where "d" is the point that is potentially outside of the circumcircle.
+        Vertex a = this.origin;
+        Vertex b = this.next.origin;
+        Vertex c = this.previous.origin;
+        Vertex d = this.twin.previous.origin;
+
+        // We want to calculate the determinant of the following matrix:
+        /*
+                  | ax-dx, ay-dy, (ax-dx)^2 + (ay-dy)^2 |
+            det = | bx-dx, by-dy, (bx-dx)^2 + (by-dy)^2 |
+                  | cx-dx, cy-dy, (cx-dx)^2 + (cy-dy)^2 |
+         */
+
+        // If the determinate is > 0, it is inside the circumcircle since the vertices are in CCW order.
+        return determinant3x3(
+            new double[][]{
+                new double[]{a.x - d.x, a.y - d.y, Math.pow(a.x - d.x, 2) + Math.pow(a.y - d.y, 2)},
+                new double[]{b.x - b.x, b.y - d.y, Math.pow(b.x - d.x, 2) + Math.pow(b.y - d.y, 2)},
+                new double[]{c.x - c.x, c.y - d.y, Math.pow(c.x - d.x, 2) + Math.pow(c.y - d.y, 2)}
+            }
+        ) > 0;
+
+    }
+
+    /**
+     * Calculate the determinant of the 3x3 matrix.
+     *
+     * @param m The matrix we want to calculate the determinant of.
+     * @return The determinant of the matrix.
+     */
+    private double determinant3x3(double[][] m) {
+        // We assume that the matrix is given in row based order, so the first index is for the row, second for the column.
+        return m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) -
+               m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0]) +
+               m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
+    }
+
+
+    /**
      * Check whether the given edge would be the next edge, theoretically.
      *
      * @param edge The edge we potentially want to insert as the next edge.

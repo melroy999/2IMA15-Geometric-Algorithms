@@ -1,8 +1,8 @@
 package alg.structure.halfedge;
 
+import alg.Point;
 import alg.structure.geom.Point2d;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
