@@ -1,5 +1,7 @@
 package alg.structure.geom;
 
+import java.awt.geom.Ellipse2D;
+
 /**
  * A class that can do some vector calculations.
  */
@@ -48,14 +50,5 @@ public class Vector2d extends Point2d {
         double dot = this.dotProduct(v);
         double det = this.det(v);
         return Math.toDegrees(Math.atan2(det, dot));
-    }
-
-    /**
-     * Get the length of the vector.
-     *
-     * @return The length of the vector.
-     */
-    public double length() {
-        return Math.sqrt(x * x + y * y);
     }
 }

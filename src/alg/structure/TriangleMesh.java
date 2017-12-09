@@ -32,12 +32,12 @@ public class TriangleMesh {
      */
     public TriangleMesh() {
 //        // Initially, we should have a triangle already of sufficient size.
-//        Vertex v1 = new Vertex(Integer.MIN_VALUE / 10, Integer.MIN_VALUE / 10);
-//        Vertex v2 = new Vertex(Integer.MAX_VALUE / 10, Integer.MIN_VALUE / 10);
-//        Vertex v3 = new Vertex(0, Integer.MAX_VALUE / 10);
-        Vertex v1 = new Vertex(10, 10);
-        Vertex v2 = new Vertex(1910, 10);
-        Vertex v3 = new Vertex(960, 900);
+        Vertex v1 = new Vertex.SymbolicVertex(-10e6, -10e6);
+        Vertex v2 = new Vertex.SymbolicVertex(10e6, -10e6);
+        Vertex v3 = new Vertex.SymbolicVertex(0, 10e6);
+//        Vertex v1 = new Vertex(10, 10);
+//        Vertex v2 = new Vertex(1910, 10);
+//        Vertex v3 = new Vertex(960, 900);
 
         // Make sure that we have the vertices in our list of vertices.
         vertices.put(v1.id, v1);

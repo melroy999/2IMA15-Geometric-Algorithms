@@ -95,4 +95,19 @@ public class Vertex extends Point2d implements Iterable<Edge> {
     public String toString() {
         return "p="+id;
     }
+
+    /**
+     * A vertex subclass for which no edges should be rendered.
+     */
+    public static class SymbolicVertex extends Vertex {
+        /**
+         * Create a vertex at the given coordinates.
+         *
+         * @param x The x-coordinate of the vertex.
+         * @param y The y-coordinate of the vertex.
+         */
+        public SymbolicVertex(double x, double y) {
+            super(x, y);
+        }
+    }
 }

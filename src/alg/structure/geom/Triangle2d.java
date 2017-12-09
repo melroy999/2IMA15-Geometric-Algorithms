@@ -1,6 +1,9 @@
 package alg.structure.geom;
 
 import alg.structure.halfedge.Face;
+import alg.structure.halfedge.Vertex;
+
+import java.awt.geom.Ellipse2D;
 
 /**
  * A graph structure representing a triangle, with some triangle based operations.
@@ -51,6 +54,30 @@ public class Triangle2d {
             // If none of the above, it has to be outside.
             return Location.OUTSIDE;
         }
+    }
+
+    public Ellipse2D.Double getCircumCircle() {
+        // We first need the midpoint of p1->p2 and p2->p3.
+        Point2d mid_p1_p2 = p1.midpoint(p2);
+        Point2d mid_p2_p3 = p2.midpoint(p3);
+
+        // Now find the negative reciprocal of the slope, such that we get the slope of the perpendicular bisector.
+        double slope_p1_p2 = -1 / ((p2.y - p1.y) / (p2.x - p1.x));
+        double slope_p2_p3 = -1 / ((p3.y - p2.y) / (p3.x - p2.x));
+
+        // Now, solve y = mx + b for b, b = y - mx where m is the slope and x and y are taken from the center point.
+        double b_p1_p2 = mid_p1_p2.y - slope_p1_p2 * mid_p1_p2.x;
+        double b_p2_p3 = mid_p2_p3.y - slope_p2_p3 * mid_p2_p3.x;
+
+        // Now, find the x and y-coordinate of the intersection point.
+        double x = (b_p1_p2 - b_p2_p3) / (slope_p2_p3 - slope_p1_p2);
+        double y = (slope_p1_p2 * x) + b_p1_p2;
+
+        // Use the point to find the distance to one of the points, say p1.
+        double radius = p3.distance(new Point2d(x, y));
+
+        // Create a filling ellipse.
+        return new Ellipse2D.Double(x - radius, y - radius, 2 * radius, 2 * radius);
     }
 
     /**

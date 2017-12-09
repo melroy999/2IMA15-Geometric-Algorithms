@@ -3,6 +3,7 @@ package alg.structure.halfedge;
 import alg.structure.geom.Point2d;
 import alg.structure.geom.Triangle2d;
 
+import java.awt.geom.Ellipse2D;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,6 +44,10 @@ public class Face {
         return triangle.getCenter();
     }
 
+    public Ellipse2D getCircumCircle() {
+        return triangle.getCircumCircle();
+    }
+
     /**
      * A simple wrapper for the contains function of the triangle.
      *
@@ -74,6 +79,10 @@ public class Face {
         public Triangle2d.Location contains(Point2d p) {
             return Triangle2d.Location.INSIDE;
         }
+    }
+
+    public boolean hasSymbolicPoint() {
+        return outerComponent.list().stream().anyMatch(e -> e.origin instanceof Vertex.SymbolicVertex);
     }
 
     @Override

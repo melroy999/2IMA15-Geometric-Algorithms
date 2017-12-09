@@ -41,6 +41,20 @@ public class Point2d {
         return Math.sqrt(Math.pow(x - v.x, 2) + Math.pow(y - v.y, 2));
     }
 
+    public Point2d midpoint(Point2d v) {
+        return new Point2d((x + v.x) / 2, (y + v.y) / 2);
+    }
+
+
+    /**
+     * Get the length of the vector.
+     *
+     * @return The length of the vector.
+     */
+    public double length() {
+        return Math.sqrt(x * x + y * y);
+    }
+
     @Override
     public String toString() {
         return "Point2d{" +

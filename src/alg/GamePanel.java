@@ -3,19 +3,25 @@ package alg;
 import alg.structure.geom.Point2d;
 import alg.structure.halfedge.Edge;
 import alg.structure.halfedge.Face;
+import alg.structure.halfedge.Vertex;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public class GamePanel extends JPanel {
     // Define the colors we will use for points, lines and faces.
-    private static final Color RED_POINT_COLOR = new Color(255, 0, 0, 125);
-    private static final Color BLUE_POINT_COLOR = new Color(0, 0, 255, 125);
-    private static final Color RED_LINE_COLOR = new Color(255, 85, 0, 125);
-    private static final Color BLUE_LINE_COLOR = new Color(0, 85, 255, 125);
-    private static final Color RED_FACE_COLOR = new Color(255, 170, 0, 125);
-    private static final Color BLUE_FACE_COLOR = new Color(0, 170, 255, 125);
+    private static final Color RED_POINT_COLOR = new Color(255, 0, 0);
+    private static final Color BLUE_POINT_COLOR = new Color(0, 0, 255);
+    private static final Color RED_LINE_COLOR = new Color(255, 85, 0);
+    private static final Color BLUE_LINE_COLOR = new Color(0, 85, 255);
+    private static final Color RED_FACE_COLOR = new Color(255, 170, 0);
+    private static final Color BLUE_FACE_COLOR = new Color(0, 170, 255);
+
+    // Reference to a font.
+    private Font font = new Font("SansSerif", Font.PLAIN, 18);
 
     // We want to store the manager such that we can request game state access.
     private GameManager manager;
@@ -34,7 +40,9 @@ public class GamePanel extends JPanel {
         // Request the game state.
         GameState state = manager.getGameState();
         drawTriangulation(g2, state);
+        drawCircumcircles(g2, state);
         paintPoints(g2, state);
+        drawDebugOverlay(g2, state);
     }
 
     public void paintPoints(Graphics2D g, GameState state) {
@@ -55,13 +63,14 @@ public class GamePanel extends JPanel {
         }
     }
 
-    public void drawTriangulation(Graphics2D g, GameState state) {
+    public void drawDebugOverlay(Graphics2D g, GameState state) {
         ArrayList<Face> faces = state.triangulator.getMesh().getSearcher().getFaces();
 
         // Draw all the edges, using the faces. Make sure that half edges are really half edges (only half length).
         for(Face face : faces) {
             // First, draw an id number.
             if(!(face instanceof Face.OuterFace)) {
+                g.setFont(font);
                 g.setColor(Color.BLACK);
                 Point2d c = face.getCenter();
                 g.drawString("f=" + face.id, (int) c.x, (int) c.y);
@@ -70,27 +79,48 @@ public class GamePanel extends JPanel {
             // Iterate over inner cycle.
             for(Edge e : face.outerComponent) {
                 // Draw the id of the origin vertex.
+                g.setFont(font);
                 g.setColor(Color.BLACK);
                 g.drawString("v=" + e.origin.id, (int) e.origin.x, (int) e.origin.y);
+            }
+        }
+    }
 
-                if (e == face.outerComponent && !(face instanceof Face.OuterFace)) {
-                    g.setColor(Color.magenta);
-                } else  if(e.twin == null) {
-                    g.setColor(RED_LINE_COLOR);
-                } else if(e.previous == null) {
-                    g.setColor(Color.GREEN);
-                } else if(e.next == null) {
-                    g.setColor(Color.YELLOW);
-                }else {
-                    g.setColor(BLUE_LINE_COLOR);
+    public void drawTriangulation(Graphics2D g, GameState state) {
+        ArrayList<Face> faces = state.triangulator.getMesh().getSearcher().getFaces();
+
+        // Draw all the edges, using the faces. Make sure that half edges are really half edges (only half length).
+        for(Face face : faces) {
+
+            // Iterate over inner cycle.
+            for(Edge e : face.outerComponent) {
+                // Check if e is related to a symbolic vertex.
+                if(e.origin instanceof Vertex.SymbolicVertex || e.twin.origin instanceof Vertex.SymbolicVertex) {
+                    // If it is, do not render.
+                    continue;
                 }
 
-
+                // We use a green color for triangulation edges.
+                g.setColor(Color.GREEN);
 
                 // Now draw the edges.
-                g.setStroke(new BasicStroke(5));
+                g.setStroke(new BasicStroke(3));
                 g.draw(e.shape);
             }
+        }
+    }
+
+    public void drawCircumcircles(Graphics2D g, GameState state) {
+        ArrayList<Face> faces = state.triangulator.getMesh().getSearcher().getFaces();
+
+        // Draw all the edges, using the faces. Make sure that half edges are really half edges (only half length).
+        for(Face face : faces) {
+            if(face instanceof Face.OuterFace || face.hasSymbolicPoint()) {
+                continue;
+            }
+
+            g.setColor(Color.magenta);
+            g.draw(face.getCircumCircle());
         }
     }
 }
