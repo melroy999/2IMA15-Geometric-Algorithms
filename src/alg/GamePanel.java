@@ -20,6 +20,11 @@ public class GamePanel extends JPanel {
     private static final Color RED_FACE_COLOR = new Color(255, 170, 0);
     private static final Color BLUE_FACE_COLOR = new Color(0, 170, 255);
 
+    // States we can use to disable/enable certain drawing layers.
+    public boolean drawTriangulation;
+    public boolean drawCircumcircles;
+    public boolean drawDebugOverlay;
+
     // Reference to a font.
     private Font font = new Font("SansSerif", Font.PLAIN, 18);
 
@@ -39,10 +44,11 @@ public class GamePanel extends JPanel {
 
         // Request the game state.
         GameState state = manager.getGameState();
-        drawTriangulation(g2, state);
-        drawCircumcircles(g2, state);
+
+        if (drawTriangulation) drawTriangulation(g2, state);
+        if (drawCircumcircles) drawCircumcircles(g2, state);
         paintPoints(g2, state);
-        drawDebugOverlay(g2, state);
+        if (drawDebugOverlay) drawDebugOverlay(g2, state);
     }
 
     public void paintPoints(Graphics2D g, GameState state) {
@@ -73,7 +79,7 @@ public class GamePanel extends JPanel {
                 g.setFont(font);
                 g.setColor(Color.BLACK);
                 Point2d c = face.getCenter();
-                g.drawString("f=" + face.id, (int) c.x, (int) c.y);
+                g.drawString("f=" + face.id, (int) c.x + 14, (int) c.y + 6);
             }
 
             // Iterate over inner cycle.
@@ -81,13 +87,16 @@ public class GamePanel extends JPanel {
                 // Draw the id of the origin vertex.
                 g.setFont(font);
                 g.setColor(Color.BLACK);
-                g.drawString("v=" + e.origin.id, (int) e.origin.x, (int) e.origin.y);
+                g.drawString("v=" + e.origin.id, (int) e.origin.x + 14, (int) e.origin.y + 6);
             }
         }
     }
 
     public void drawTriangulation(Graphics2D g, GameState state) {
         ArrayList<Face> faces = state.triangulator.getMesh().getSearcher().getFaces();
+
+        // These lines can be wider.
+        g.setStroke(new BasicStroke(3));
 
         // Draw all the edges, using the faces. Make sure that half edges are really half edges (only half length).
         for(Face face : faces) {
@@ -104,7 +113,6 @@ public class GamePanel extends JPanel {
                 g.setColor(Color.GREEN);
 
                 // Now draw the edges.
-                g.setStroke(new BasicStroke(3));
                 g.draw(e.shape);
             }
         }
@@ -112,6 +120,9 @@ public class GamePanel extends JPanel {
 
     public void drawCircumcircles(Graphics2D g, GameState state) {
         ArrayList<Face> faces = state.triangulator.getMesh().getSearcher().getFaces();
+
+        // We want thin lines here.
+        g.setStroke(new BasicStroke(1));
 
         // Draw all the edges, using the faces. Make sure that half edges are really half edges (only half length).
         for(Face face : faces) {

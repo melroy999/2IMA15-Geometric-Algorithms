@@ -12,6 +12,9 @@ public class ApplicationWindow {
     private JLabel mousePositionLabel;
     private JButton resetButton;
     private JButton endTurnButton;
+    private JCheckBox drawTriangulationCheckBox;
+    private JCheckBox drawCircumcirclesCheckBox;
+    private JCheckBox drawDebugOverlayCheckBox;
 
     // The current state of the game and the manager of the game.
     private final GameManager manager;
@@ -23,6 +26,7 @@ public class ApplicationWindow {
 
         // Initialize the listeners we use.
         initializeListeners();
+
 
 
     }
@@ -46,8 +50,8 @@ public class ApplicationWindow {
                     case MouseEvent.BUTTON1:
                         manager.addPoint(e.getPoint());
                         break;
-                    case MouseEvent.BUTTON3:
-                        manager.removePoint(e.getPoint());
+//                    case MouseEvent.BUTTON3:
+//                        manager.removePoint(e.getPoint());
                 }
 
                 // Since we made an update to the canvas, repaint.
@@ -67,6 +71,22 @@ public class ApplicationWindow {
             // Switch the currently active player in the game state.
             manager.switchPlayer();
         });
+
+        drawTriangulationCheckBox.addActionListener(e -> {
+            ((GamePanel) contentPanel).drawTriangulation = drawTriangulationCheckBox.isSelected();
+            contentPanel.repaint();
+        });
+
+        drawCircumcirclesCheckBox.addActionListener(e -> {
+            ((GamePanel) contentPanel).drawCircumcircles = drawCircumcirclesCheckBox.isSelected();
+            contentPanel.repaint();
+        });
+
+        drawDebugOverlayCheckBox.addActionListener(e -> {
+            ((GamePanel) contentPanel).drawDebugOverlay = drawDebugOverlayCheckBox.isSelected();
+            contentPanel.repaint();
+        });
+
     }
 
     private static void createAndShowGui() {
