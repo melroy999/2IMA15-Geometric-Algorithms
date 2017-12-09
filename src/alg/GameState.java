@@ -1,5 +1,8 @@
 package alg;
 
+import alg.structure.TriangleMesh;
+import alg.structure.Triangulator;
+
 import java.util.ArrayList;
 
 public class GameState {
@@ -10,10 +13,14 @@ public class GameState {
     // The color of the player that currently has the turn.
     private Player currentPlayer;
 
+    // The triangulator that will give us the voronoi diagram.
+    Triangulator triangulator;
+
     public GameState() {
         this.bluePoints = new ArrayList<>();
         this.redPoints = new ArrayList<>();
         currentPlayer = Player.RED;
+        triangulator = new Triangulator();
     }
 
     public void addPoint(java.awt.Point clickPosition) {
@@ -28,6 +35,15 @@ public class GameState {
             redPoints.add(point);
         } else {
             bluePoints.add(point);
+        }
+
+        // Insert the point into the triangulation.
+        try {
+            System.out.println("Inserting point into triangulation.");
+            triangulator.insert(point);
+        } catch (TriangleMesh.PointInsertedInOuterFaceException | TriangleMesh.EdgeNotfoundException
+                | FaceSearcher.AlreadyReplacedException | TriangleMesh.MissingVertexException e) {
+            e.printStackTrace();
         }
 
         System.out.println("Adding clickPosition: " + clickPosition);
@@ -70,6 +86,7 @@ public class GameState {
         bluePoints.clear();
         redPoints.clear();
         currentPlayer = Player.RED;
+        triangulator = new Triangulator();
     }
 
     public void switchPlayer() {

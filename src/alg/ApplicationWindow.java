@@ -73,10 +73,19 @@ public class ApplicationWindow {
         JFrame frame = new JFrame("Window");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setContentPane(new ApplicationWindow().rootPanel);
-        frame.setPreferredSize(new Dimension(1000, 700));
+
+
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        frame.setSize(screenSize);
         frame.pack();
-        frame.setLocationByPlatform(true);
         frame.setVisible(true);
+//        frame.setResizable(false);
+
+//        frame.setPreferredSize(new Dimension(1000, 700));
+//        frame.pack();
+//        frame.setLocationByPlatform(true);
+//        frame.setVisible(true);
     }
 
     public static void main(String[] args) {

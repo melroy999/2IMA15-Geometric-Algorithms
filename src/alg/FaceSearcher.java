@@ -15,6 +15,8 @@ import java.util.List;
  */
 public class FaceSearcher extends DAG<Face> {
 
+    private Object faces;
+
     /**
      * Insert a new node at the root level.
      */
@@ -52,6 +54,7 @@ public class FaceSearcher extends DAG<Face> {
      */
     private void replaceFaces(List<Face> original, List<Node<Face>> replacement, Node<Face> node)
             throws AlreadyReplacedException {
+
         // If the value of the node is one of the faces we are looking for, replace it.
         if(original.contains(node.value)) {
             // If the face has children, and is a match, something is wrong.
@@ -112,6 +115,36 @@ public class FaceSearcher extends DAG<Face> {
         // If no hits, return null.
         return null;
     }
+
+    /**
+     * Get all the visible faces.
+     *
+     * @return The faces that are leaves of the DAG and the outer face.
+     */
+    public ArrayList<Face> getFaces() {
+        ArrayList<Face> faces = new ArrayList<>();
+
+        // Start by iterating over all roots.
+        for(Node<Face> node : roots) {
+            searchForFaces(faces, node);
+        }
+
+        // Don't forget to add the outer face.
+        faces.add(Face.outerFace);
+
+        return faces;
+    }
+
+    public void searchForFaces(ArrayList<Face> faces, Node<Face> node) {
+        if(node.children.isEmpty()) {
+            faces.add(node.value);
+        } else {
+            for(Node<Face> c : node.children) {
+                searchForFaces(faces, c);
+            }
+        }
+    }
+
 
     /**
      * Exception for replacing the same face twice.

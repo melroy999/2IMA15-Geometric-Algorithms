@@ -50,7 +50,7 @@ public class Point2d {
     }
 
     public Point2d add(Point2d p) {
-        return new Point2d(x + p.x, y + p.y);
+        return new Point2d(this.x + p.x, this.y + p.y);
     }
 
     public Point2d subtract(Point2d p) {

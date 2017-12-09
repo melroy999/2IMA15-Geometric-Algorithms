@@ -3,6 +3,8 @@ package alg.structure.halfedge;
 import alg.structure.geom.Point2d;
 import alg.structure.geom.Vector2d;
 
+import java.awt.*;
+import java.awt.geom.Line2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -33,6 +35,9 @@ public class Edge implements Iterable<Edge> {
     // The vector representation of this edge.
     public final Vector2d vector;
 
+    // Shape we can render.
+    public final Line2D shape;
+
     /**
      * Create a half-edge originating from the given vertex.
      * @param origin The vertex that is the starting point of this half-edge.
@@ -44,6 +49,10 @@ public class Edge implements Iterable<Edge> {
 
         // Calculate the vector.
         vector = new Vector2d(target.x - origin.x, target.y - origin.y);
+
+        // Set the shape.
+        Point2d average = origin.add(target).mult(0.5);
+        shape = new Line2D.Double(origin.x, origin.y, average.x, average.y);
 
         // Give an unique id.
         id = counter++;
@@ -150,8 +159,8 @@ public class Edge implements Iterable<Edge> {
         return determinant3x3(
             new double[][]{
                 new double[]{a.x - d.x, a.y - d.y, Math.pow(a.x - d.x, 2) + Math.pow(a.y - d.y, 2)},
-                new double[]{b.x - b.x, b.y - d.y, Math.pow(b.x - d.x, 2) + Math.pow(b.y - d.y, 2)},
-                new double[]{c.x - c.x, c.y - d.y, Math.pow(c.x - d.x, 2) + Math.pow(c.y - d.y, 2)}
+                new double[]{b.x - d.x, b.y - d.y, Math.pow(b.x - d.x, 2) + Math.pow(b.y - d.y, 2)},
+                new double[]{c.x - d.x, c.y - d.y, Math.pow(c.x - d.x, 2) + Math.pow(c.y - d.y, 2)}
             }
         ) > 0;
 

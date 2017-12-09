@@ -22,6 +22,10 @@ public class Triangle2d {
         this.p3 = p3;
     }
 
+    public Point2d getCenter() {
+        return p1.add(p2).add(p3).mult(1/3f);
+    }
+
     /**
      * Check where the given point is relatively to the triangle.
      *

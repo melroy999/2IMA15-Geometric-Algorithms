@@ -23,6 +23,10 @@ public class Face {
     // List of inner components.
     public final Set<Edge> innerComponents = new HashSet<>();
 
+    // Give each edge an id, such that we can reliably delete and track it.
+    private static int counter = 0;
+    public final int id;
+
     /**
      * Create a face for the triangle using the three border points.
      *
@@ -32,6 +36,11 @@ public class Face {
      */
     public Face(Point2d p1, Point2d p2, Point2d p3) {
         this.triangle = new Triangle2d(p1, p2, p3);
+        id = counter++;
+    }
+
+    public Point2d getCenter() {
+        return triangle.getCenter();
     }
 
     /**

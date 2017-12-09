@@ -30,10 +30,13 @@ public class TriangleMesh {
      * Initialize the triangle mesh, which includes the creation of a very large initial triangle for Delauney.
      */
     public TriangleMesh() {
-        // Initially, we should have a triangle already of sufficient size.
-        Vertex v1 = new Vertex(Integer.MIN_VALUE, Integer.MIN_VALUE);
-        Vertex v2 = new Vertex(Integer.MAX_VALUE, Integer.MIN_VALUE);
-        Vertex v3 = new Vertex(0, Integer.MAX_VALUE);
+//        // Initially, we should have a triangle already of sufficient size.
+//        Vertex v1 = new Vertex(Integer.MIN_VALUE / 10, Integer.MIN_VALUE / 10);
+//        Vertex v2 = new Vertex(Integer.MAX_VALUE / 10, Integer.MIN_VALUE / 10);
+//        Vertex v3 = new Vertex(0, Integer.MAX_VALUE / 10);
+        Vertex v1 = new Vertex(10, 10);
+        Vertex v2 = new Vertex(1910, 10);
+        Vertex v3 = new Vertex(960, 900);
 
         // Make sure that we have the vertices in our list of vertices.
         vertices.put(v1.id, v1);
@@ -93,7 +96,7 @@ public class TriangleMesh {
         Vertex v1 = e.previous.origin;
         Vertex v2 = e.twin.previous.origin;
         Vertex v = e.origin;
-        Vertex w = e.next.origin;
+        Vertex w = e.twin.origin;
 
         // Print what we are doing.
         System.out.println("Replacing edge " + v.id + " to " + w.id + " with " + v2.id + " to " + v1.id + ".");
