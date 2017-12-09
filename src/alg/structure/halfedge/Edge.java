@@ -199,33 +199,6 @@ public class Edge implements Iterable<Edge> {
                m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
     }
 
-
-    /**
-     * Check whether the given edge would be the next edge, theoretically.
-     *
-     * @param edge The edge we potentially want to insert as the next edge.
-     * @return Whether the edge is the logical follow up of this edge.
-     */
-    public boolean isEdgeCandidateForNext(Edge edge) {
-        // First, we need to get 'vectors' of all the edges in question.
-        Vector2d a = this.vector;
-        Vector2d b = edge.vector;
-        Vector2d c = this.twin.next.vector;
-
-        // First, get the determinant of a and c, to determine the approximate size of the angle ac.
-        double det = a.det(c);
-
-        if(det <= 0) {
-            // If the determinant is smaller than 0, the angle between a and c is smaller than 180 degrees.
-            // Thus, we need that the determinant of a - b and b - c is also smaller than 0.
-            return a.det(b) <= 0 && b.det(c) <= 0;
-        } else {
-            // If the determinant is larger than 0, the angle between a and c is larger than 180 degrees.
-            // Thus, if we switch a and c, c - b and b - a should not have a determinant smaller than 0.
-            return !(c.det(b) <= 0 && b.det(a) <= 0);
-        }
-    }
-
     @Override
     public String toString() {
         return "Edge{" +

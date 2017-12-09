@@ -56,7 +56,7 @@ public class Triangle2d {
         }
     }
 
-    public Ellipse2D.Double getCircumCircle() {
+    public Point2d getCircumCircleCenter() {
         // We first need the midpoint of p1->p2 and p2->p3.
         Point2d mid_p1_p2 = p1.midpoint(p2);
         Point2d mid_p2_p3 = p2.midpoint(p3);
@@ -73,11 +73,8 @@ public class Triangle2d {
         double x = (b_p1_p2 - b_p2_p3) / (slope_p2_p3 - slope_p1_p2);
         double y = (slope_p1_p2 * x) + b_p1_p2;
 
-        // Use the point to find the distance to one of the points, say p1.
-        double radius = p3.distance(new Point2d(x, y));
-
-        // Create a filling ellipse.
-        return new Ellipse2D.Double(x - radius, y - radius, 2 * radius, 2 * radius);
+        // Return the center.
+        return new Point2d(x, y);
     }
 
     /**
