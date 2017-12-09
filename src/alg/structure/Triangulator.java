@@ -20,7 +20,7 @@ public class Triangulator {
         return mesh;
     }
 
-    public void insert(Point point) throws TriangleMesh.PointInsertedInOuterFaceException, TriangleMesh.EdgeNotfoundException, FaceSearcher.AlreadyReplacedException, TriangleMesh.MissingVertexException {
+    public void insert(Point point) throws TriangleMesh.PointInsertedInOuterFaceException, TriangleMesh.EdgeNotfoundException, TriangleMesh.MissingVertexException {
         // Convert the point to a vertex.
         Vertex v = new Vertex(point);
 
@@ -30,13 +30,13 @@ public class Triangulator {
         // Now, legalize all of the edges on the opposite side of the triangles of v.
         for(Edge e : v) {
             // We know that e originates from v, and since we only have triangles, the edge we want is the next edge.
-//            legalizeEdge(e.next);
+            legalizeEdge(e.next);
         }
     }
 
-    private void legalizeEdge(Edge edge) throws TriangleMesh.MissingVertexException, FaceSearcher.AlreadyReplacedException {
+    private void legalizeEdge(Edge edge) throws TriangleMesh.MissingVertexException {
         // If the edge is illegal, swap it.
-        if(edge.isIllegal() || edge.twin.isIllegal()) {
+        if(edge.isIllegal()) {
             // We want to find the previous edge of the original edge,
             // such that we can find the two edges we want to legalize as well.
             Edge parentEdge = edge.previous;
@@ -46,8 +46,8 @@ public class Triangulator {
 
             // Now, we essentially want to check the next of the parent edge,
             // and the next of the twin of the edge previous to the parent edge.
-//            legalizeEdge(parentEdge.next);
-//            legalizeEdge(parentEdge.previous.twin.next);
+            legalizeEdge(parentEdge.next);
+            legalizeEdge(parentEdge.previous.twin.next);
         }
     }
 }

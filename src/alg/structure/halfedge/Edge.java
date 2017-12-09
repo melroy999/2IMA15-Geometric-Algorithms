@@ -70,6 +70,26 @@ public class Edge implements Iterable<Edge> {
     }
 
     /**
+     * Add the given edge as the next of this edge, while also setting the previous of that edge to this edge.
+     *
+     * @param e The edge we want as the next edge.
+     */
+    public void setNext(Edge e) {
+        this.next = e;
+        e.previous = this;
+    }
+
+    /**
+     * Add the given edge as twin of this edge, and vice versa.
+     *
+     * @param e The edge we want as the next edge.
+     */
+    public void setTwin(Edge e) {
+        this.twin = e;
+        e.twin = this;
+    }
+
+    /**
      * Iterate over all the edges that can be found in the next cycle.
      * WARNING: THIS ITERATOR IS MUTABLE, NO CONCURRENT MODIFICATION EXCEPTIONS WILL BE THROWN.
      *
@@ -204,5 +224,13 @@ public class Edge implements Iterable<Edge> {
             // Thus, if we switch a and c, c - b and b - a should not have a determinant smaller than 0.
             return !(c.det(b) <= 0 && b.det(a) <= 0);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Edge{" +
+                "origin=" + origin +
+                ", length=" + vector.length() +
+                '}';
     }
 }

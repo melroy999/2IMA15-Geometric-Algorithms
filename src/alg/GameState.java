@@ -42,7 +42,7 @@ public class GameState {
             System.out.println("Inserting point into triangulation.");
             triangulator.insert(point);
         } catch (TriangleMesh.PointInsertedInOuterFaceException | TriangleMesh.EdgeNotfoundException
-                | FaceSearcher.AlreadyReplacedException | TriangleMesh.MissingVertexException e) {
+                 | TriangleMesh.MissingVertexException e) {
             e.printStackTrace();
         }
 

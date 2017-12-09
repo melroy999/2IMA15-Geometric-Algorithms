@@ -93,10 +93,6 @@ public class Vertex extends Point2d implements Iterable<Edge> {
 
     @Override
     public String toString() {
-        return "Vertex{" +
-                "x=" + x +
-                ", y=" + y +
-                ", id=" + id +
-                '}';
+        return "p="+id;
     }
 }

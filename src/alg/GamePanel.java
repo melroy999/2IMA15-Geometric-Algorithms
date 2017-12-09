@@ -62,17 +62,30 @@ public class GamePanel extends JPanel {
         for(Face face : faces) {
             // First, draw an id number.
             if(!(face instanceof Face.OuterFace)) {
+                g.setColor(Color.BLACK);
                 Point2d c = face.getCenter();
-                g.drawString("id=" + face.id, (int) c.x, (int) c.y);
+                g.drawString("f=" + face.id, (int) c.x, (int) c.y);
             }
 
             // Iterate over inner cycle.
             for(Edge e : face.outerComponent) {
+                // Draw the id of the origin vertex.
+                g.setColor(Color.BLACK);
+                g.drawString("v=" + e.origin.id, (int) e.origin.x, (int) e.origin.y);
+
                 if (e == face.outerComponent && !(face instanceof Face.OuterFace)) {
-                    g.setColor(BLUE_LINE_COLOR);
-                } else {
+                    g.setColor(Color.magenta);
+                } else  if(e.twin == null) {
                     g.setColor(RED_LINE_COLOR);
+                } else if(e.previous == null) {
+                    g.setColor(Color.GREEN);
+                } else if(e.next == null) {
+                    g.setColor(Color.YELLOW);
+                }else {
+                    g.setColor(BLUE_LINE_COLOR);
                 }
+
+
 
                 // Now draw the edges.
                 g.setStroke(new BasicStroke(5));

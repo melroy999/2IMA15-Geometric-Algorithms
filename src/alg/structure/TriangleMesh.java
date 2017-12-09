@@ -6,6 +6,7 @@ import alg.structure.halfedge.Edge;
 import alg.structure.halfedge.Face;
 import alg.structure.halfedge.Vertex;
 
+import javax.naming.OperationNotSupportedException;
 import java.util.*;
 
 /**
@@ -89,7 +90,7 @@ public class TriangleMesh {
         Face.outerFace.outerComponent = v1_v2.twin;
     }
 
-    public void swapEdge(Edge e) throws MissingVertexException, FaceSearcher.AlreadyReplacedException {
+    public void swapEdge(Edge e) throws MissingVertexException {
         // Derive the vertices we want to draw an edge between, using the edge input.
         // Since we use CCW, the point "above" the line is the origin of the previous line.
         // The one "below" it, is the origin of the previous edge of the twin edge of the edge.
@@ -167,12 +168,11 @@ public class TriangleMesh {
      *
      * @param v The vertex we want to insert.
      * @throws EdgeNotfoundException It may occur that a vertex is on a line, but we cannot find the line.
-     * @throws FaceSearcher.AlreadyReplacedException When we try to replace a face that has been replaced already.
      * @throws PointInsertedInOuterFaceException Since we start with a large triangle,
      * we should not encounter insertions that are outside of the initial triangle face.
      * Since we do not support that, throw an exception.
      */
-    public void insertVertex(Vertex v) throws PointInsertedInOuterFaceException, FaceSearcher.AlreadyReplacedException, EdgeNotfoundException {
+    public void insertVertex(Vertex v) throws PointInsertedInOuterFaceException, EdgeNotfoundException {
         // First, determine in which face the point is inserted.
         Face face = searcher.findFace(v);
 
@@ -199,39 +199,60 @@ public class TriangleMesh {
      *
      * @param v The vertex we want to add.
      * @param face The face we want to insert the vertex into.
-     * @throws FaceSearcher.AlreadyReplacedException When we try to replace a face that has been replaced already.
      */
-    private void insertVertexInsideFace(Vertex v, Face face) throws FaceSearcher.AlreadyReplacedException {
-        // We should track which faces we add, such that we can update our search structure.
-        List<Face> faces = new ArrayList<>();
+    private void insertVertexInsideFace(Vertex v, Face face) {
+        // First, lets find all the vertices we will need.
+        Edge v0_v1 = face.outerComponent;
+        Vertex v0 = v0_v1.origin;
+        Edge v1_v2 = v0_v1.next;
+        Vertex v1 = v1_v2.origin;
+        Edge v2_v0 = v1_v2.next;
+        Vertex v2 = v2_v0.origin;
 
-        // Keep a list of vertices that we can use such that we can fix twin references.
-        List<Vertex> vertices = new ArrayList<>();
+        // We know that we will create 3 faces. Create them already.
+        Face v0v1v = new Face(v0, v1, v);
+        v0v1v.outerComponent = v0_v1;
+        Face v1v2v = new Face(v1, v2, v);
+        v1v2v.outerComponent = v1_v2;
+        Face v2v0v = new Face(v2, v0, v);
+        v2v0v.outerComponent = v2_v0;
 
-        // Iterate over all the edges in the cycle, such that we can draw all new triangle faces.
-        for(Edge e : face.outerComponent.list()) {
-            // Create the triangle.
-            faces.add(addTriangle(e, v));
-            vertices.add(e.origin);
+        // Create all the edge pairs.
+        Edge v0_v = new Edge(v0, v);
+        Edge v1_v = new Edge(v1, v);
+        Edge v2_v = new Edge(v2, v);
 
-            // Reset the incident edge of e.origin to e, such that we can easily backtrack.
-            // Important, since otherwise we cannot set the twin references correctly.
-            e.origin.incidentEdge = e;
+        // Do the twins.
+        v0_v.setTwin(new Edge(v, v0));
+        v1_v.setTwin(new Edge(v, v1));
+        v2_v.setTwin(new Edge(v, v2));
+
+        // Register next references.
+        v0_v1.setNext(v1_v);
+        v1_v.setNext(v0_v.twin);
+        v0_v.twin.setNext(v0_v1);
+
+        v1_v2.setNext(v2_v);
+        v2_v.setNext(v1_v.twin);
+        v1_v.twin.setNext(v1_v2);
+
+        v2_v0.setNext(v0_v);
+        v0_v.setNext(v2_v.twin);
+        v2_v.twin.setNext(v2_v0);
+
+        // Make sure that all edges point to the correct face.
+        for(Edge e : v0v1v.outerComponent) {
+            e.incidentFace = v0v1v;
         }
-
-        // Since we can be certain about the order of insertion (ccw order),
-        // we can now use the list of vertices to fix the twin references.
-        for(int i = 0; i < vertices.size(); i++) {
-            Vertex v1 = vertices.get(i);
-            Vertex v2 = vertices.get((i + 1) % vertices.size());
-
-            // we know that v1's incident edge points to v2, and v2 to v3. So use next + previous as twins.
-            v1.incidentEdge.next.twin = v2.incidentEdge.previous;
-            v2.incidentEdge.previous.twin = v1.incidentEdge.next;
+        for(Edge e : v1v2v.outerComponent) {
+            e.incidentFace = v1v2v;
+        }
+        for(Edge e : v2v0v.outerComponent) {
+            e.incidentFace = v2v0v;
         }
 
         // Update the search structure.
-        searcher.replaceFaces(Collections.singletonList(face), faces);
+        searcher.replaceFaces(Collections.singletonList(face), Arrays.asList(v1v2v, v0v1v, v2v0v));
     }
 
     /**
@@ -240,135 +261,49 @@ public class TriangleMesh {
      * @param v The vertex we want to add.
      * @param face The face that contains the edge we want to insert the vertex onto.
      * @throws EdgeNotfoundException It may occur that a vertex is on a line, but we cannot find the line.
-     * @throws FaceSearcher.AlreadyReplacedException When we try to replace a face that has been replaced already.
      */
-    private void insertVertexOnEdge(Vertex v, Face face) throws EdgeNotfoundException, FaceSearcher.AlreadyReplacedException {
-        // If on the edge, find the two face neighbor of the edge. Connect to all the vertices in the two faces.
-        // First we need to find the edge, iterate over all edges in the face and find the edge.
-        Edge edge = null;
-        for(Edge e : face.outerComponent) {
-            if(e.isPointOnEdge(v)) {
-                // We now know which edge is our target, so save it.
-                edge = e;
-                break;
-            }
-        }
-
-        // If we have not found an edge, throw an error.
-        if(edge == null) {
-            throw new EdgeNotfoundException();
-        }
-
-        // Here, we will attempt to use the original edge for a while, such that we can done some harder twin connects.
-        // So make sure that the face outer components are set to the edge we are about to remove.
-        edge.incidentFace.outerComponent = edge;
-        edge.twin.incidentFace.outerComponent = edge.twin;
-
-        // Obviously, we should keep a reference to both original faces...
-        Face f1 = edge.incidentFace;
-        Face f2 = edge.twin.incidentFace;
-
-        // Now, we do essentially the same as done in 'insertVertexInsideFace', but now we skip the outer component.
-        insertVertexOnEdgeForFace(v, f1);
-        insertVertexOnEdgeForFace(v, f2);
-
-        // Now, we need to make sure that the twins are configured correctly for the edge we replaced with two edges.
-        Edge v1_v = f1.outerComponent.previous.next;
-        Edge v_v2 = f1.outerComponent.next.previous;
-
-        // Set the twins correctly.
-        v1_v.twin = f2.outerComponent.next.previous;
-        v1_v.twin.twin = v1_v;
-
-        v_v2.twin = f2.outerComponent.previous.next;
-        v_v2.twin.twin = v_v2;
-    }
-
-    /**
-     * Insert the vertex on one of the two faces neighboring the edge we replace.
-     *
-     * @param v The vertex we want to insert.
-     * @param face The face we will observe during the insertions.
-     * @throws FaceSearcher.AlreadyReplacedException When we try to replace a face that has been replaced already.
-     */
-    private void insertVertexOnEdgeForFace(Vertex v, Face face) throws FaceSearcher.AlreadyReplacedException {
-        // We should track which faces we add, such that we can update our search structure.
-        List<Face> faces = new ArrayList<>();
-
-        // Keep a list of vertices that we can use such that we can fix twin references.
-        List<Vertex> vertices = new ArrayList<>();
-
-        // Iterate over all the edges in the cycle, such that we can draw all new triangle faces.
-        for(Edge e : face.outerComponent.list()) {
-            // We skip the edge that will be removed.
-            if(e == face.outerComponent) {
-                continue;
-            }
-
-            // Create the triangle.
-            faces.add(addTriangle(e, v));
-
-            // Add all vertices.
-            vertices.add(e.origin);
-
-            // Reset the incident edge of e.origin to e, such that we can easily backtrack.
-            // Important, since otherwise we cannot set the twin references correctly.
-            e.origin.incidentEdge = e;
-        }
-
-        // Since we can be certain about the order of insertion (ccw order),
-        // we can now use the list of vertices to fix the twin references.
-        // We use -1 here, since we want to skip the last vertex, as we do not want to connect the last to the first.
-        for(int i = 0; i < vertices.size() - 1; i++) {
-            Vertex v1 = vertices.get(i);
-            Vertex v2 = vertices.get((i + 1) % vertices.size());
-
-            // we know that v1's incident edge points to v2, and v2 to v3. So use next + previous as twins.
-            v1.incidentEdge.next.twin = v2.incidentEdge.previous;
-            v2.incidentEdge.previous.twin = v1.incidentEdge.next;
-        }
-
-        // Update the search structure.
-        searcher.replaceFaces(Collections.singletonList(face), faces);
-    }
-
-    /**
-     * Create a triangle in the mesh, this handles in-triangle neighbor references and new face construction and ref.
-     *
-     * @param e The edge that will be one side of the triangle.
-     * @param v The vertex both ends of e will connect to with a new edge.
-     * @return The face associated with the new triangle.
-     */
-    private Face addTriangle(Edge e, Vertex v) {
-        // Instead of already making the twin, we will create face by face.
-        // So get the two points that define the edge.
-        Vertex v1 = e.origin;
-        Vertex v2 = e.next.origin;
-
-        // Create the face we want, and assign e as its designated reference.
-        Face face = new Face(v, v1, v2);
-        face.outerComponent = e;
-
-        // Since we move in counter clockwise order, the cycle will be: v1 -> v2, v2 -> v, v -> v1.
-        // So we need to create v2 -> v, v -> v1, and assign the correct pointers.
-        Edge v2_v = new Edge(v2, v);
-        Edge v_v1 = new Edge(v, v1);
-
-        // Set the neighbor information.
-        e.next = v2_v;
-        e.previous = v_v1;
-        v2_v.next = v_v1;
-        v2_v.previous = e;
-        v_v1.next = e;
-        v_v1.previous = v2_v;
-
-        // Make sure all edges see the face as its neighbor.
-        for(Edge e1 : e) {
-            e1.incidentFace = face;
-        }
-
-        // Return the face such that we can store it.
-        return face;
+    private void insertVertexOnEdge(Vertex v, Face face) throws EdgeNotfoundException {
+        throw new UnsupportedOperationException();
+//
+//        // If on the edge, find the two face neighbor of the edge. Connect to all the vertices in the two faces.
+//        // First we need to find the edge, iterate over all edges in the face and find the edge.
+//        Edge edge = null;
+//        for(Edge e : face.outerComponent) {
+//            if(e.isPointOnEdge(v)) {
+//                // We now know which edge is our target, so save it.
+//                edge = e;
+//                break;
+//            }
+//        }
+//
+//        // If we have not found an edge, throw an error.
+//        if(edge == null) {
+//            throw new EdgeNotfoundException();
+//        }
+//
+//        // Here, we will attempt to use the original edge for a while, such that we can done some harder twin connects.
+//        // So make sure that the face outer components are set to the edge we are about to remove.
+//        edge.incidentFace.outerComponent = edge;
+//        edge.twin.incidentFace.outerComponent = edge.twin;
+//
+//        // Obviously, we should keep a reference to both original faces...
+//        Face f1 = edge.incidentFace;
+//        Face f2 = edge.twin.incidentFace;
+//
+//        // Now, we do essentially the same as done in 'insertVertexInsideFace', but now we skip the outer component.
+//        insertVertexOnEdgeForFace(v, f1);
+//        insertVertexOnEdgeForFace(v, f2);
+//
+//        // Now, we need to make sure that the twins are configured correctly for the edge we replaced with two edges.
+//        Edge v1_v = f1.outerComponent.previous.next;
+//        Edge v_v2 = f1.outerComponent.next.previous;
+//
+//        // Set the twins correctly.
+//        v1_v.twin = f2.outerComponent.next.previous;
+//        v1_v.twin.twin = v1_v;
+//
+//        v_v2.twin = f2.outerComponent.previous.next;
+//        v_v2.twin.twin = v_v2;
     }
 
     /**

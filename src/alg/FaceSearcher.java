@@ -7,6 +7,7 @@ import alg.structure.halfedge.Face;
 import alg.structure.graph.Node;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -30,9 +31,13 @@ public class FaceSearcher extends DAG<Face> {
      *
      * @param original The faces that are currently in the DAG.
      * @param replacement The faces we want to replace the original faces with by making them children of the originals.
-     * @throws AlreadyReplacedException Occurs when we replace a node that already has children.
      */
-    public void replaceFaces(List<Face> original, List<Face> replacement) throws AlreadyReplacedException {
+    public void replaceFaces(List<Face> original, List<Face> replacement) {
+        Integer[] origs = original.stream().map(f -> f.id).toArray(Integer[]::new);
+        Integer[] reps = replacement.stream().map(f -> f.id).toArray(Integer[]::new);
+
+        System.out.println("Replacing " + Arrays.toString(origs) + " with " + Arrays.toString(reps));
+
         // Lets first convert the replacements to nodes.
         List<Node<Face>> replacementNodes = new ArrayList<>();
         for(Face r : replacement) replacementNodes.add(new Node<>(r));
@@ -50,18 +55,13 @@ public class FaceSearcher extends DAG<Face> {
      * @param original THe faces that are currently in the DAG.
      * @param replacement The faces we want to replace the original faces with, as nodes.
      * @param node The node we want to start searching from.
-     * @throws AlreadyReplacedException Occurs when we replace a node that already has children.
      */
-    private void replaceFaces(List<Face> original, List<Node<Face>> replacement, Node<Face> node)
-            throws AlreadyReplacedException {
+    private void replaceFaces(List<Face> original, List<Node<Face>> replacement, Node<Face> node) {
 
         // If the value of the node is one of the faces we are looking for, replace it.
         if(original.contains(node.value)) {
-            // If the face has children, and is a match, something is wrong.
-            if(!node.children.isEmpty()) {
-                throw new AlreadyReplacedException();
-            } else {
-                // Otherwise, we can just add the children and return, since we do not have children.
+            // If the face already has children, we have visited it already. So do not add the replacements again.
+            if(node.children.isEmpty()) {
                 node.children.addAll(replacement);
             }
         } else {
@@ -143,13 +143,5 @@ public class FaceSearcher extends DAG<Face> {
                 searchForFaces(faces, c);
             }
         }
-    }
-
-
-    /**
-     * Exception for replacing the same face twice.
-     */
-    public class AlreadyReplacedException extends Exception {
-
     }
 }

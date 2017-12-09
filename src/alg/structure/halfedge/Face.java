@@ -80,6 +80,7 @@ public class Face {
     public String toString() {
         return "Face{" +
                 "triangle=" + triangle +
+                "id=" + id +
                 '}';
     }
 }

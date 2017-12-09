@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class TriangulatorTest {
     @Test
-    void insert() throws TriangleMesh.EdgeNotfoundException, FaceSearcher.AlreadyReplacedException, TriangleMesh.MissingVertexException, TriangleMesh.PointInsertedInOuterFaceException {
+    void insert() throws TriangleMesh.EdgeNotfoundException, TriangleMesh.MissingVertexException, TriangleMesh.PointInsertedInOuterFaceException {
         // Insert one single point such that we can test a simple case.
         Triangulator t = new Triangulator();
 

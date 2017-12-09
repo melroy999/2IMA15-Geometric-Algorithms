@@ -63,9 +63,9 @@ public class Triangle2d {
     @Override
     public String toString() {
         return "Triangle2d{" +
-                "p1=" + p1 +
-                ", p2=" + p2 +
-                ", p3=" + p3 +
+                p1 +
+                ", " + p2 +
+                ", " + p3 +
                 '}';
     }
 }

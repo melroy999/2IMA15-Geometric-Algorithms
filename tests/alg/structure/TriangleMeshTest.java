@@ -33,7 +33,7 @@ class TriangleMeshTest {
     }
 
     @Test
-    void insertVertexInside() throws TriangleMesh.PointInsertedInOuterFaceException, TriangleMesh.EdgeNotfoundException, FaceSearcher.AlreadyReplacedException, TriangleMesh.MissingVertexException {
+    void insertVertexInside() throws TriangleMesh.PointInsertedInOuterFaceException, TriangleMesh.EdgeNotfoundException, TriangleMesh.MissingVertexException {
         // Simple test where we insert a vertex into the large triangle.
         TriangleMesh mesh = new TriangleMesh();
 
@@ -59,7 +59,7 @@ class TriangleMeshTest {
     }
 
     @Test
-    void insertVertexOnEdge() throws TriangleMesh.PointInsertedInOuterFaceException, TriangleMesh.EdgeNotfoundException, FaceSearcher.AlreadyReplacedException {
+    void insertVertexOnEdge() throws TriangleMesh.PointInsertedInOuterFaceException, TriangleMesh.EdgeNotfoundException {
         // We need two insertions.
         TriangleMesh mesh = new TriangleMesh();
         Vertex v = new Vertex(0, 0);
@@ -75,7 +75,7 @@ class TriangleMeshTest {
     }
 
     @Test
-    void insertVertexInside2() throws TriangleMesh.PointInsertedInOuterFaceException, TriangleMesh.EdgeNotfoundException, FaceSearcher.AlreadyReplacedException {
+    void insertVertexInside2() throws TriangleMesh.PointInsertedInOuterFaceException, TriangleMesh.EdgeNotfoundException {
         // We need two insertions.
         TriangleMesh mesh = new TriangleMesh();
         Vertex v = new Vertex(0, 0);
@@ -92,7 +92,7 @@ class TriangleMeshTest {
 
 
     @Test
-    void insertVertexOutsideBoundary() throws TriangleMesh.PointInsertedInOuterFaceException, TriangleMesh.EdgeNotfoundException, FaceSearcher.AlreadyReplacedException {
+    void insertVertexOutsideBoundary() throws TriangleMesh.PointInsertedInOuterFaceException, TriangleMesh.EdgeNotfoundException {
         // Simple test where we insert a vertex into the large triangle.
         TriangleMesh mesh = new TriangleMesh();
 
