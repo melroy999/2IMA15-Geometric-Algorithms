@@ -33,11 +33,6 @@ public class FaceSearcher extends DAG<Face> {
      * @param replacement The faces we want to replace the original faces with by making them children of the originals.
      */
     public void replaceFaces(List<Face> original, List<Face> replacement) {
-        Integer[] origs = original.stream().map(f -> f.id).toArray(Integer[]::new);
-        Integer[] reps = replacement.stream().map(f -> f.id).toArray(Integer[]::new);
-
-        System.out.println("Replacing " + Arrays.toString(origs) + " with " + Arrays.toString(reps));
-
         // Lets first convert the replacements to nodes.
         List<Node<Face>> replacementNodes = new ArrayList<>();
         for(Face r : replacement) replacementNodes.add(new Node<>(r));
@@ -57,7 +52,6 @@ public class FaceSearcher extends DAG<Face> {
      * @param node The node we want to start searching from.
      */
     private void replaceFaces(List<Face> original, List<Node<Face>> replacement, Node<Face> node) {
-
         // If the value of the node is one of the faces we are looking for, replace it.
         if(original.contains(node.value)) {
             // If the face already has children, we have visited it already. So do not add the replacements again.

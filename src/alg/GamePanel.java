@@ -87,7 +87,7 @@ public class GamePanel extends JPanel {
                 // Draw the id of the origin vertex.
                 g.setFont(font);
                 g.setColor(Color.BLACK);
-                g.drawString("v=" + e.origin.id, (int) e.origin.x + 14, (int) e.origin.y + 6);
+                g.drawString("v=" + e.origin.id, (int) e.origin.x - 25, (int) e.origin.y + 6);
             }
         }
     }
@@ -109,8 +109,13 @@ public class GamePanel extends JPanel {
                     continue;
                 }
 
-                // We use a green color for triangulation edges.
-                g.setColor(Color.GREEN);
+                // We use a green color for triangulation edges. Cyan for invalid edges!
+                if(e.isIllegal()) {
+                    g.setColor(Color.CYAN);
+                } else {
+                    g.setColor(Color.GREEN);
+                }
+
 
                 // Now draw the edges.
                 g.draw(e.shape);

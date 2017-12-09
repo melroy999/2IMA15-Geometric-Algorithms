@@ -45,9 +45,6 @@ public class GameState {
                  | TriangleMesh.MissingVertexException e) {
             e.printStackTrace();
         }
-
-        System.out.println("Adding clickPosition: " + clickPosition);
-        System.out.println(redPoints.size());
     }
 
     public void removePoint(java.awt.Point clickPosition) {
@@ -60,9 +57,6 @@ public class GameState {
         } else {
             bluePoints.remove(point);
         }
-
-        System.out.println("Removing point: " + point);
-        System.out.println(redPoints.size());
     }
 
     /**
