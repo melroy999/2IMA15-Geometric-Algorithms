@@ -19,6 +19,13 @@ public abstract class Tuple2d<T> {
     }
 
     /**
+     * Define a tuple with coordinates 0, 0.
+     */
+    public Tuple2d() {
+        this(0d, 0d);
+    }
+
+    /**
      * Add the given vector to this vector and return it as a new vector.
      *
      * @param t The vector we want to take the sum of.

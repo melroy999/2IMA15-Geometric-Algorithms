@@ -15,6 +15,13 @@ public class Point2d extends Tuple2d<Point2d> {
     }
 
     /**
+     * Define a point with coordinates 0, 0.
+     */
+    public Point2d() {
+        super();
+    }
+
+    /**
      * Create a new instance of a tuple2d subclass.
      *
      * @param x The x-coordinate of the tuple.
