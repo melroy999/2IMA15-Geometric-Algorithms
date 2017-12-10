@@ -1,8 +1,9 @@
-package alg;
+package geo.gui;
+
+import geo.log.GeoLogger;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 
 public class ApplicationWindow {
     private JPanel rootPanel;
@@ -28,6 +29,8 @@ public class ApplicationWindow {
         frame.setMinimumSize(screenSize);
         frame.pack();
         frame.setVisible(true);
+
+        GeoLogger.getLogger(ApplicationWindow.class.getName());
     }
 
     public static void main(String[] args) {
