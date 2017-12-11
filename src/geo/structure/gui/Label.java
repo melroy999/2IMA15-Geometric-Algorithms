@@ -39,13 +39,11 @@ public class Label implements IDrawable {
      */
     @Override
     public void draw(Graphics2D g, boolean debug) {
-        if(debug) {
-            // If we debug, we also want to draw the label of the point.
-            g.setFont(Constants.font);
-            g.setColor(Color.BLACK);
+        // If we debug, we also want to draw the label of the point.
+        g.setFont(Constants.font);
+        g.setColor(Color.BLACK);
 
-            // Draw the text.
-            g.drawString(label, x, y);
-        }
+        // Draw the text.
+        g.drawString(label, x, y);
     }
 }

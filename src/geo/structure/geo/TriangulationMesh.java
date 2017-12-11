@@ -4,7 +4,6 @@ import geo.log.GeoLogger;
 import geo.structure.math.Triangle2d;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import javax.swing.text.html.Option;
 import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -27,9 +26,13 @@ public class TriangulationMesh {
         log.info("Created new triangulation mesh.");
 
         // Initially, we should have a triangle already of sufficient size.
-        Vertex v1 = new Vertex.SymbolicVertex(-10e6, -10e6);
-        Vertex v2 = new Vertex.SymbolicVertex(10e6, -10e6);
-        Vertex v3 = new Vertex.SymbolicVertex(0, 10e6);
+//        Vertex v1 = new Vertex.SymbolicVertex(-10e6, -10e6);
+//        Vertex v2 = new Vertex.SymbolicVertex(10e6, -10e6);
+//        Vertex v3 = new Vertex.SymbolicVertex(0, 10e6);
+
+        Vertex v1 = new Vertex(10, 10);
+        Vertex v2 = new Vertex(1910, 10);
+        Vertex v3 = new Vertex(960, 900);
 
         // Create edges in CCW order.
         Edge v1_v2 = new Edge(v1, v2);
@@ -59,9 +62,9 @@ public class TriangulationMesh {
      *
      * @param v The vertex that should be inserted.
      * @throws PointInsertedInOuterFaceException If the vertex is contained in the outer face.
-     * @throws EdgeNotfoundException If the vertex is on an edge, but the edge cannot be found.
+     * @throws EdgeNotFoundException If the vertex is on an edge, but the edge cannot be found.
      */
-    public void insertVertex(Vertex v) throws PointInsertedInOuterFaceException, EdgeNotfoundException {
+    public void insertVertex(Vertex v) throws PointInsertedInOuterFaceException, EdgeNotFoundException {
         // Start by finding the face that contains the vertex.
         Face face = searcher.findFace(v);
 
@@ -82,7 +85,7 @@ public class TriangulationMesh {
             Optional<Edge> edge = face.edges().stream().filter(e -> e.isPointOnEdge(v)).findAny();
 
             if(!edge.isPresent()) {
-                throw new EdgeNotfoundException(v);
+                throw new EdgeNotFoundException(v);
             }
 
             // Log that we are inserting a vertex inside of a face.
@@ -191,18 +194,27 @@ public class TriangulationMesh {
     /**
      * An exception that is thrown when an edge cannot be found.
      */
-    public class EdgeNotfoundException extends Exception {
+    public class EdgeNotFoundException extends Exception {
         /**
          * Constructs a new exception with {@code null} as its detail message.
          * The cause is not initialized, and may subsequently be initialized by a
          * call to {@link #initCause}.
          */
-        public EdgeNotfoundException(Vertex v) {
+        public EdgeNotFoundException(Vertex v) {
             super(String.format("Triangle position search reports that the vertex %s " +
                     "is on an edge, but an edge intersecting %s could not be found.", v, v));
 
-            log.severe(String.format("EdgeNotfoundException: Triangle position search reports that " +
+            log.severe(String.format("EdgeNotFoundException: Triangle position search reports that " +
                     "the vertex %s is on an edge, but an edge intersecting %s could not be found.", v, v));
         }
+    }
+
+    /**
+     * Get the face searcher.
+     *
+     * @return The face searcher.
+     */
+    public FaceSearcher getSearcher() {
+        return searcher;
     }
 }

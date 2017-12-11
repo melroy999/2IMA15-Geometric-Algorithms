@@ -1,7 +1,8 @@
 package geo.structure.geo;
 
 import geo.structure.IDrawable;
-import geo.structure.gui.Polygon;
+import geo.structure.gui.Circle;
+import geo.structure.gui.Label;
 import geo.structure.math.Point2d;
 import geo.structure.math.Triangle2d;
 
@@ -21,7 +22,10 @@ public class Face extends Triangle2d implements IDrawable, Iterable<Edge> {
     public final int id;
 
     // The shape that we can draw in the gui.
-    private final Polygon shape;
+    private final Label shape;
+
+    // The shape of the circumcircle we can draw in the gui.
+    private final Circle ccshape;
 
     // We will always have an outer face, so keep a static reference to it.
     public final static Face outerFace = new OuterFace();
@@ -50,8 +54,9 @@ public class Face extends Triangle2d implements IDrawable, Iterable<Edge> {
         // Let the first edge be the outer component.
         outerComponent = e1;
 
-        // Create a shape.
-        shape = new Polygon("f" + id, p1, p2, p3);
+        // Create a shapes.
+        shape = new Label(c.x, c.y, "f" + id);
+        ccshape = new Circle(cc.x, cc.y, ccr);
     }
 
     /**
@@ -69,6 +74,7 @@ public class Face extends Triangle2d implements IDrawable, Iterable<Edge> {
 
         // Create no shape.
         shape = null;
+        ccshape = null;
     }
 
     /**
@@ -89,6 +95,17 @@ public class Face extends Triangle2d implements IDrawable, Iterable<Edge> {
      */
     @Override
     public void draw(Graphics2D g, boolean debug) {
+        // Draw the shape stored in the object.
+        ccshape.draw(g, debug);
+    }
+
+    /**
+     * Draw the debug overlay.
+     *
+     * @param g     The graphics object to use.
+     * @param debug Whether to view debug information.
+     */
+    public void drawOverlay(Graphics2D g, boolean debug) {
         // Draw the shape stored in the object.
         shape.draw(g, debug);
     }
@@ -159,6 +176,17 @@ public class Face extends Triangle2d implements IDrawable, Iterable<Edge> {
          */
         @Override
         public void draw(Graphics2D g, boolean debug) {
+            // Do nothing. We should not draw something that is not visible in the first place.
+        }
+
+        /**
+         * Draw the object.
+         *
+         * @param g     The graphics object to use.
+         * @param debug Whether to view debug information.
+         */
+        @Override
+        public void drawOverlay(Graphics2D g, boolean debug) {
             // Do nothing. We should not draw something that is not visible in the first place.
         }
     }

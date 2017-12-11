@@ -63,4 +63,32 @@ public class Point implements IDrawable {
         g.setColor(color);
         g.fill(shape);
     }
+
+    /**
+     * Two points are equal when the distance between the point centers is less than the radius of the points.
+     *
+     * @param obj The object we want to check equality for.
+     * @return True if the reference is the same, or the distance between the points is less than the radius.
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Point) {
+            // Points are equal if the distance between them is less than the radius.
+            Point p = (Point) obj;
+            return Math.sqrt(Math.pow(x - p.x, 2) + Math.pow(y - p.y, 2)) <= Constants.pointRadius;
+        }
+        return super.equals(obj);
+    }
+
+    /**
+     * Create an 'unique' hash for the point.
+     *
+     * @return A hash for the point.
+     */
+    @Override
+    public int hashCode() {
+        long bits = java.lang.Double.doubleToLongBits(x);
+        bits ^= java.lang.Double.doubleToLongBits(y) * 31;
+        return (((int) bits) ^ ((int) (bits >> 32)));
+    }
 }

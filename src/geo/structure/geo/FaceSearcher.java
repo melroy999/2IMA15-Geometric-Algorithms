@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * A manager for point to face searches in the triangulation structure.
+ * A engine for point to face searches in the triangulation structure.
  * We extend the DAG data structure, as we need access to its data.
  */
 public class FaceSearcher extends DAG<Face> {
@@ -113,6 +113,8 @@ public class FaceSearcher extends DAG<Face> {
      */
     public Set<Face> getFaces() {
         // The currently active faces are all the leaves of the DAG.
-        return getLeaves();
+        Set<Face> faces = getLeaves();
+        faces.add(Face.outerFace);
+        return faces;
     }
 }

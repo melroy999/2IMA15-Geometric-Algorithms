@@ -149,7 +149,7 @@ public class Edge implements IDrawable {
      */
     @Override
     public String toString() {
-        return "e" + origin.toString() + "->" + twin.origin.toString();
+        return "e" + id + "(" + origin.toString() + "->" + twin.origin.toString() + ")";
     }
 
     /**

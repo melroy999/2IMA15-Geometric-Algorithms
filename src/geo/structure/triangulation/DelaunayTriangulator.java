@@ -18,9 +18,9 @@ public class DelaunayTriangulator {
      *
      * @param p The point we want to insert.
      * @throws TriangulationMesh.PointInsertedInOuterFaceException If the point is contained in the outer face.
-     * @throws TriangulationMesh.EdgeNotfoundException If the point is on an edge, but the edge cannot be found.
+     * @throws TriangulationMesh.EdgeNotFoundException If the point is on an edge, but the edge cannot be found.
      */
-    public void insert(Point p) throws TriangulationMesh.EdgeNotfoundException,
+    public void insert(Point p) throws TriangulationMesh.EdgeNotFoundException,
             TriangulationMesh.PointInsertedInOuterFaceException {
         // First, convert the point to a vertex.
         Vertex v = new Vertex(p.x, p.y);
@@ -66,5 +66,14 @@ public class DelaunayTriangulator {
             legalizeEdge(e.twin.next());
             legalizeEdge(e.twin.previous());
         }
+    }
+
+    /**
+     * Get the mesh the triangulator is drawing in.
+     *
+     * @return The triangulation mash.
+     */
+    public TriangulationMesh getMesh() {
+        return mesh;
     }
 }

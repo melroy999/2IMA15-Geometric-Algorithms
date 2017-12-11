@@ -7,6 +7,7 @@ import geo.structure.math.Point2d;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Locale;
 
 /**
  * A vertex in a half edge structure, which is an extension of a Point2d.
@@ -45,7 +46,8 @@ public class Vertex extends Point2d implements IDrawable, Iterable<Edge> {
      */
     @Override
     public String toString() {
-        return "v" + id + "(" + String.format("%.1f", x) + "," + String.format("%.1f", y) + ")";
+        return "v" + id + "(" + String.format(Locale.ROOT, "%.1f", x) + ","
+                + String.format(Locale.ROOT, "%.1f", y) + ")";
     }
 
     /**
