@@ -1,5 +1,6 @@
 package geo.structure.gui;
 
+import geo.structure.IDrawable;
 import geo.util.Constants;
 
 import java.awt.*;
@@ -8,7 +9,7 @@ import java.awt.geom.Ellipse2D;
 /**
  * Draw a hollow circle in the gui.
  */
-public class Circle {
+public class Circle implements IDrawable {
     // The point is represented as an elliptical shape.
     private final Ellipse2D shape;
 
@@ -35,8 +36,10 @@ public class Circle {
      * Draw the shape.
      *
      * @param g The graphics object to draw in.
+     * @param debug Whether to view debug information.
      */
-    public void draw(Graphics2D g) {
+    @Override
+    public void draw(Graphics2D g, boolean debug) {
         // Draw the shape, with the desired color.
         g.setColor(color);
         g.draw(shape);

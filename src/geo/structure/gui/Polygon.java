@@ -1,5 +1,6 @@
 package geo.structure.gui;
 
+import geo.structure.IDrawable;
 import geo.structure.math.Point2d;
 import geo.structure.math.Tuple2d;
 import geo.util.Constants;
@@ -9,7 +10,7 @@ import java.awt.*;
 /**
  * Draw a polygon face in the gui.
  */
-public class Polygon {
+public class Polygon implements IDrawable {
     // The shape that contains a renderable polygon.
     private final java.awt.Polygon shape;
 
@@ -50,6 +51,7 @@ public class Polygon {
      * @param g The graphics object to draw in.
      * @param debug Whether we should view debug information.
      */
+    @Override
     public void draw(Graphics2D g, boolean debug) {
         if(debug) {
             // If we debug, we also want to draw the label of the point.

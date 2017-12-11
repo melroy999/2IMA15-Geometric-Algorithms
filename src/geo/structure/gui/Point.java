@@ -1,5 +1,6 @@
 package geo.structure.gui;
 
+import geo.structure.IDrawable;
 import geo.util.Constants;
 
 import java.awt.*;
@@ -8,7 +9,7 @@ import java.awt.geom.Ellipse2D;
 /**
  * Draw a point in the gui.
  */
-public class Point {
+public class Point implements IDrawable {
     // The point is represented as an elliptical shape.
     private final Ellipse2D shape;
 
@@ -47,6 +48,7 @@ public class Point {
      * @param g The graphics object to draw in.
      * @param debug Whether we should view debug information.
      */
+    @Override
     public void draw(Graphics2D g, boolean debug) {
         if(debug) {
             // If we debug, we also want to draw the label of the point.

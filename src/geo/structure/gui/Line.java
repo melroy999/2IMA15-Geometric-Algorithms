@@ -1,5 +1,6 @@
 package geo.structure.gui;
 
+import geo.structure.IDrawable;
 import geo.structure.math.Point2d;
 
 import java.awt.*;
@@ -8,7 +9,7 @@ import java.awt.geom.Line2D;
 /**
  * Draw a line in the gui.
  */
-public class Line {
+public class Line implements IDrawable {
     // The line is represented as a line... captain obvious.
     private final Line2D.Double shape;
 
@@ -34,8 +35,10 @@ public class Line {
      * Draw the shape.
      *
      * @param g The graphics object to draw in.
+     * @param debug Whether to view debug information.
      */
-    public void draw(Graphics2D g) {
+    @Override
+    public void draw(Graphics2D g, boolean debug) {
         // Draw the shape, with the desired color.
         g.setColor(color);
         g.draw(shape);
