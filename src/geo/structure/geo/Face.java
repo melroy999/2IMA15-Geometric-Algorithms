@@ -3,6 +3,7 @@ package geo.structure.geo;
 import geo.structure.IDrawable;
 import geo.structure.gui.Circle;
 import geo.structure.gui.Label;
+import geo.structure.gui.Polygon;
 import geo.structure.math.Point2d;
 import geo.structure.math.Triangle2d;
 
@@ -21,11 +22,14 @@ public class Face extends Triangle2d implements IDrawable, Iterable<Edge> {
     private static int counter = 0;
     public final int id;
 
-    // The shape that we can draw in the gui.
-    private final Label shape;
+    // The label that we can draw in the gui.
+    private final Label label;
 
-    // The shape of the circumcircle we can draw in the gui.
-    private final Circle ccshape;
+    // The shape of this label.
+    private final Polygon shape;
+
+    // The label of the circumcircle we can draw in the gui.
+    private final Circle circumCircleShape;
 
     // We will always have an outer face, so keep a static reference to it.
     public final static Face outerFace = new OuterFace();
@@ -55,8 +59,9 @@ public class Face extends Triangle2d implements IDrawable, Iterable<Edge> {
         outerComponent = e1;
 
         // Create a shapes.
-        shape = new Label(c.x, c.y, "f" + id);
-        ccshape = new Circle(cc.x, cc.y, ccr);
+        shape = new Polygon("poep", e1.origin, e2.origin, e3.origin);
+        label = new Label(c.x, c.y, "f" + id);
+        circumCircleShape = new Circle(cc.x, cc.y, ccr);
     }
 
     /**
@@ -72,9 +77,10 @@ public class Face extends Triangle2d implements IDrawable, Iterable<Edge> {
         // Assign a new id.
         id = counter++;
 
-        // Create no shape.
+        // Create no label.
+        label = null;
+        circumCircleShape = null;
         shape = null;
-        ccshape = null;
     }
 
     /**
@@ -95,8 +101,25 @@ public class Face extends Triangle2d implements IDrawable, Iterable<Edge> {
      */
     @Override
     public void draw(Graphics2D g, boolean debug) {
-        // Draw the shape stored in the object.
-        ccshape.draw(g, debug);
+        // We draw the shape in a grey color, with alpha.
+        g.setColor(new Color(210, 210, 210, 100));
+
+        // Draw the label stored in the object.
+        shape.draw(g, debug);
+    }
+
+    /**
+     * Draw the object.
+     *
+     * @param g     The graphics object to use.
+     * @param debug Whether to view debug information.
+     */
+    public void drawcc(Graphics2D g, boolean debug) {
+        // We draw circum circles in a magenta color.
+        g.setColor(Color.magenta);
+
+        // Draw the label stored in the object.
+        circumCircleShape.draw(g, debug);
     }
 
     /**
@@ -106,8 +129,8 @@ public class Face extends Triangle2d implements IDrawable, Iterable<Edge> {
      * @param debug Whether to view debug information.
      */
     public void drawOverlay(Graphics2D g, boolean debug) {
-        // Draw the shape stored in the object.
-        shape.draw(g, debug);
+        // Draw the label stored in the object.
+        label.draw(g, debug);
     }
 
     /**

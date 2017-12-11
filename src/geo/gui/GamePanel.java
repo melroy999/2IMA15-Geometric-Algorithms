@@ -91,6 +91,9 @@ public class GamePanel extends JPanel {
 
         // Draw all the edges, using the faces as reference.
         for(Face face : faces) {
+            // Draw the face.
+            face.draw(g, false);
+
             // Iterate over all the edges in the cycle around the face.
             for(Edge edge : face) {
                 // Check if e is related to a symbolic vertex.
@@ -124,8 +127,12 @@ public class GamePanel extends JPanel {
 
         // Draw all the edges, using the faces as reference.
         for(Face face : faces) {
+            if(face instanceof Face.OuterFace || face.ccr > 5 * 10e3) {
+                continue;
+            }
+
             // Draw the circumcircle.
-            face.draw(g, false);
+            face.drawcc(g, false);
         }
     }
 

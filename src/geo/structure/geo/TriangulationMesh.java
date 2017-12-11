@@ -26,13 +26,13 @@ public class TriangulationMesh {
         log.info("Created new triangulation mesh.");
 
         // Initially, we should have a triangle already of sufficient size.
-//        Vertex v1 = new Vertex.SymbolicVertex(-10e6, -10e6);
-//        Vertex v2 = new Vertex.SymbolicVertex(10e6, -10e6);
-//        Vertex v3 = new Vertex.SymbolicVertex(0, 10e6);
+        Vertex v1 = new Vertex.SymbolicVertex(-10e6, -10e6);
+        Vertex v2 = new Vertex.SymbolicVertex(10e6, -10e6);
+        Vertex v3 = new Vertex.SymbolicVertex(0, 10e6);
 
-        Vertex v1 = new Vertex(10, 10);
-        Vertex v2 = new Vertex(1910, 10);
-        Vertex v3 = new Vertex(960, 900);
+//        Vertex v1 = new Vertex(10, 10);
+//        Vertex v2 = new Vertex(1910, 10);
+//        Vertex v3 = new Vertex(960, 900);
 
         // Create edges in CCW order.
         Edge v1_v2 = new Edge(v1, v2);
@@ -150,8 +150,6 @@ public class TriangulationMesh {
         // Using the names of the vertices as sketched above, we get:
         Vertex v1 = e.previous().origin;
         Vertex v2 = e.twin.previous().origin;
-        Vertex v = e.origin;
-        Vertex w = e.twin.origin;
 
         // Determine what the neighboring edges will be.
         Edge tl = e.previous();
@@ -160,7 +158,7 @@ public class TriangulationMesh {
         Edge br = e.twin.previous();
 
         // Create the new edge.
-        Edge v2_v1 = new Edge(v1, v2);
+        Edge v2_v1 = new Edge(v2, v1);
 
         // Print what we are doing.
         log.info(String.format("Swapping the edge %s with the edge %s.", e, v2_v1));

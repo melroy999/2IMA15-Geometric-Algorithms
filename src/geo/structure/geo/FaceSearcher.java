@@ -6,6 +6,7 @@ import geo.structure.math.Point2d;
 import geo.structure.math.Triangle2d;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -29,6 +30,8 @@ public class FaceSearcher extends DAG<Face> {
      * @param replacement The faces we want to replace the original faces with by making them children of the originals.
      */
     public void replaceFaces(List<Face> original, List<Face> replacement) {
+//        System.out.println("Replacing faces " + Arrays.toString(original.stream().map(f -> f.id).toArray(Integer[]::new)) + " with " + Arrays.toString(replacement.stream().map(f -> f.id).toArray(Integer[]::new)));
+
         // Lets first convert the replacements to nodes.
         List<Node<Face>> replacementNodes = new ArrayList<>();
         for(Face r : replacement) replacementNodes.add(new Node<>(r));
