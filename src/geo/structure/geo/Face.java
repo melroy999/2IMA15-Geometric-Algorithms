@@ -37,4 +37,14 @@ public class Face extends Triangle2d {
         // Let the first edge be the outer component.
         outerComponent = e1;
     }
+
+    /**
+     * Get the string representation of the face.
+     *
+     * @return f concatenated with the id of the face, together with the string representation of all corner points.
+     */
+    @Override
+    public String toString() {
+        return "f" + id + "(" + p1.toString() + ", " + p2.toString() + ", " + p3.toString() +  ")";
+    }
 }

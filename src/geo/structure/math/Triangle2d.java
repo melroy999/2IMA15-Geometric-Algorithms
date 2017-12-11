@@ -5,7 +5,7 @@ package geo.structure.math;
  */
 public class Triangle2d {
     // Each triangle consists of three corner points, represented as points.
-    private final Point2d p1, p2, p3;
+    protected final Point2d p1, p2, p3;
 
     // The center point of the triangle.
     public final Point2d c;

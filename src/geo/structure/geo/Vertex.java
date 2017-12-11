@@ -25,4 +25,14 @@ public class Vertex extends Point2d {
         // Assign a new id.
         id = counter++;
     }
+
+    /**
+     * Get the string representation of the vertex.
+     *
+     * @return v concatenated with the id, together with its coordinates.
+     */
+    @Override
+    public String toString() {
+        return "v" + id + "(" + String.format("%.1f", x) + "," + String.format("%.1f", y) + ")";
+    }
 }

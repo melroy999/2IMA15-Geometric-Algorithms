@@ -1,7 +1,6 @@
 package geo.structure.geo;
 
 import geo.structure.math.Point2d;
-import geo.structure.math.Vector2d;
 
 /**
  * A half-edge in a half edge structure.
@@ -125,5 +124,15 @@ public class Edge {
      */
     public Edge previous() {
         return previous;
+    }
+
+    /**
+     * Get the string representation of the edge.
+     *
+     * @return e concatenated with the string presentations of the points.
+     */
+    @Override
+    public String toString() {
+        return "e" + origin.toString() + "->" + twin.origin.toString();
     }
 }
