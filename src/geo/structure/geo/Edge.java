@@ -1,11 +1,17 @@
 package geo.structure.geo;
 
+import geo.structure.IDrawable;
+import geo.structure.gui.Line;
 import geo.structure.math.Point2d;
+
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * A half-edge in a half edge structure.
  */
-public class Edge {
+public class Edge implements IDrawable {
     // The vertex this half edge originates from.
     public final Vertex origin;
 
@@ -25,6 +31,9 @@ public class Edge {
     private static int counter = 0;
     public final int id;
 
+    // The shape that we can draw in the gui.
+    private final Line shape;
+
     /**
      * Create a half-edge pair originating from the given vertex.
      *
@@ -39,19 +48,23 @@ public class Edge {
         id = counter++;
 
         // Set the twin of the edge.
-        this.twin = new Edge(target, this);
+        this.twin = new Edge(target, origin, this);
 
         // Ensure that at least one incident edge is set for the vertex.
         origin.incidentEdge = this;
+
+        // Create a shape we can draw for this structure.
+        shape = new Line(origin, origin.interpolate(target, 0.5d));
     }
 
     /**
      * Create a half-edge pair originating from the given vertex.
      *
      * @param origin The vertex that is the start point of this half-edge.
+     * @param target The vertex that is the end point of this half-edge.
      * @param twin The twin of this half-edge.
      */
-    private Edge(Vertex origin, Edge twin) {
+    private Edge(Vertex origin, Vertex target, Edge twin) {
         // Set the origin of the edge.
         this.origin = origin;
 
@@ -63,6 +76,9 @@ public class Edge {
 
         // Ensure that at least one incident edge is set for the vertex.
         origin.incidentEdge = this;
+
+        // Create a shape we can draw for this structure.
+        shape = new Line(origin, origin.interpolate(target, 0.5d));
     }
 
     /**
@@ -134,5 +150,17 @@ public class Edge {
     @Override
     public String toString() {
         return "e" + origin.toString() + "->" + twin.origin.toString();
+    }
+
+    /**
+     * Draw the object.
+     *
+     * @param g     The graphics object to use.
+     * @param debug Whether to view debug information.
+     */
+    @Override
+    public void draw(Graphics2D g, boolean debug) {
+        // Draw the shape stored in the object.
+        shape.draw(g, debug);
     }
 }

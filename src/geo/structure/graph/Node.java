@@ -12,7 +12,7 @@ public class Node<T> {
     // Each node has a value and children.
     public final T value;
 
-    // The list of children.
+    // The edges of children.
     public final List<Node<T>> children = new ArrayList<>();
 
     // We give each node an id, such that we can easily check for already visited conditions.
@@ -34,7 +34,7 @@ public class Node<T> {
     /**
      * Get the leaves of this node.
      *
-     * @param leaves The current list of leaves.
+     * @param leaves The current edges of leaves.
      * @param visited The ids of the nodes we have already encountered.
      */
     void getLeaves(Set<T> leaves, Set<Integer> visited) {

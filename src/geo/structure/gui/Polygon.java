@@ -19,17 +19,15 @@ public class Polygon implements IDrawable {
 
     // Additional information for rendering the point, like the color and labels.
     private final String label;
-    private final Color color;
 
     /**
      * Define a polygon, given a set of points.
      *
      * @param points The points that the polygon is made out of.
      */
-    public Polygon(String label, Color color, Tuple2d... points) {
+    public Polygon(String label, Tuple2d... points) {
         // Set the label and color.
         this.label = label;
-        this.color = color;
 
         // Now, create a shape, and determine the position for the label.
         Point2d center = new Point2d();
@@ -63,7 +61,6 @@ public class Polygon implements IDrawable {
         }
 
         // Draw the shape, with the desired color.
-        g.setColor(color);
         g.fill(shape);
     }
 }
