@@ -74,7 +74,7 @@ public class Triangle2d {
         // For this, we will use barycentric coordinates.
         // The point p can be redefined in terms of p1, p2 and p3 together with scalars, such that:
         //      p = a * p1 + b * p2 + c * p3
-        double div = 1d / ((p2.y - p3.y) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.y - p3.y));
+        double div = 1d / ((p2.y - p3.y) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.y - p3.y) + 10e-32);
         double a = div * ((p2.y - p3.y) * (p.x - p3.x) + (p3.x - p2.x) * (p.y - p3.y));
         double b = div * ((p3.y - p1.y) * (p.x - p3.x) + (p1.x - p3.x) * (p.y - p3.y));
         double c = 1.0d - a - b;
