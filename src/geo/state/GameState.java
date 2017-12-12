@@ -2,7 +2,7 @@ package geo.state;
 
 import geo.structure.geo.TriangulationMesh;
 import geo.structure.gui.Point;
-import geo.structure.triangulation.DelaunayTriangulator;
+import geo.voronoi.DelaunayTriangulator;
 
 import java.awt.*;
 import java.util.ArrayList;

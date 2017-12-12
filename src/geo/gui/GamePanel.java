@@ -3,7 +3,7 @@ package geo.gui;
 import geo.engine.GameEngine;
 import geo.state.GameState;
 import geo.structure.geo.Edge;
-import geo.structure.geo.Face;
+import geo.structure.geo.TriangleFace;
 import geo.structure.geo.Vertex;
 import geo.structure.gui.Point;
 
@@ -19,8 +19,9 @@ public class GamePanel extends JPanel {
     private GameEngine engine;
 
     // States we can use to disable/enable certain drawing layers.
-    public boolean drawTriangulation;
-    public boolean drawCircumcircles;
+    public boolean drawTriangulations;
+    public boolean drawCircumCenters;
+    public boolean drawCircumCircles;
     public boolean drawDebugLabels;
 
     /**
@@ -48,13 +49,16 @@ public class GamePanel extends JPanel {
         GameState state = engine.getState();
 
         // Get the list of faces, as we seem to be using it everywhere.
-        Set<Face> faces = state.getTriangulator().getMesh().getSearcher().getFaces();
+        Set<TriangleFace> faces = state.getTriangulator().getMesh().getSearcher().getFaces();
 
         // Only draw the triangulation when asked for it.
-        if (drawTriangulation) drawTriangulation(g2, faces);
+        if (drawTriangulations) drawTriangulations(g2, faces);
+
+        // Only draw the circum centers when asked for them.
+        if (drawCircumCenters) drawCircumCenters(g2, faces);
 
         // Only draw the circumcircles when asked for them.
-        if (drawCircumcircles) drawCircumcircles(g2, faces);
+        if (drawCircumCircles) drawCircumCircles(g2, faces);
 
         // Always draw the points.
         drawPoints(g2, state);
@@ -85,12 +89,12 @@ public class GamePanel extends JPanel {
      * @param g The graphics object.
      * @param faces The faces in the triangulation.
      */
-    public void drawTriangulation(Graphics2D g, Set<Face> faces) {
+    public void drawTriangulations(Graphics2D g, Set<TriangleFace> faces) {
         // Set the lines to be 3 pixels wide.
         g.setStroke(new BasicStroke(3));
 
         // Draw all the edges, using the faces as reference.
-        for(Face face : faces) {
+        for(TriangleFace face : faces) {
             // Draw the face.
             face.draw(g, false);
 
@@ -121,18 +125,36 @@ public class GamePanel extends JPanel {
      * @param g The graphics object.
      * @param faces The faces in the triangulation.
      */
-    public void drawCircumcircles(Graphics2D g, Set<Face> faces) {
-        // Set the lines to be 3 pixels wide.
-        g.setStroke(new BasicStroke(1));
-
+    public void drawCircumCenters(Graphics2D g, Set<TriangleFace> faces) {
         // Draw all the edges, using the faces as reference.
-        for(Face face : faces) {
-            if(face instanceof Face.OuterFace || face.ccr > 5 * 10e3) {
+        for(TriangleFace face : faces) {
+            if(face instanceof TriangleFace.OuterTriangleFace || face.ccr > 5 * 10e3) {
                 continue;
             }
 
             // Draw the circumcircle.
-            face.drawcc(g, false);
+            face.drawCircumCenter(g, false);
+        }
+    }
+
+    /**
+     * Draw the circum circles in the Delaunay triangulation.
+     *
+     * @param g The graphics object.
+     * @param faces The faces in the triangulation.
+     */
+    public void drawCircumCircles(Graphics2D g, Set<TriangleFace> faces) {
+        // Set the lines to be 3 pixels wide.
+        g.setStroke(new BasicStroke(1));
+
+        // Draw all the edges, using the faces as reference.
+        for(TriangleFace face : faces) {
+            if(face instanceof TriangleFace.OuterTriangleFace || face.ccr > 5 * 10e3) {
+                continue;
+            }
+
+            // Draw the circumcircle.
+            face.drawCircumCircle(g, false);
         }
     }
 
@@ -142,12 +164,12 @@ public class GamePanel extends JPanel {
      * @param g The graphics object.
      * @param faces The faces in the triangulation.
      */
-    public void drawDebugLabels(Graphics2D g, Set<Face> faces) {
+    public void drawDebugLabels(Graphics2D g, Set<TriangleFace> faces) {
         // Set the lines to be 3 pixels wide.
         g.setStroke(new BasicStroke(3));
 
         // Draw all the edges, using the faces as reference.
-        for(Face face : faces) {
+        for(TriangleFace face : faces) {
             // Draw the face debug label.
             face.drawOverlay(g, false);
 

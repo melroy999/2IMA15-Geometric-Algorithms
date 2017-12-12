@@ -3,6 +3,7 @@ package geo.structure.geo;
 import geo.structure.IDrawable;
 import geo.structure.gui.Circle;
 import geo.structure.gui.Label;
+import geo.structure.gui.Point;
 import geo.structure.gui.Polygon;
 import geo.structure.math.Point2d;
 import geo.structure.math.Triangle2d;
@@ -14,7 +15,7 @@ import java.util.Iterator;
 /**
  * A face in a half edge structure, which is an extension of a Triangle2d.
  */
-public class Face extends Triangle2d implements IDrawable, Iterable<Edge> {
+public class TriangleFace extends Triangle2d implements IDrawable, Iterable<Edge> {
     // Here, we have one half edge that is part of the cycle enclosing the face.
     public Edge outerComponent;
 
@@ -28,11 +29,14 @@ public class Face extends Triangle2d implements IDrawable, Iterable<Edge> {
     // The shape of this label.
     private final Polygon shape;
 
-    // The label of the circumcircle we can draw in the gui.
+    // The circum circle we can draw in the gui.
     private final Circle circumCircleShape;
 
+    // The circum center we can draw in the gui.
+    private final Point circumCenterShape;
+
     // We will always have an outer face, so keep a static reference to it.
-    public final static Face outerFace = new OuterFace();
+    public final static TriangleFace outerFace = new OuterTriangleFace();
 
     /**
      * Create a triangle face, given the three edges surrounding it in counter clock wise order.
@@ -41,7 +45,7 @@ public class Face extends Triangle2d implements IDrawable, Iterable<Edge> {
      * @param e2 The second edge of the triangle.
      * @param e3 The third edge of the triangle.
      */
-    public Face(Edge e1, Edge e2, Edge e3) {
+    public TriangleFace(Edge e1, Edge e2, Edge e3) {
         super(e1.origin, e2.origin, e3.origin);
 
         // Assign a new id.
@@ -62,6 +66,7 @@ public class Face extends Triangle2d implements IDrawable, Iterable<Edge> {
         shape = new Polygon("poep", e1.origin, e2.origin, e3.origin);
         label = new Label(c.x, c.y, "f" + id);
         circumCircleShape = new Circle(cc.x, cc.y, ccr);
+        circumCenterShape = new Point(cc.x, cc.y, "", Color.magenta);
     }
 
     /**
@@ -71,7 +76,7 @@ public class Face extends Triangle2d implements IDrawable, Iterable<Edge> {
      * @param p2 The second corner point of the triangle.
      * @param p3 The third corner point of the triangle.
      */
-    private Face(Point2d p1, Point2d p2, Point2d p3) {
+    private TriangleFace(Point2d p1, Point2d p2, Point2d p3) {
         super(p1, p2, p3);
 
         // Assign a new id.
@@ -81,6 +86,7 @@ public class Face extends Triangle2d implements IDrawable, Iterable<Edge> {
         label = null;
         circumCircleShape = null;
         shape = null;
+        circumCenterShape = null;
     }
 
     /**
@@ -102,7 +108,7 @@ public class Face extends Triangle2d implements IDrawable, Iterable<Edge> {
     @Override
     public void draw(Graphics2D g, boolean debug) {
         // We draw the shape in a grey color, with alpha.
-        g.setColor(new Color(210, 210, 210, 100));
+        g.setColor(new Color(210, 210, 210, 50));
 
         // Draw the label stored in the object.
         shape.draw(g, debug);
@@ -114,7 +120,18 @@ public class Face extends Triangle2d implements IDrawable, Iterable<Edge> {
      * @param g     The graphics object to use.
      * @param debug Whether to view debug information.
      */
-    public void drawcc(Graphics2D g, boolean debug) {
+    public void drawCircumCenter(Graphics2D g, boolean debug) {
+        // Draw the label stored in the object.
+        circumCenterShape.draw(g, debug);
+    }
+
+    /**
+     * Draw the object.
+     *
+     * @param g     The graphics object to use.
+     * @param debug Whether to view debug information.
+     */
+    public void drawCircumCircle(Graphics2D g, boolean debug) {
         // We draw circum circles in a magenta color.
         g.setColor(Color.magenta);
 
@@ -172,11 +189,11 @@ public class Face extends Triangle2d implements IDrawable, Iterable<Edge> {
     /**
      * Special class for the outer face.
      */
-    public static class OuterFace extends Face {
+    public static class OuterTriangleFace extends TriangleFace {
         /**
          * Create an outer face.
          */
-        private OuterFace() {
+        private OuterTriangleFace() {
             super(new Point2d(), new Point2d(), new Point2d());
         }
 

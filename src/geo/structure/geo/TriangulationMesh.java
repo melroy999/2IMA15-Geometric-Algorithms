@@ -40,7 +40,7 @@ public class TriangulationMesh {
         Edge v3_v1 = new Edge(v3, v1);
 
         // Create a new triangle face with these points as the corners.
-        Face face = new Face(v1_v2, v2_v3, v3_v1);
+        TriangleFace face = new TriangleFace(v1_v2, v2_v3, v3_v1);
 
         // The outside of this face has not been configured yet.
         v1_v2.twin.setNext(v3_v1.twin);
@@ -48,10 +48,10 @@ public class TriangulationMesh {
         v2_v3.twin.setNext(v1_v2.twin);
 
         // Make sure the outer face points to an edge, v1_v2 suffices.
-        Face.outerFace.outerComponent = v1_v2.twin;
+        TriangleFace.outerFace.outerComponent = v1_v2.twin;
 
         // Make the outer edges all point to the outer face.
-        v1_v2.twin.incidentFace = v2_v3.twin.incidentFace = v3_v1.twin.incidentFace = Face.outerFace;
+        v1_v2.twin.incidentFace = v2_v3.twin.incidentFace = v3_v1.twin.incidentFace = TriangleFace.outerFace;
 
         // We have to register this face in the searcher as a root face.
         searcher.insertRootFace(face);
@@ -66,10 +66,10 @@ public class TriangulationMesh {
      */
     public void insertVertex(Vertex v) throws PointInsertedInOuterFaceException, EdgeNotFoundException {
         // Start by finding the face that contains the vertex.
-        Face face = searcher.findFace(v);
+        TriangleFace face = searcher.findFace(v);
 
         // If this face is the outer face, something is wrong and we should terminate.
-        if(face instanceof Face.OuterFace) {
+        if(face instanceof TriangleFace.OuterTriangleFace) {
             throw new PointInsertedInOuterFaceException(v);
         }
 
@@ -103,7 +103,7 @@ public class TriangulationMesh {
      * @param v The vertex we want to insert in to the face.
      * @param face The face we want to insert the vertex into.
      */
-    private void insertVertexInsideFace(Vertex v, Face face) {
+    private void insertVertexInsideFace(Vertex v, TriangleFace face) {
         // Start with finding all the edges that surround the face.
         List<Edge> edges = face.edges();
 
@@ -111,12 +111,12 @@ public class TriangulationMesh {
         List<Edge> connectors = edges.stream().map(e -> new Edge(e.origin, v)).collect(Collectors.toList());
 
         // Now, construct the faces.
-        List<Face> faces = new ArrayList<>();
+        List<TriangleFace> faces = new ArrayList<>();
         for(int i = 0; i < edges.size(); i++) {
             Edge v1_v2 = edges.get(i);
             Edge v2_v = connectors.get((i + 1) % edges.size());
             Edge v_v1 = connectors.get(i).twin;
-            faces.add(new Face(v1_v2, v2_v, v_v1));
+            faces.add(new TriangleFace(v1_v2, v2_v, v_v1));
         }
 
         // Replace the original face by the new faces.
@@ -164,8 +164,8 @@ public class TriangulationMesh {
         log.info(String.format("Swapping the edge %s with the edge %s.", e, v2_v1));
 
         // Create the new faces.
-        Face f1 = new Face(v2_v1, tl, bl);
-        Face f2 = new Face(v2_v1.twin, br, tr);
+        TriangleFace f1 = new TriangleFace(v2_v1, tl, bl);
+        TriangleFace f2 = new TriangleFace(v2_v1.twin, br, tr);
 
         // We replace the original faces with two other faces.
         searcher.replaceFaces(Arrays.asList(e.incidentFace, e.twin.incidentFace), Arrays.asList(f1, f2));

@@ -5,8 +5,6 @@ import geo.structure.gui.Line;
 import geo.structure.math.Point2d;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Iterator;
 
 /**
  * A half-edge in a half edge structure.
@@ -16,7 +14,7 @@ public class Edge implements IDrawable {
     public final Vertex origin;
 
     // The face to the left of this half edge.
-    public Face incidentFace;
+    public TriangleFace incidentFace;
 
     // The half edge that moves in the opposite direction.
     public final Edge twin;

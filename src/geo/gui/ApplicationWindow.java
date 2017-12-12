@@ -26,6 +26,7 @@ public class ApplicationWindow {
     private JCheckBox drawTriangulationCheckBox;
     private JCheckBox drawCircumcirclesCheckBox;
     private JCheckBox drawDebugLabelsCheckBox;
+    private JCheckBox drawCircumcenterCheckBox;
 
     // The game engine.
     private final GameEngine engine;
@@ -43,7 +44,9 @@ public class ApplicationWindow {
 
         // Set the triangulation to be checked automatically.
         drawTriangulationCheckBox.setSelected(true);
-        getGamePanel().drawTriangulation = true;
+        getGamePanel().drawTriangulations = true;
+        drawCircumcenterCheckBox.setSelected(true);
+        getGamePanel().drawCircumCenters = true;
     }
 
     /**
@@ -77,12 +80,17 @@ public class ApplicationWindow {
 
         // Listeners for the checkboxes.
         drawTriangulationCheckBox.addActionListener(e -> {
-            getGamePanel().drawTriangulation = drawTriangulationCheckBox.isSelected();
+            getGamePanel().drawTriangulations = drawTriangulationCheckBox.isSelected();
             contentPanel.repaint();
         });
 
         drawCircumcirclesCheckBox.addActionListener(e -> {
-            getGamePanel().drawCircumcircles = drawCircumcirclesCheckBox.isSelected();
+            getGamePanel().drawCircumCircles = drawCircumcirclesCheckBox.isSelected();
+            contentPanel.repaint();
+        });
+
+        drawCircumcenterCheckBox.addActionListener(e -> {
+            getGamePanel().drawCircumCenters = drawCircumcenterCheckBox.isSelected();
             contentPanel.repaint();
         });
 

@@ -1,4 +1,4 @@
-package geo.structure.triangulation;
+package geo.voronoi;
 
 import geo.structure.geo.Edge;
 import geo.structure.geo.TriangulationMesh;
