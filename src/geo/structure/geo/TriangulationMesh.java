@@ -26,18 +26,18 @@ public class TriangulationMesh {
         log.info("Created new triangulation mesh.");
 
         // Initially, we should have a triangle already of sufficient size.
-        Vertex v1 = new Vertex.SymbolicVertex(-10e6, -10e6);
-        Vertex v2 = new Vertex.SymbolicVertex(10e6, -10e6);
-        Vertex v3 = new Vertex.SymbolicVertex(0, 10e6);
+        Vertex<TriangleFace> v1 = new Vertex.SymbolicVertex<>(-10e6, -10e6);
+        Vertex<TriangleFace> v2 = new Vertex.SymbolicVertex<>(10e6, -10e6);
+        Vertex<TriangleFace> v3 = new Vertex.SymbolicVertex<>(0, 10e6);
 
 //        Vertex v1 = new Vertex(10, 10);
 //        Vertex v2 = new Vertex(1910, 10);
 //        Vertex v3 = new Vertex(960, 900);
 
         // Create edges in CCW order.
-        Edge v1_v2 = new Edge(v1, v2);
-        Edge v2_v3 = new Edge(v2, v3);
-        Edge v3_v1 = new Edge(v3, v1);
+        Edge<TriangleFace> v1_v2 = new Edge<>(v1, v2);
+        Edge<TriangleFace> v2_v3 = new Edge<>(v2, v3);
+        Edge<TriangleFace> v3_v1 = new Edge<>(v3, v1);
 
         // Create a new triangle face with these points as the corners.
         TriangleFace face = new TriangleFace(v1_v2, v2_v3, v3_v1);
@@ -64,7 +64,7 @@ public class TriangulationMesh {
      * @throws PointInsertedInOuterFaceException If the vertex is contained in the outer face.
      * @throws EdgeNotFoundException If the vertex is on an edge, but the edge cannot be found.
      */
-    public void insertVertex(Vertex v) throws PointInsertedInOuterFaceException, EdgeNotFoundException {
+    public void insertVertex(Vertex<TriangleFace> v) throws PointInsertedInOuterFaceException, EdgeNotFoundException {
         // Start by finding the face that contains the vertex.
         TriangleFace face = searcher.findFace(v);
 
@@ -82,7 +82,7 @@ public class TriangulationMesh {
             insertVertexInsideFace(v, face);
         } else {
             // Find which edge the point is on.
-            Optional<Edge> edge = face.edges().stream().filter(e -> e.isPointOnEdge(v)).findAny();
+            Optional<Edge<TriangleFace>> edge = face.edges().stream().filter(e -> e.isPointOnEdge(v)).findAny();
 
             if(!edge.isPresent()) {
                 throw new EdgeNotFoundException(v);
@@ -103,19 +103,20 @@ public class TriangulationMesh {
      * @param v The vertex we want to insert in to the face.
      * @param face The face we want to insert the vertex into.
      */
-    private void insertVertexInsideFace(Vertex v, TriangleFace face) {
+    private void insertVertexInsideFace(Vertex<TriangleFace> v, TriangleFace face) {
         // Start with finding all the edges that surround the face.
-        List<Edge> edges = face.edges();
+        List<Edge<TriangleFace>> edges = face.edges();
 
         // Create the new edges we need, edges going from the vertices of the edges in the cycle to the new vertex v.
-        List<Edge> connectors = edges.stream().map(e -> new Edge(e.origin, v)).collect(Collectors.toList());
+        List<Edge<TriangleFace>> connectors = edges.stream().map(
+                e -> new Edge<>(e.origin, v)).collect(Collectors.toList());
 
         // Now, construct the faces.
         List<TriangleFace> faces = new ArrayList<>();
         for(int i = 0; i < edges.size(); i++) {
-            Edge v1_v2 = edges.get(i);
-            Edge v2_v = connectors.get((i + 1) % edges.size());
-            Edge v_v1 = connectors.get(i).twin;
+            Edge<TriangleFace> v1_v2 = edges.get(i);
+            Edge<TriangleFace> v2_v = connectors.get((i + 1) % edges.size());
+            Edge<TriangleFace> v_v1 = connectors.get(i).twin;
             faces.add(new TriangleFace(v1_v2, v2_v, v_v1));
         }
 
@@ -129,7 +130,7 @@ public class TriangulationMesh {
      *
      * @param e The edge we want to swap out with another edge.
      */
-    public void swapEdge(Edge e) {
+    public void swapEdge(Edge<TriangleFace> e) {
         // First, a sketch of the situation.
         /* We want to replace "e" with an edge from v1 to v2.
 
@@ -148,17 +149,17 @@ public class TriangulationMesh {
          */
 
         // Using the names of the vertices as sketched above, we get:
-        Vertex v1 = e.previous().origin;
-        Vertex v2 = e.twin.previous().origin;
+        Vertex<TriangleFace> v1 = e.previous().origin;
+        Vertex<TriangleFace> v2 = e.twin.previous().origin;
 
         // Determine what the neighboring edges will be.
-        Edge tl = e.previous();
-        Edge tr = e.next();
-        Edge bl = e.twin.next();
-        Edge br = e.twin.previous();
+        Edge<TriangleFace> tl = e.previous();
+        Edge<TriangleFace> tr = e.next();
+        Edge<TriangleFace> bl = e.twin.next();
+        Edge<TriangleFace> br = e.twin.previous();
 
         // Create the new edge.
-        Edge v2_v1 = new Edge(v2, v1);
+        Edge<TriangleFace> v2_v1 = new Edge<>(v2, v1);
 
         // Print what we are doing.
         log.info(String.format("Swapping the edge %s with the edge %s.", e, v2_v1));

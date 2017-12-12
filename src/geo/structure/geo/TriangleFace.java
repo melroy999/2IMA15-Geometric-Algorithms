@@ -15,9 +15,9 @@ import java.util.Iterator;
 /**
  * A face in a half edge structure, which is an extension of a Triangle2d.
  */
-public class TriangleFace extends Triangle2d implements IDrawable, Iterable<Edge> {
+public class TriangleFace extends Triangle2d implements IDrawable, Iterable<Edge<TriangleFace>> {
     // Here, we have one half edge that is part of the cycle enclosing the face.
-    public Edge outerComponent;
+    public Edge<TriangleFace> outerComponent;
 
     // Give each edge an id, such that we can reliably delete and track it.
     private static int counter = 0;
@@ -45,7 +45,7 @@ public class TriangleFace extends Triangle2d implements IDrawable, Iterable<Edge
      * @param e2 The second edge of the triangle.
      * @param e3 The third edge of the triangle.
      */
-    public TriangleFace(Edge e1, Edge e2, Edge e3) {
+    public TriangleFace(Edge<TriangleFace> e1, Edge<TriangleFace> e2, Edge<TriangleFace> e3) {
         super(e1.origin, e2.origin, e3.origin);
 
         // Assign a new id.
@@ -87,6 +87,18 @@ public class TriangleFace extends Triangle2d implements IDrawable, Iterable<Edge
         circumCircleShape = null;
         shape = null;
         circumCenterShape = null;
+    }
+
+    /**
+     * Check whether this edge is illegal in its current context.
+     *
+     * @param edge The edge we want to check the illegality of.
+     * @return The edge is illegal if the outer corner point of the face of the twin of the edge is inside the
+     * circumcircle of the face neighboring this edge. We check this for both sides of the edge.
+     */
+    public boolean isIllegal(Edge<TriangleFace> edge) {
+        return circumCircleContains(edge.twin.previous().origin)
+                || edge.twin.incidentFace.circumCircleContains(edge.previous().origin);
     }
 
     /**
@@ -155,9 +167,9 @@ public class TriangleFace extends Triangle2d implements IDrawable, Iterable<Edge
      *
      * @return An arraylist of edges.
      */
-    public ArrayList<Edge> edges() {
+    public ArrayList<Edge<TriangleFace>> edges() {
         // First, make a edges of all edges we can reach.
-        ArrayList<Edge> edges = new ArrayList<>();
+        ArrayList<Edge<TriangleFace>> edges = new ArrayList<>();
 
         // The current edge we are on.
         Edge current = outerComponent;
@@ -178,9 +190,9 @@ public class TriangleFace extends Triangle2d implements IDrawable, Iterable<Edge
      * @return An iterator that visits all edges in the next cycle in the correct order.
      */
     @Override
-    public Iterator<Edge> iterator() {
+    public Iterator<Edge<TriangleFace>> iterator() {
         // First, make a edges of all edges we can reach.
-        ArrayList<Edge> edges = edges();
+        ArrayList<Edge<TriangleFace>> edges = edges();
 
         // Now, return the iterator over this array edges.
         return edges.iterator();

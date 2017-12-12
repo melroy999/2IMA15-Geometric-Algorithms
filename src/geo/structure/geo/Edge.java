@@ -9,21 +9,21 @@ import java.awt.*;
 /**
  * A half-edge in a half edge structure.
  */
-public class Edge implements IDrawable {
+public class Edge<T> implements IDrawable {
     // The vertex this half edge originates from.
-    public final Vertex origin;
+    public final Vertex<T> origin;
 
     // The face to the left of this half edge.
-    public TriangleFace incidentFace;
+    public T incidentFace;
 
     // The half edge that moves in the opposite direction.
-    public final Edge twin;
+    public final Edge<T> twin;
 
     // The next half edge in our cycle.
-    private Edge next;
+    private Edge<T> next;
 
     // The previous half edge in our cycle.
-    private Edge previous;
+    private Edge<T> previous;
 
     // Give each edge an id, such that we can reliably delete and track it.
     private static int counter = 0;
@@ -38,7 +38,7 @@ public class Edge implements IDrawable {
      * @param origin The vertex that is the start point of this half-edge.
      * @param target The vertex that is the end point of this half-edge.
      */
-    public Edge(Vertex origin, Vertex target) {
+    public Edge(Vertex<T> origin, Vertex<T> target) {
         // Set the origin of the edge.
         this.origin = origin;
 
@@ -46,7 +46,7 @@ public class Edge implements IDrawable {
         id = counter++;
 
         // Set the twin of the edge.
-        this.twin = new Edge(target, origin, this);
+        this.twin = new Edge<>(target, origin, this);
 
         // Ensure that at least one incident edge is set for the vertex.
         origin.incidentEdge = this;
@@ -62,7 +62,7 @@ public class Edge implements IDrawable {
      * @param target The vertex that is the end point of this half-edge.
      * @param twin The twin of this half-edge.
      */
-    private Edge(Vertex origin, Vertex target, Edge twin) {
+    private Edge(Vertex<T> origin, Vertex<T> target, Edge<T> twin) {
         // Set the origin of the edge.
         this.origin = origin;
 
@@ -84,7 +84,7 @@ public class Edge implements IDrawable {
      *
      * @param e The edge we want as the next edge.
      */
-    public void setNext(Edge e) {
+    public void setNext(Edge<T> e) {
         this.next = e;
         e.previous = this;
     }
@@ -113,21 +113,11 @@ public class Edge implements IDrawable {
     }
 
     /**
-     * Check whether this edge is illegal in its current context.
-     *
-     * @return The edge is illegal if the outer corner point of the face of the twin of the edge is inside the
-     * circumcircle of the face neighboring this edge. We check this for both sides of the edge.
-     */
-    public boolean isIllegal() {
-        return incidentFace.circumCircleContains(twin.previous.origin) || twin.incidentFace.circumCircleContains(previous.origin);
-    }
-
-    /**
      * Get the follow up edge in the cycle around the incident face.
      *
      * @return The next edge in the cycle.
      */
-    public Edge next() {
+    public Edge<T> next() {
         return next;
     }
 
@@ -136,7 +126,7 @@ public class Edge implements IDrawable {
      *
      * @return The previous edge in the cycle.
      */
-    public Edge previous() {
+    public Edge<T> previous() {
         return previous;
     }
 

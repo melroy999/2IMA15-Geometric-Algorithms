@@ -1,6 +1,7 @@
 package geo.voronoi;
 
 import geo.structure.geo.Edge;
+import geo.structure.geo.TriangleFace;
 import geo.structure.geo.TriangulationMesh;
 import geo.structure.geo.Vertex;
 
@@ -23,13 +24,13 @@ public class DelaunayTriangulator {
     public void insert(Point p) throws TriangulationMesh.EdgeNotFoundException,
             TriangulationMesh.PointInsertedInOuterFaceException {
         // First, convert the point to a vertex.
-        Vertex v = new Vertex(p.x, p.y);
+        Vertex<TriangleFace> v = new Vertex<>(p.x, p.y);
 
         // Insert the point into the triangle mesh.
         mesh.insertVertex(v);
 
         // Now, legalize all the edges on the opposite side of v in the triangles surrounding v.
-        for(Edge e : v) {
+        for(Edge<TriangleFace> e : v) {
             // Legalize the edge e.next, which is the edge opposing v.
             legalizeEdge(e.next());
         }
@@ -40,7 +41,7 @@ public class DelaunayTriangulator {
      *
      * @param e The edge we want to legalize.
      */
-    private void legalizeEdge(Edge e) {
+    private void legalizeEdge(Edge<TriangleFace> e) {
         /* The situation is as follows
 
                                 v1
@@ -58,7 +59,7 @@ public class DelaunayTriangulator {
          */
 
         // If the edge is illegal, swap it.
-        if(e.isIllegal()) {
+        if(e.incidentFace.isIllegal(e)) {
             // Swappy.
             mesh.swapEdge(e);
 

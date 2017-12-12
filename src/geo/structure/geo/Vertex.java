@@ -12,9 +12,9 @@ import java.util.Locale;
 /**
  * A vertex in a half edge structure, which is an extension of a Point2d.
  */
-public class Vertex extends Point2d implements IDrawable, Iterable<Edge> {
+public class Vertex<T> extends Point2d implements IDrawable, Iterable<Edge<T>> {
     // One of the half edges originating from this vertex.
-    public Edge incidentEdge;
+    public Edge<T> incidentEdge;
 
     // Since we don't want to add the same point twice, we will use an unique id based system for duplicate detection.
     private static int counter = 0;
@@ -67,12 +67,12 @@ public class Vertex extends Point2d implements IDrawable, Iterable<Edge> {
      *
      * @return An arraylist of edges.
      */
-    public ArrayList<Edge> edges() {
+    public ArrayList<Edge<T>> edges() {
         // First, make a edges of all edges we can reach.
-        ArrayList<Edge> edges = new ArrayList<>();
+        ArrayList<Edge<T>> edges = new ArrayList<>();
 
         // The current edge we are on.
-        Edge current = incidentEdge;
+        Edge<T> current = incidentEdge;
 
         // Now, loop over all next vertices until we end up at the starting edge.
         do {
@@ -90,9 +90,9 @@ public class Vertex extends Point2d implements IDrawable, Iterable<Edge> {
      * @return An iterator that visits all edges originating from this vertex in CCW order.
      */
     @Override
-    public Iterator<Edge> iterator() {
+    public Iterator<Edge<T>> iterator() {
         // First, make a edges of all edges we can reach.
-        ArrayList<Edge> edges = edges();
+        ArrayList<Edge<T>> edges = edges();
 
         // Now, return the iterator over this array edges.
         return edges.iterator();
@@ -101,7 +101,7 @@ public class Vertex extends Point2d implements IDrawable, Iterable<Edge> {
     /**
      * A vertex subclass for which no edges should be rendered.
      */
-    public static class SymbolicVertex extends Vertex {
+    public static class SymbolicVertex<T> extends Vertex<T> {
         /**
          * Create a vertex at the given coordinates.
          *
