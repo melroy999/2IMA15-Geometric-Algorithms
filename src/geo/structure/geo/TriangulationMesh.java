@@ -1,6 +1,7 @@
 package geo.structure.geo;
 
 import geo.log.GeoLogger;
+import geo.state.GameState;
 import geo.structure.math.Triangle2d;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -30,9 +31,9 @@ public class TriangulationMesh {
         Vertex<TriangleFace> v2 = new Vertex.SymbolicVertex<>(10e6, -10e6);
         Vertex<TriangleFace> v3 = new Vertex.SymbolicVertex<>(0, 10e6);
 
-//        Vertex v1 = new Vertex(10, 10);
-//        Vertex v2 = new Vertex(1910, 10);
-//        Vertex v3 = new Vertex(960, 900);
+//        Vertex<TriangleFace> v1 = new Vertex<>(10, 500 + 120, GameState.Player.RED);
+//        Vertex<TriangleFace> v2 = new Vertex<>(0.5 * 1910, 500 + 120, GameState.Player.RED);
+//        Vertex<TriangleFace> v3 = new Vertex<>(0.5 * 960, 500 + 0.5 * 900, GameState.Player.RED);
 
         // Create edges in CCW order.
         Edge<TriangleFace> v1_v2 = new Edge<>(v1, v2);

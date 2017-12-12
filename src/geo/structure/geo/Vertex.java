@@ -62,11 +62,11 @@ public class Vertex<T> extends Point2d implements IDrawable, Iterable<Edge<T>> {
         this(point.x, point.y, player);
     }
 
-        /**
-         * Get the string representation of the vertex.
-         *
-         * @return v concatenated with the id, together with its coordinates.
-         */
+    /**
+     * Get the string representation of the vertex.
+     *
+     * @return v concatenated with the id, together with its coordinates.
+     */
     @Override
     public String toString() {
         return "v" + id + "(" + String.format(Locale.ROOT, "%.1f", x) + ","
@@ -143,7 +143,7 @@ public class Vertex<T> extends Point2d implements IDrawable, Iterable<Edge<T>> {
          * @param y The y-coordinate of the vertex.
          */
         public SymbolicVertex(double x, double y) {
-            super(x, y, null);
+            super(x, y, GameState.Player.RED);
         }
     }
 }

@@ -1,5 +1,7 @@
 package geo.structure.math;
 
+import java.util.Locale;
+
 /**
  * A class representing a 2d point.
  */
@@ -31,5 +33,16 @@ public class Point2d extends Tuple2d<Point2d> {
     @Override
     protected Point2d get(double x, double y) {
         return new Point2d(x, y);
+    }
+
+    /**
+     * Get the string representation of the vertex.
+     *
+     * @return v concatenated with the id, together with its coordinates.
+     */
+    @Override
+    public String toString() {
+        return "(" + String.format(Locale.ROOT, "%.1f", x) + ","
+                + String.format(Locale.ROOT, "%.1f", y) + ")";
     }
 }
