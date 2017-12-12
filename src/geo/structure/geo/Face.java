@@ -1,10 +1,12 @@
 package geo.structure.geo;
 
+import geo.state.GameState;
 import geo.structure.IDrawable;
 import geo.structure.gui.Polygon;
 import geo.structure.math.Point2d;
 
 import java.awt.*;
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -24,14 +26,14 @@ public class Face implements IDrawable, Iterable<Edge<Face>> {
     private final Polygon shape;
 
     // The center point of the face.
-    private final Vertex<Face> centerPoint;
+    private final Vertex<TriangleFace> centerPoint;
 
     /**
      * Create a face, given the edges surrounding it in counter clock wise order.
      *
      * @param edges The edges of the face, in CCW order.
      */
-    public Face(Vertex<Face> centerPoint, Edge<Face>... edges) {
+    public Face(Vertex<TriangleFace> centerPoint, List<Edge<Face>> edges) {
         // Assign a new id.
         id = counter++;
 
@@ -39,10 +41,16 @@ public class Face implements IDrawable, Iterable<Edge<Face>> {
         this.centerPoint = centerPoint;
 
         // Make the pointers of the face edges sound. I.e. make sure that the cycle is correct, set face relations etc.
-        // TODO
+        for(int i = 0; i < edges.size(); i++) {
+            edges.get(i).setNext(edges.get((i + 1) % edges.size()));
+            edges.get(i).incidentFace = this;
+        }
+
+        // Finally, make a reference to one of the edges in the cycle.
+        outerComponent = edges.get(0);
 
         // Create the shapes.
-        shape = new Polygon("poep^2", Arrays.stream(edges).map(e -> e.origin).toArray(Point2d[]::new));
+        shape = new Polygon("poep^2", edges.stream().map(e -> e.origin).toArray(Point2d[]::new));
     }
 
     /**
@@ -54,7 +62,8 @@ public class Face implements IDrawable, Iterable<Edge<Face>> {
     @Override
     public void draw(Graphics2D g, boolean debug) {
         // We draw the shape in a grey color, with alpha.
-        g.setColor(new Color(210, 210, 210, 50));
+        g.setColor(centerPoint.player ==
+                GameState.Player.RED ? new Color(255, 0, 0, 100) : new Color(0, 0, 255, 100));
 
         // Draw the label stored in the object.
         shape.draw(g, debug);

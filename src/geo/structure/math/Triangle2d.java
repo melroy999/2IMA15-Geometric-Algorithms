@@ -1,5 +1,8 @@
 package geo.structure.math;
 
+import geo.structure.geo.Face;
+import geo.structure.geo.Vertex;
+
 /**
  * Data structure representing a triangle.
  */
@@ -11,7 +14,7 @@ public class Triangle2d {
     public final Point2d c;
 
     // The circumcenter of the triangle, and the radius of the circumcircle.
-    public final Point2d cc;
+    public final Vertex<Face> cc;
     public final double ccr;
 
     /**
@@ -39,7 +42,7 @@ public class Triangle2d {
      *
      * @return The circumcenter, I.e. the center of the circle that goes through all the corner points of the triangle.
      */
-    private Point2d getCircumCenter() {
+    private Vertex<Face> getCircumCenter() {
         // We first need the midpoint of p1->p2 and p2->p3.
         Point2d mid_p1_p2 = p1.interpolate(p2, 0.5d);
         Point2d mid_p2_p3 = p2.interpolate(p3, 0.5d);
@@ -57,7 +60,7 @@ public class Triangle2d {
         double y = (slope_p1_p2 * x) + b_p1_p2;
 
         // Return the center.
-        return new Point2d(x, y);
+        return new Vertex<>(x, y, null);
     }
 
     /**

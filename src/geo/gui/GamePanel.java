@@ -51,6 +51,9 @@ public class GamePanel extends JPanel {
         // Get the list of faces, as we seem to be using it everywhere.
         Set<TriangleFace> faces = state.getTriangulator().getMesh().getSearcher().getFaces();
 
+        // Always draw the voronoi diagram.
+        state.getDiagram().draw(g2, false);
+
         // Only draw the triangulation when asked for it.
         if (drawTriangulations) drawTriangulations(g2, faces);
 
@@ -75,11 +78,11 @@ public class GamePanel extends JPanel {
      */
     public void drawPoints(Graphics2D g, GameState state) {
         // Paint all the points.
-        for(Point p : state.getRedPoints()) {
-            p.draw(g, false);
+        for(Vertex v : state.getRedPoints()) {
+            v.draw(g, false);
         }
-        for(Point p : state.getBluePoints()) {
-            p.draw(g, false);
+        for(Vertex v : state.getBluePoints()) {
+            v.draw(g, false);
         }
     }
 
@@ -99,7 +102,7 @@ public class GamePanel extends JPanel {
             face.draw(g, false);
 
             // Iterate over all the edges in the cycle around the face.
-            for(Edge edge : face) {
+            for(Edge<TriangleFace> edge : face) {
                 // Check if e is related to a symbolic vertex.
                 if(edge.origin instanceof Vertex.SymbolicVertex || edge.twin.origin instanceof Vertex.SymbolicVertex) {
                     // If it is, do not render.
@@ -175,7 +178,7 @@ public class GamePanel extends JPanel {
 
             // Iterate over all the edges in the cycle around the face.
             for(Edge edge : face) {
-                edge.origin.draw(g, false);
+                edge.origin.drawDebug(g, false);
             }
         }
     }

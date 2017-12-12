@@ -1,16 +1,22 @@
 package geo.state;
 
+import geo.structure.geo.TriangleFace;
 import geo.structure.geo.TriangulationMesh;
+import geo.structure.geo.Vertex;
 import geo.structure.gui.Point;
 import geo.voronoi.DelaunayTriangulator;
+import geo.voronoi.VoronoiDiagram;
 
 import java.awt.*;
 import java.util.ArrayList;
 
 public class GameState {
     // The points put down by the blue and red players.
-    private final ArrayList<Point> bluePoints;
-    private final ArrayList<Point> redPoints;
+    private final ArrayList<Vertex<TriangleFace>> bluePoints;
+    private final ArrayList<Vertex<TriangleFace>> redPoints;
+
+    // An arraylist of all vertices.
+    private final ArrayList<Vertex<TriangleFace>> points;
 
     // The color of the player that currently has the turn.
     private Player currentPlayer;
@@ -18,14 +24,19 @@ public class GameState {
     // The current state of the triangulator.
     private DelaunayTriangulator triangulator;
 
+    // The current state of the Voronoi diagram.
+    private VoronoiDiagram diagram;
+
     /**
      * Initialize the game state.
      */
     public GameState() {
         this.bluePoints = new ArrayList<>();
         this.redPoints = new ArrayList<>();
+        this.points = new ArrayList<>();
         currentPlayer = Player.RED;
         triangulator = new DelaunayTriangulator();
+        diagram = new VoronoiDiagram(new ArrayList<>());
     }
 
     /**
@@ -35,15 +46,15 @@ public class GameState {
      * @return whether the point was added to the game state or not.
      */
     public boolean addPoint(java.awt.Point p) {
-        // First, convert to our own clickPosition type.
-        Point point = new Point(p.x, p.y, "", currentPlayer == Player.RED ? Color.RED : Color.BLUE);
+        // First, convert to our own vertex type.
+        Vertex<TriangleFace> vertex = new Vertex<>(p.x, p.y, currentPlayer);
 
         // If the point already exists, do nothing.
-        if(checkPointExistence(point)) return false;
+        if(checkPointExistence(vertex)) return false;
 
         // Insert the point into the triangulation.
         try {
-            triangulator.insert(p);
+            triangulator.insert(vertex);
         } catch (TriangulationMesh.PointInsertedInOuterFaceException | TriangulationMesh.EdgeNotFoundException e) {
             e.printStackTrace();
             return false;
@@ -51,10 +62,14 @@ public class GameState {
 
         // Depending on whose turn it is, add a point to the corresponding list.
         if(currentPlayer == Player.RED) {
-            redPoints.add(point);
+            redPoints.add(vertex);
         } else {
-            bluePoints.add(point);
+            bluePoints.add(vertex);
         }
+        points.add(vertex);
+
+        // Now, calculate the voronoi diagram...
+        diagram = new VoronoiDiagram(points);
 
         // Return that we successfully added the point to the game state.
         return true;
@@ -62,11 +77,12 @@ public class GameState {
 
     /**
      * Check whether the given point already exists for one of the users.
-     * @param point The point we want to check the existence of.
+     * @param vertex The vertex we want to check the existence of.
      * @return Whether there exists any point in the red or blue sets that is equal to the given point.
      */
-    public boolean checkPointExistence(Point point) {
-        return redPoints.stream().anyMatch(point::equals) || bluePoints.stream().anyMatch(point::equals);
+    public boolean checkPointExistence(Vertex<TriangleFace> vertex) {
+        return redPoints.stream().anyMatch(v -> v.shape.equals(vertex.shape))
+                || bluePoints.stream().anyMatch(v -> v.shape.equals(vertex.shape));
     }
 
     /**
@@ -74,7 +90,7 @@ public class GameState {
      *
      * @return The points of the red player.
      */
-    public ArrayList<Point> getRedPoints() {
+    public ArrayList<Vertex<TriangleFace>> getRedPoints() {
         return redPoints;
     }
 
@@ -83,7 +99,7 @@ public class GameState {
      *
      * @return The points of the blue player.
      */
-    public ArrayList<Point> getBluePoints() {
+    public ArrayList<Vertex<TriangleFace>> getBluePoints() {
         return bluePoints;
     }
 
@@ -100,8 +116,10 @@ public class GameState {
     public void reset() {
         bluePoints.clear();
         redPoints.clear();
+        points.clear();
         currentPlayer = Player.RED;
         triangulator = new DelaunayTriangulator();
+        diagram = new VoronoiDiagram(new ArrayList<>());
     }
 
     /**
@@ -111,6 +129,15 @@ public class GameState {
      */
     public DelaunayTriangulator getTriangulator() {
         return triangulator;
+    }
+
+    /**
+     * Get the voronoi diagram.
+     *
+     * @return The voronoi diagram in the game state.
+     */
+    public VoronoiDiagram getDiagram() {
+        return diagram;
     }
 
     /**

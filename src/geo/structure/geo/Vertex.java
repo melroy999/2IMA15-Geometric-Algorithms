@@ -1,7 +1,9 @@
 package geo.structure.geo;
 
+import geo.state.GameState;
 import geo.structure.IDrawable;
 import geo.structure.gui.Label;
+import geo.structure.gui.Point;
 import geo.structure.math.Point2d;
 
 import java.awt.*;
@@ -20,30 +22,51 @@ public class Vertex<T> extends Point2d implements IDrawable, Iterable<Edge<T>> {
     private static int counter = 0;
     public final int id;
 
-    // The shape that we can draw in the gui.
-    private final Label shape;
+    // The label that we can draw in the gui.
+    private final Label label;
+
+    // Which player this vertex belongs to.
+    public final GameState.Player player;
+
+    // The label of the vertex.
+    public final Point shape;
 
     /**
      * Create a vertex at the given coordinates.
      *
      * @param x The x-coordinate of the vertex.
      * @param y The y-coordinate of the vertex.
+     * @param player The player this vertex belongs to.
      */
-    public Vertex(double x, double y) {
+    public Vertex(double x, double y, GameState.Player player) {
         super(x, y);
+
+        // Set the player.
+        this.player = player;
 
         // Assign a new id.
         id = counter++;
 
-        // Create a drawable figure.
-        shape = new Label(x, y, "v" + id);
+        // Create a drawable figures.
+        label = new Label(x, y, "v" + id);
+        shape = new Point(x, y, "", player == GameState.Player.RED ? Color.RED : Color.BLUE);
     }
 
     /**
-     * Get the string representation of the vertex.
+     * Create a vertex at the given point.
      *
-     * @return v concatenated with the id, together with its coordinates.
+     * @param point The location where the point should be placed.
+     * @param player The player this vertex belongs to.
      */
+    public Vertex(Point2d point, GameState.Player player) {
+        this(point.x, point.y, player);
+    }
+
+        /**
+         * Get the string representation of the vertex.
+         *
+         * @return v concatenated with the id, together with its coordinates.
+         */
     @Override
     public String toString() {
         return "v" + id + "(" + String.format(Locale.ROOT, "%.1f", x) + ","
@@ -58,8 +81,19 @@ public class Vertex<T> extends Point2d implements IDrawable, Iterable<Edge<T>> {
      */
     @Override
     public void draw(Graphics2D g, boolean debug) {
-        // Draw the shape stored in the object.
+        // Draw the label stored in the object.
         shape.draw(g, debug);
+    }
+
+    /**
+     * Draw the debug object.
+     *
+     * @param g     The graphics object to use.
+     * @param debug Whether to view debug information.
+     */
+    public void drawDebug(Graphics2D g, boolean debug) {
+        // Draw the label stored in the object.
+        label.draw(g, debug);
     }
 
     /**
@@ -109,7 +143,7 @@ public class Vertex<T> extends Point2d implements IDrawable, Iterable<Edge<T>> {
          * @param y The y-coordinate of the vertex.
          */
         public SymbolicVertex(double x, double y) {
-            super(x, y);
+            super(x, y, null);
         }
     }
 }

@@ -1,5 +1,6 @@
 package geo.voronoi;
 
+import geo.state.GameState;
 import geo.structure.geo.Edge;
 import geo.structure.geo.TriangleFace;
 import geo.structure.geo.TriangulationMesh;
@@ -15,16 +16,14 @@ public class DelaunayTriangulator {
     private final TriangulationMesh mesh = new TriangulationMesh();
 
     /**
-     * Insert a point into the mesh, and triangulate it.
+     * Insert a vertex into the mesh, and triangulate it.
      *
-     * @param p The point we want to insert.
+     * @param v The vertex we want to insert.
      * @throws TriangulationMesh.PointInsertedInOuterFaceException If the point is contained in the outer face.
      * @throws TriangulationMesh.EdgeNotFoundException If the point is on an edge, but the edge cannot be found.
      */
-    public void insert(Point p) throws TriangulationMesh.EdgeNotFoundException,
+    public void insert(Vertex<TriangleFace> v) throws TriangulationMesh.EdgeNotFoundException,
             TriangulationMesh.PointInsertedInOuterFaceException {
-        // First, convert the point to a vertex.
-        Vertex<TriangleFace> v = new Vertex<>(p.x, p.y);
 
         // Insert the point into the triangle mesh.
         mesh.insertVertex(v);
