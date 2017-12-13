@@ -1,5 +1,6 @@
 package geo.structure.geo;
 
+import geo.gui.ApplicationWindow;
 import geo.state.GameState;
 import geo.structure.IDrawable;
 import geo.structure.gui.Polygon;
@@ -8,7 +9,6 @@ import geo.structure.math.Point2d;
 import java.awt.*;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -26,7 +26,10 @@ public class Face implements IDrawable, Iterable<Edge<Face>> {
     private final Polygon shape;
 
     // The center point of the face.
-    private final Vertex<TriangleFace> centerPoint;
+    public final Vertex<TriangleFace> centerPoint;
+
+    // The area of the face.
+    private final double area;
 
     /**
      * Create a face, given the edges surrounding it in counter clock wise order.
@@ -48,6 +51,9 @@ public class Face implements IDrawable, Iterable<Edge<Face>> {
 
         // Finally, make a reference to one of the edges in the cycle.
         outerComponent = edges.get(0);
+
+        // Calculate the area.
+        this.area = calculateArea();
 
         // Create the shapes.
         shape = new Polygon("poep^2", edges.stream().map(e -> e.origin).toArray(Point2d[]::new));
@@ -89,6 +95,49 @@ public class Face implements IDrawable, Iterable<Edge<Face>> {
 
         // Return the arraylist.
         return edges;
+    }
+
+    /**
+     * Calculate the area of the polygonal face.
+     *
+     * @return The area of the face.
+     */
+    private double calculateArea() {
+        // Hold the currently accumulated area.
+        double area = 0;
+
+        // Get the screen dimensions.
+        int width = ApplicationWindow.gamePanelSize.width;
+        int height = ApplicationWindow.gamePanelSize.height;
+
+        // Iterate over all the points.
+        for(Edge<Face> v : this) {
+            area += (clamp(v.previous().origin.x, width) + clamp(v.origin.x, width))
+                    * (clamp(v.previous().origin.y, height) - clamp(v.origin.y, height));
+        }
+
+        // Return half of the area.
+        return area / 2;
+    }
+
+    /**
+     * Clamp the value between the 0 and the upper bound.
+     *
+     * @param value The value to clamp.
+     * @param maxValue The maximum desired value.
+     * @return The value, clamped between 0 and max value.
+     */
+    private static double clamp(double value, double maxValue) {
+        return value < 0 ? 0 : (value > maxValue ? maxValue : value);
+    }
+
+    /**
+     * Get the area of the face.
+     *
+     * @return The area of the face.
+     */
+    public double getArea() {
+        return area;
     }
 
     /**

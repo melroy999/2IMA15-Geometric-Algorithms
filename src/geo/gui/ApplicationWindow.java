@@ -27,6 +27,13 @@ public class ApplicationWindow {
     private JCheckBox drawCircumcirclesCheckBox;
     private JCheckBox drawDebugLabelsCheckBox;
     private JCheckBox drawCircumcenterCheckBox;
+    private JButton rebalanceButton;
+    private JCheckBox rebalanceAutomaticallyCheckBox;
+    private JLabel redPlayerAreaLabel;
+    private JLabel bluePlayerAreaLabel;
+
+    // Keep a static reference to the game panel.
+    public static Dimension gamePanelSize;
 
     // The game engine.
     private final GameEngine engine;
@@ -77,6 +84,10 @@ public class ApplicationWindow {
             // Switch the currently active player in the game state.
             engine.switchPlayer();
         });
+        rebalanceButton.addActionListener(e -> {
+            // Switch the currently active player in the game state.
+            engine.rebalance();
+        });
 
         // Listeners for the checkboxes.
         drawTriangulationCheckBox.addActionListener(e -> {
@@ -98,6 +109,10 @@ public class ApplicationWindow {
             getGamePanel().drawDebugLabels = drawDebugLabelsCheckBox.isSelected();
             contentPanel.repaint();
         });
+
+        rebalanceAutomaticallyCheckBox.addActionListener(e -> {
+            engine.getState().rebalanceTree = rebalanceAutomaticallyCheckBox.isSelected();
+        });
     }
 
     /**
@@ -106,7 +121,8 @@ public class ApplicationWindow {
     private static void createAndShowGui() {
         JFrame frame = new JFrame("Window");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setContentPane(new ApplicationWindow().rootPanel);
+        ApplicationWindow window = new ApplicationWindow();
+        frame.setContentPane(window.rootPanel);
 
 
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -115,6 +131,9 @@ public class ApplicationWindow {
         frame.setMinimumSize(screenSize);
         frame.pack();
         frame.setVisible(true);
+
+        // Set the game panel size, such that we can use it for our calculations.
+        gamePanelSize = window.getGamePanel().getSize();
 
         GeoLogger.getLogger(ApplicationWindow.class.getName());
     }
@@ -142,5 +161,23 @@ public class ApplicationWindow {
      */
     public GamePanel getGamePanel() {
         return (GamePanel) contentPanel;
+    }
+
+    /**
+     * Set the red player area label.
+     *
+     * @param label The label value.
+     */
+    public void setRedPlayerAreaLabel(String label) {
+        this.redPlayerAreaLabel.setText(label);
+    }
+
+    /**
+     * Set the blue player area label.
+     *
+     * @param label The label value.
+     */
+    public void setBluePlayerAreaLabel(String label) {
+        this.bluePlayerAreaLabel.setText(label);
     }
 }

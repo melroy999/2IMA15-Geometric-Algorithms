@@ -52,7 +52,7 @@ public class GamePanel extends JPanel {
         Set<TriangleFace> faces = state.getTriangulator().getMesh().getSearcher().getFaces();
 
         // Always draw the voronoi diagram.
-        state.getDiagram().draw(g2, false);
+        state.getDiagram().draw(g2, engine);
 
         // Only draw the triangulation when asked for it.
         if (drawTriangulations) drawTriangulations(g2, faces);

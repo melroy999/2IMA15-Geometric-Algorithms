@@ -105,4 +105,30 @@ public class GameEngine {
     public GameState getState() {
          return state;
     }
+
+    /**
+     * Update the area label for the two players.
+     *
+     * @param red The area of the red player.
+     * @param blue The area of the blue player.
+     */
+    public void updateArea(double red, double blue) {
+        // Update the values in the GUI.
+        double sum = red + blue;
+
+        // Calculate the percentages, and update.
+        gui.setRedPlayerAreaLabel(String.format("%d", (int) (100 * (red / sum))) + "%");
+        gui.setBluePlayerAreaLabel(String.format("%d", (int) (100 * (blue / sum))) + "%");
+    }
+
+    /**
+     * Rebalance the triangulation mesh.
+     */
+    public void rebalance() {
+        log.info("Rebalancing triangulation mesh.");
+        state.rebalanceTriangulator();
+
+        // Repaint the content panel, as we made changes.
+        gui.getGamePanel().repaint();
+    }
 }

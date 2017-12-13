@@ -9,6 +9,7 @@ import geo.voronoi.VoronoiDiagram;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class GameState {
     // The points put down by the blue and red players.
@@ -26,6 +27,9 @@ public class GameState {
 
     // The current state of the Voronoi diagram.
     private VoronoiDiagram diagram;
+
+    // Enable/disable automated rebalancing.
+    public boolean rebalanceTree;
 
     /**
      * Initialize the game state.
@@ -51,6 +55,12 @@ public class GameState {
 
         // If the point already exists, do nothing.
         if(checkPointExistence(vertex)) return false;
+
+        // Rebalance every 5 points.
+        if(rebalanceTree && points.size() % 5 == 0) {
+            System.out.println("Rebalancing.");
+            rebalanceTriangulator();
+        }
 
         long time = System.currentTimeMillis();
         // Insert the point into the triangulation.
@@ -124,6 +134,26 @@ public class GameState {
         currentPlayer = Player.RED;
         triangulator = new DelaunayTriangulator();
         diagram = new VoronoiDiagram(new ArrayList<>());
+    }
+
+    /**
+     * Rebalance the triangulation tree by inserting the vertices in a random order.
+     */
+    public void rebalanceTriangulator() {
+        triangulator = new DelaunayTriangulator();
+
+        // Add all the points to the triangulator, in a random order.
+        Collections.shuffle(points);
+        for(Vertex<TriangleFace> point : points) {
+            try {
+                triangulator.insert(point);
+            } catch (TriangulationMesh.EdgeNotFoundException | TriangulationMesh.PointInsertedInOuterFaceException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Regenerate the Voronoi diagram, which should not have changed, but just to be sure.
+        diagram = new VoronoiDiagram(points);
     }
 
     /**
