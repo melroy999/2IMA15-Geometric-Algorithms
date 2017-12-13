@@ -52,6 +52,7 @@ public class GameState {
         // If the point already exists, do nothing.
         if(checkPointExistence(vertex)) return false;
 
+        long time = System.currentTimeMillis();
         // Insert the point into the triangulation.
         try {
             triangulator.insert(vertex);
@@ -59,6 +60,7 @@ public class GameState {
             e.printStackTrace();
             return false;
         }
+        System.out.println("Triangulation time: " + (System.currentTimeMillis() - time));
 
         // Depending on whose turn it is, add a point to the corresponding list.
         if(currentPlayer == Player.RED) {
@@ -69,7 +71,9 @@ public class GameState {
         points.add(vertex);
 
         // Now, calculate the voronoi diagram...
+        time = System.currentTimeMillis();
         diagram = new VoronoiDiagram(points);
+        System.out.println("Voronoi diagram time: " + (System.currentTimeMillis() - time));
 
         // Return that we successfully added the point to the game state.
         return true;

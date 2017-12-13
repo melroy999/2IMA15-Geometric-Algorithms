@@ -46,7 +46,6 @@ public class Triangle2d {
         // We first need the midpoint of p1->p2 and p2->p3.
         Point2d mid_p1_p2 = p1.interpolate(p2, 0.5d);
         Point2d mid_p2_p3 = p2.interpolate(p3, 0.5d);
-        System.out.println(mid_p1_p2 + ", " + mid_p2_p3);
 
         // Now find the negative reciprocal of the slope, such that we get the slope of the perpendicular bisector.
         double slope_p1_p2 = -1 / ((p2.y - p1.y + 10e-32) / (p2.x - p1.x + 10e-32));

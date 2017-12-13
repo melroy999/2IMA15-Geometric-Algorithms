@@ -40,6 +40,7 @@ public class GeoLogger {
             for(String logFileName : logFileNames) {
                 FileHandler fh = new FileHandler("log/" + logFileName, true);
                 logger.addHandler(fh);
+                logger.setUseParentHandlers(false);
 
                 SimpleFormatter formatter = new SimpleFormatter();
                 fh.setFormatter(formatter);

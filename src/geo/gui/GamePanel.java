@@ -109,11 +109,11 @@ public class GamePanel extends JPanel {
                     continue;
                 }
 
-                // We use a green color for triangulation edges. Cyan for invalid edges!
+                // We use a gray color for triangulation edges. Purple for invalid edges!
                 if(face.isIllegal(edge)) {
-                    g.setColor(Color.CYAN);
+                    g.setColor(new Color(160, 0, 255));
                 } else {
-                    g.setColor(Color.GREEN);
+                    g.setColor(Color.gray);
                 }
 
                 // Draw the edge.

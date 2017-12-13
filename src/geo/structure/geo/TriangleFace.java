@@ -91,14 +91,16 @@ public class TriangleFace extends Triangle2d implements IDrawable, Iterable<Edge
 
     /**
      * Check whether this edge is illegal in its current context.
+     * An edge cannot be illegal when the edge is between symbolic points.
      *
      * @param edge The edge we want to check the illegality of.
      * @return The edge is illegal if the outer corner point of the face of the twin of the edge is inside the
-     * circumcircle of the face neighboring this edge. We check this for both sides of the edge.
+     * circum circle of the face neighboring this edge. We check this for both sides of the edge.
      */
     public boolean isIllegal(Edge<TriangleFace> edge) {
-        return circumCircleContains(edge.twin.previous().origin)
-                || edge.twin.incidentFace.circumCircleContains(edge.previous().origin);
+        return !(edge.origin instanceof Vertex.SymbolicVertex && edge.twin.origin instanceof Vertex.SymbolicVertex) &&
+                (circumCircleContains(edge.twin.previous().origin)
+                        || edge.twin.incidentFace.circumCircleContains(edge.previous().origin));
     }
 
     /**
@@ -239,6 +241,28 @@ public class TriangleFace extends Triangle2d implements IDrawable, Iterable<Edge
          */
         @Override
         public void drawOverlay(Graphics2D g, boolean debug) {
+            // Do nothing. We should not draw something that is not visible in the first place.
+        }
+
+        /**
+         * Draw the object.
+         *
+         * @param g     The graphics object to use.
+         * @param debug Whether to view debug information.
+         */
+        @Override
+        public void drawCircumCenter(Graphics2D g, boolean debug) {
+            // Do nothing. We should not draw something that is not visible in the first place.
+        }
+
+        /**
+         * Draw the object.
+         *
+         * @param g     The graphics object to use.
+         * @param debug Whether to view debug information.
+         */
+        @Override
+        public void drawCircumCircle(Graphics2D g, boolean debug) {
             // Do nothing. We should not draw something that is not visible in the first place.
         }
     }
