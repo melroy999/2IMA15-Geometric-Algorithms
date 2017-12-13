@@ -11,6 +11,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import static geo.gui.ApplicationWindow.clampX;
+import static geo.gui.ApplicationWindow.clampY;
+
 /**
  * A face in a half edge structure, which not necessarily has to be a triangle.
  */
@@ -106,29 +109,14 @@ public class Face implements IDrawable, Iterable<Edge<Face>> {
         // Hold the currently accumulated area.
         double area = 0;
 
-        // Get the screen dimensions.
-        int width = ApplicationWindow.gamePanelSize.width;
-        int height = ApplicationWindow.gamePanelSize.height;
-
         // Iterate over all the points.
         for(Edge<Face> v : this) {
-            area += (clamp(v.previous().origin.x, width) + clamp(v.origin.x, width))
-                    * (clamp(v.previous().origin.y, height) - clamp(v.origin.y, height));
+            area += (clampX(v.previous().origin.x) + clampX(v.origin.x))
+                    * (clampY(v.previous().origin.y) - clampY(v.origin.y));
         }
 
         // Return half of the area.
         return area / 2;
-    }
-
-    /**
-     * Clamp the value between the 0 and the upper bound.
-     *
-     * @param value The value to clamp.
-     * @param maxValue The maximum desired value.
-     * @return The value, clamped between 0 and max value.
-     */
-    private static double clamp(double value, double maxValue) {
-        return value < 0 ? 0 : (value > maxValue ? maxValue : value);
     }
 
     /**

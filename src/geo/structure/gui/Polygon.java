@@ -7,6 +7,9 @@ import geo.util.Constants;
 
 import java.awt.*;
 
+import static geo.gui.ApplicationWindow.clampX;
+import static geo.gui.ApplicationWindow.clampY;
+
 /**
  * Draw a polygon face in the gui.
  */

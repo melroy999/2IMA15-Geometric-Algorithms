@@ -116,6 +116,8 @@ public class GameEngine {
         // Update the values in the GUI.
         double sum = red + blue;
 
+        System.out.println("total: " + sum + ", red: " + red + ", blue: " + blue);
+
         // Calculate the percentages, and update.
         gui.setRedPlayerAreaLabel(String.format("%d", (int) (100 * (red / sum))) + "%");
         gui.setBluePlayerAreaLabel(String.format("%d", (int) (100 * (blue / sum))) + "%");

@@ -180,4 +180,24 @@ public class ApplicationWindow {
     public void setBluePlayerAreaLabel(String label) {
         this.bluePlayerAreaLabel.setText(label);
     }
+
+    /**
+     * Clamp the X value between the 0 and the upper bound.
+     *
+     * @param value The value to clamp.
+     * @return The value, clamped between 0 and max value.
+     */
+    public static double clampX(double value) {
+        return value < 0 ? 0 : (value > gamePanelSize.width ? gamePanelSize.width : value);
+    }
+
+    /**
+     * Clamp the Y value between the 0 and the upper bound.
+     *
+     * @param value The value to clamp.
+     * @return The value, clamped between 0 and max value.
+     */
+    public static double clampY(double value) {
+        return value < 0 ? 0 : (value > gamePanelSize.height ? gamePanelSize.height : value);
+    }
 }
