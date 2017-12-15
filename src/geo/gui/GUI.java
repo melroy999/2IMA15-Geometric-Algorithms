@@ -1,9 +1,15 @@
 package geo.gui;
 
+import geo.engine.GameEngine;
 import geo.player.AbstractPlayer;
+import geo.player.HumanPlayer;
+import geo.state.GameState;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionAdapter;
 import java.util.Arrays;
 
 /**
@@ -28,12 +34,32 @@ public class GUI {
     private JCheckBox drawCircumCirclesCheckBox;
     private JCheckBox drawDebugLabelsCheckBox;
     private JCheckBox snapToGridCheckBox;
+    private JLabel currentPlayerLabel;
+    private JLabel redBoardControlLabel;
+    private JLabel redPointsCountLabel;
+    private JPanel bluePointsCountLabel;
+    private JLabel blueBoardControlLabel;
+    private JCheckBox limitNumberOfTurnsCheckBox;
+    private JSpinner numberOfTurnsSpinner;
+    private JLabel cursorPositionLabel;
 
     /**
      * The GUI is a singleton.
      */
     private GUI() {
-
+        boardPanel.addMouseListener(new MouseAdapter() {
+            /**
+             * {@inheritDoc}
+             *
+             * @param e
+             */
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+            }
+        });
+        boardPanel.addMouseListener(new MouseAdapter() {
+        });
     }
 
     /**
@@ -51,7 +77,7 @@ public class GUI {
             }
 
             // Initialize the singleton instance.
-            JFrame frame = new JFrame("Window");
+            JFrame frame = new JFrame("[2IMA15] Geometric Algorithms - Voronoi");
             frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             gui = new GUI();
             frame.setContentPane(gui.rootPanel);
@@ -71,9 +97,88 @@ public class GUI {
 
     /**
      * Initialize the GUI with the desired values.
+     *
+     * @param players The list of players the user can choose from.
+     * @param player  The player that will control the game through the GUI.
      */
-    public void init(AbstractPlayer[] players) {
+    public void init(AbstractPlayer[] players, HumanPlayer player) {
+        // Set the player options.
         Arrays.stream(players).forEach(p -> playerOneOptions.addItem(p));
         Arrays.stream(players).forEach(p -> playerTwoOptions.addItem(p));
+
+        // Add the player as a listener to the buttons and click events on the board panel.
+        nextTurnButton.addActionListener(player);
+        resetBoardButton.addActionListener(player);
+        startButton.addActionListener(player);
+        boardPanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                // Only allow mouse clicks if the next button is enabled, as this indicates that it is a player's turn.
+                if(nextTurnButton.isEnabled()) player.userMouseClickEvent(e);
+            }
+        });
+
+        // Add other listeners.
+        boardPanel.addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                super.mouseMoved(e);
+                cursorPositionLabel.setText("(" + e.getX() + ", " + e.getY() + ")");
+            }
+        });
+    }
+
+    /**
+     * Change the current player to the given turn.
+     *
+     * @param turn The player's turn.
+     */
+    public void changeCurrentPlayerLabel(GameState.PlayerTurn turn) {
+        currentPlayerLabel.setText(turn == null ? "" : turn.toString());
+    }
+
+    /**
+     * Set the current activation state of the next and reset game buttons.
+     *
+     * @param value The value to set the state to, true of false.
+     */
+    public void changeUserControlButtonEnabled(boolean value) {
+        nextTurnButton.setEnabled(value);
+        resetBoardButton.setEnabled(value);
+    }
+
+    /**
+     * Set the state of the start button.
+     *
+     * @param value The value to set the state to, true of false.
+     */
+    public void changeStartButtonEnabled(boolean value) {
+        startButton.setEnabled(value);
+    }
+
+    /**
+     * Get the currently selected red button.
+     *
+     * @return The red player in the combobox.
+     */
+    public AbstractPlayer getCurrentRedPlayer() {
+        return (AbstractPlayer) playerOneOptions.getSelectedItem();
+    }
+
+    /**
+     * Get the currently selected red button.
+     *
+     * @return The red player in the combobox.
+     */
+    public AbstractPlayer getCurrentBluePlayer() {
+        return (AbstractPlayer) playerTwoOptions.getSelectedItem();
+    }
+
+    private void createUIComponents() {
+        // We initialize the spinner using a special model, since we want to start at a different point.
+        numberOfTurnsSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 20, 1));
+
+        // Obviously, we have to initialize our drawing panel.
+        boardPanel = new GamePanel();
     }
 }

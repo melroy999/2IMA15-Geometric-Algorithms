@@ -7,7 +7,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import java.awt.*;
 
 /**
- * A class in which all I/O is handled.
+ * A class in which all user related input is handled.
  */
 public class GameController {
     // The game state to apply the actions to.
@@ -19,10 +19,10 @@ public class GameController {
     /**
      * Create a game controller, which will execute its actions on the given game state.
      *
-     * @param state The game state to apply the changes to.
      * @param engine The game engine to communicate changes to.
+     * @param state The game state to apply the changes to.
      */
-    public GameController(GameState state, GameEngine engine) {
+    public GameController(GameEngine engine, GameState state) {
         this.state = state;
         this.engine = engine;
     }
@@ -41,6 +41,20 @@ public class GameController {
      * End the turn of the player.
      */
     public void endTurn() {
-        throw new NotImplementedException();
+        engine.endPlayerTurn();
+    }
+
+    /**
+     * Start the game.
+     */
+    public void startGame() {
+        engine.startGame();
+    }
+
+    /**
+     * Reset the board.
+     */
+    public void resetGame() {
+        engine.resetGame();
     }
 }
