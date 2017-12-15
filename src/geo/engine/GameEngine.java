@@ -1,136 +1,71 @@
 package geo.engine;
 
-import geo.gui.ApplicationWindow;
-import geo.log.GeoLogger;
+import geo.controller.GameController;
+import geo.gui.GUI;
+import geo.player.AbstractPlayer;
+import geo.player.HumanPlayer;
 import geo.state.GameState;
 
-import java.awt.event.MouseEvent;
-import java.util.logging.Logger;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
- * A class that manages the controls of the game.
+ * A class that manages all components of the game, such as the GUI, state and input/output, turn mechanic logic etc.
  */
 public class GameEngine {
-    // The game engine has access to the game state.
+    // The instance of the engine.
+    private static GameEngine engine;
+
+    // A reference to the current playing board.
     private final GameState state;
 
-    // A reference to the game window, such that we can change display values when necessary.
-    private final ApplicationWindow gui;
+    // The controller used to change the game state.
+    private final GameController controller;
 
-    // Logging the actions of the player.
-    private static final Logger log = GeoLogger.getLogger(GameEngine.class.getName());
+    // Reference to the GUI component.
+    private final GUI gui;
+
+    // The pool in which we run player turns and other cpu heavy tasks.
+    private final ExecutorService pool = Executors.newSingleThreadExecutor();
+
+    // A list of player types that we have.
+    private final AbstractPlayer[] players;
 
     /**
-     * Create a new game engine, and give it access to the GUI.
-     *
-     * @param applicationWindow The GUI of the game.
+     * The game engine is a singleton, we only want one instance.
      */
-    public GameEngine(ApplicationWindow applicationWindow) {
-        this.gui = applicationWindow;
-
-        // Create a new game state.
+    private GameEngine() {
+        // Create and initialize the different components of the framework.
         state = new GameState();
+        controller = new GameController(state, this);
 
-        // Log the creation of the engine.
-        log.info("Successfully created the game engine.");
+        // Create the player types we have.
+        players = new AbstractPlayer[] {
+            new HumanPlayer(controller)
+        };
+
+        // Create the gui.
+        gui = GUI.createAndShow();
+        gui.init(players);
     }
 
     /**
-     * Process the click of the user in the game panel.
+     * Get the engine instance, create it if it does not exist yet.
      *
-     * @param e The event associated with the click.
+     * @return The singleton game engine, created if it does not exist yet.
      */
-    public void handleUserClickAction(MouseEvent e) {
-        // Depending on which mouse button was pressed, execute an action.
-        switch (e.getButton()) {
-            case MouseEvent.BUTTON1:
-                // Register non-registered mouse clicks.
-                log.info(String.format("Registered left mouse click on position %s.", e.getPoint().toString()));
-
-                // On left mouse click, place a point.
-                if(!state.addPoint(e.getPoint())) {
-                    // Log the failure.
-                    log.warning(String.format("Failed to add the point %s.", e.getPoint().toString()));
-
-                    // If not added, return as we do not want to change the state.
-                    return;
-                }
-
-                // Log the successful addition.
-                log.info(String.format("Successfully added the point %s.", e.getPoint().toString()));
-
-                break;
-            default:
-                // Register non-registered mouse clicks.
-                log.info(String.format("The mouse click %s was not registered.", e.toString()));
-
-                // Otherwise, return as we did not change anything.
-                return;
-        }
-
-        // Repaint the content panel, as we made changes.
-        gui.getGamePanel().repaint();
+    public static GameEngine getEngine() {
+        if (engine == null) engine = new GameEngine();
+        return engine;
     }
 
     /**
-     * Reset the game state.
-     */
-    public void reset() {
-        // Write status to log.
-        log.info("Resetting the game state.");
-
-        // Reset the game state.
-        state.reset();
-
-        // Repaint the content panel, as we made changes.
-        gui.getGamePanel().repaint();
-    }
-
-    /**
-     * Switch the player's turns.
-     */
-    public void switchPlayer() {
-        // Write status to log.
-        log.info("Switching player turns.");
-
-        // Give the turn to the other player.
-        state.switchPlayer();
-    }
-
-    /**
-     * Get the game state.
+     * Give the turn to the specified player.
      *
-     * @return The current game state.
+     * @param player The player whose turn it is.
      */
-    public GameState getState() {
-         return state;
-    }
-
-    /**
-     * Update the area label for the two players.
-     *
-     * @param red The area of the red player.
-     * @param blue The area of the blue player.
-     */
-    public void updateArea(double red, double blue) {
-        // Update the values in the GUI.
-        double sum = red + blue;
-
-        System.out.println("total: " + sum + ", red: " + red + ", blue: " + blue);
-
-        // Calculate the percentages, and update.
-        gui.setRedPlayerAreaLabel(String.format("%d", (int) (100 * (red / sum))) + "%");
-        gui.setBluePlayerAreaLabel(String.format("%d", (int) (100 * (blue / sum))) + "%");
-    }
-
-    /**
-     * Rebalance the triangulation mesh.
-     */
-    public void rebalance() {
-        log.info("Rebalancing triangulation mesh.");
-        state.rebalanceTriangulator();
-
-        // Repaint the content panel, as we made changes.
-        gui.getGamePanel().repaint();
+    public void startPlayerTurn(AbstractPlayer player) {
+        // For this, we have to start a new task on the pool.
+        pool.submit(() -> player.turn(state));
     }
 }
