@@ -10,14 +10,12 @@ import java.util.function.Predicate;
  * A class in which all input is handled.
  */
 public class GameController {
-    // The game state to apply the actions to.
-    private final GameState state;
-
     // The engine to correspond messages with.
     private final GameEngine engine;
 
     // Predicates used during the communication with the game state.
     private Predicate<Point> addPoint;
+    private Runnable resetGame;
 
     /**
      * Create a game controller, which will execute its actions on the given game state.
@@ -26,11 +24,10 @@ public class GameController {
      * @param state The game state to apply the changes to.
      */
     public GameController(GameEngine engine, GameState state) {
-        this.state = state;
         this.engine = engine;
 
         // Ask the state for predicates to access private methods.
-        this.state.setPredicates(this);
+        state.setPredicates(this);
     }
 
     /**
@@ -38,8 +35,9 @@ public class GameController {
      *
      * @param addPoint The predicate that adds points to the game state.
      */
-    public final void setPredicates(Predicate<Point> addPoint) {
+    public final void setPredicates(Predicate<Point> addPoint, Runnable resetGame) {
         this.addPoint = addPoint;
+        this.resetGame = resetGame;
     }
 
     /**
@@ -49,7 +47,11 @@ public class GameController {
      * @return Whether the insertion of the point was successful or not.
      */
     public boolean addPoint(Point p) {
-        return addPoint.test(p);
+        if(addPoint.test(p)) {
+            engine.updatePlayerCounters();
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -70,6 +72,10 @@ public class GameController {
      * Reset the board.
      */
     public void resetGame() {
+        // Ask the engine to reset the GUI related components.
         engine.resetGame();
+
+        // Reset the game state.
+        resetGame.run();
     }
 }

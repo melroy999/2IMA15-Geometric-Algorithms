@@ -37,7 +37,7 @@ public class GUI {
     private JLabel currentPlayerLabel;
     private JLabel redBoardControlLabel;
     private JLabel redPointsCountLabel;
-    private JPanel bluePointsCountLabel;
+    private JLabel bluePointsCountLabel;
     private JLabel blueBoardControlLabel;
     private JCheckBox limitNumberOfTurnsCheckBox;
     private JSpinner numberOfTurnsSpinner;
@@ -138,12 +138,20 @@ public class GUI {
     }
 
     /**
-     * Set the current activation state of the next and reset game buttons.
+     * Set the current activation state of the next button.
      *
      * @param value The value to set the state to, true of false.
      */
-    public void changeUserControlButtonEnabled(boolean value) {
+    public void changeNextButtonEnabled(boolean value) {
         nextTurnButton.setEnabled(value);
+    }
+
+    /**
+     * Set the current activation state of the reset button.
+     *
+     * @param value The value to set the state to, true of false.
+     */
+    public void changeResetButtonEnabled(boolean value) {
         resetBoardButton.setEnabled(value);
     }
 
@@ -172,6 +180,30 @@ public class GUI {
      */
     public AbstractPlayer getCurrentBluePlayer() {
         return (AbstractPlayer) playerTwoOptions.getSelectedItem();
+    }
+
+    /**
+     * Get the maximum number of turns each player has.
+     *
+     * @return The amount of turns each player has, -1 if unlimited.
+     */
+    public int getMaximumNumberOfTurns() {
+        return !limitNumberOfTurnsCheckBox.isSelected() ? -1 : (int) numberOfTurnsSpinner.getValue();
+    }
+
+    /**
+     * Update the red player number of points and possessed area counters.
+     *
+     * @param redCount The amount of red points.
+     * @param blueCount The amount of blue points.
+     * @param redArea The area the red player possesses.
+     * @param blueArea The area the blue player possesses.
+     */
+    public void updateGameStateCounters(int redCount, int blueCount, int redArea, int blueArea) {
+        redPointsCountLabel.setText(String.valueOf(redCount));
+        bluePointsCountLabel.setText(String.valueOf(blueCount));
+        redBoardControlLabel.setText(redArea + "%");
+        blueBoardControlLabel.setText(blueArea + "%");
     }
 
     private void createUIComponents() {

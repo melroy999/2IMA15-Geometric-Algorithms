@@ -123,12 +123,12 @@
                       <background color="-1"/>
                       <font name="Tahoma" size="18" style="0"/>
                       <foreground color="-1"/>
-                      <text value="15"/>
+                      <text value="0"/>
                     </properties>
                   </component>
                 </children>
               </grid>
-              <grid id="f830" binding="bluePointsCountLabel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="0">
+              <grid id="f830" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="0" vgap="0">
                 <margin top="0" left="0" bottom="0" right="0"/>
                 <constraints>
                   <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="2" indent="0" use-parent-layout="false">
@@ -142,14 +142,14 @@
                 </properties>
                 <border type="none"/>
                 <children>
-                  <component id="f9e62" class="javax.swing.JLabel">
+                  <component id="f9e62" class="javax.swing.JLabel" binding="bluePointsCountLabel">
                     <constraints>
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
                     </constraints>
                     <properties>
                       <font name="Tahoma" size="18" style="0"/>
                       <foreground color="-1"/>
-                      <text value="8"/>
+                      <text value="0"/>
                     </properties>
                   </component>
                 </children>
@@ -163,7 +163,7 @@
                 <properties>
                   <font name="Tahoma" size="18" style="0"/>
                   <horizontalAlignment value="0"/>
-                  <text value="100%"/>
+                  <text value="0%"/>
                 </properties>
               </component>
               <component id="29d82" class="javax.swing.JLabel" binding="redBoardControlLabel">
@@ -175,7 +175,7 @@
                 <properties>
                   <font name="Tahoma" size="18" style="0"/>
                   <horizontalAlignment value="0"/>
-                  <text value="100%"/>
+                  <text value="0%"/>
                 </properties>
               </component>
               <grid id="fdb4d" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">

@@ -68,7 +68,7 @@ public class HumanPlayer extends AbstractPlayer implements ActionListener {
      * @param e The mouse click event.
      */
     public void userMouseClickEvent(MouseEvent e) {
-        // Here, we avoid using addPoint, since we are running in the EDT thread already for human players!
+        // Here, we avoid using updatePlayerCounters, since we are running in the EDT thread already for human players!
         addPointSynchronously(e.getPoint());
     }
 

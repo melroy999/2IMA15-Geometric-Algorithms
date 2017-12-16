@@ -7,6 +7,7 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -24,6 +25,9 @@ public class GameState {
     private final List<Point> bluePoints = new ArrayList<>();
     private final List<Point> redPoints = new ArrayList<>();
 
+    // The current turn number, based on the amount of turns the red player has had.
+    private int currentTurn;
+
     public GameState() {
         // To initialize, we should use the reset function.
         reset();
@@ -35,7 +39,7 @@ public class GameState {
      * @param controller The controller that should receive the predicates.
      */
     public final void setPredicates(GameController controller) {
-        controller.setPredicates(this::addPoint);
+        controller.setPredicates(this::addPoint, this::reset);
     }
 
     /**
@@ -45,7 +49,17 @@ public class GameState {
      * @return Whether the insertion of the point was successful or not.
      */
     private boolean addPoint(Point p) {
-        throw new NotImplementedException();
+        if(currentPlayerTurn == PlayerTurn.RED) {
+            redPoints.add(p);
+        } else {
+            if(getNumberOfBluePoints() + 1 < getNumberOfRedPoints()) {
+                bluePoints.add(p);
+            } else {
+                // We are not allowed to add more points than the red player, thus refuse.
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -71,14 +85,71 @@ public class GameState {
      * Change the turn to be the next player's turn.
      */
     public void changeTurn() {
+        // If we switch to the red player, increment the turn counter.
+        if(currentPlayerTurn.next() == PlayerTurn.RED) {
+            currentTurn++;
+        }
+
+        // Change to the next player's turn.
         currentPlayerTurn = currentPlayerTurn.next();
+    }
+
+    /**
+     * Get the current turn number.
+     *
+     * @return The current turn number, between 0 and infinity.
+     */
+    public int getCurrentTurn() {
+        return currentTurn;
+    }
+
+    /**
+     * Return an immutable list containing the blue points.
+     *
+     * @return The blue points list as an immutable collection.
+     */
+    public List<Point> getBluePoints() {
+        return Collections.unmodifiableList(bluePoints);
+    }
+
+    /**
+     * Get the number of blue points.
+     *
+     * @return The number of blue points.
+     */
+    public int getNumberOfBluePoints() {
+        return bluePoints.size();
+    }
+
+    /**
+     * Return an immutable list containing the red points.
+     *
+     * @return The red points list as an immutable collection.
+     */
+    public List<Point> getRedPoints() {
+        return Collections.unmodifiableList(redPoints);
+    }
+
+    /**
+     * Get the number of red points.
+     *
+     * @return The number of red points.
+     */
+    public int getNumberOfRedPoints() {
+        return redPoints.size();
     }
 
     /**
      * Reset the game state.
      */
     private void reset() {
+        // Reset the turn system.
         currentPlayerTurn = PlayerTurn.RED;
+        currentTurn = 0;
+
+        // Reset all the stored data.
+        bluePoints.clear();
+        redPoints.clear();
     }
 
     /**

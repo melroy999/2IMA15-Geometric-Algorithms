@@ -6,7 +6,6 @@ import geo.gui.GUI;
 import geo.player.AbstractPlayer;
 import geo.player.HumanPlayer;
 import geo.state.GameState;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -85,7 +84,8 @@ public class GameEngine {
         gui.changeCurrentPlayerLabel(state.getCurrentPlayerTurn());
 
         // Depending on whether this is a player's turn, disable the next turn and reset buttons.
-        gui.changeUserControlButtonEnabled(player instanceof HumanPlayer);
+        gui.changeNextButtonEnabled(player instanceof HumanPlayer);
+        gui.changeResetButtonEnabled(player instanceof HumanPlayer);
 
         // For this, we have to start a new task on the pool.
         pool.execute(() -> player.turn(state));
@@ -98,8 +98,20 @@ public class GameEngine {
         // End the current players turn, which means that we should start the turn of the other player.
         state.changeTurn();
 
-        // Initiate the turn change.
-        startPlayerTurn(state.getCurrentPlayer());
+        // Check whether we have a limited amount of turns. If not, just change the turn.
+        if(gui.getMaximumNumberOfTurns() == -1) {
+            // Initiate the turn change.
+            startPlayerTurn(state.getCurrentPlayer());
+        } else {
+            // Otherwise, only change the turn if we are below the maximum amount of turns.
+            if(state.getCurrentTurn() < gui.getMaximumNumberOfTurns()) {
+                // Initiate the turn change.
+                startPlayerTurn(state.getCurrentPlayer());
+            } else {
+                // Disable the next button, as the game is over.
+                gui.changeNextButtonEnabled(false);
+            }
+        }
     }
 
     /**
@@ -108,12 +120,18 @@ public class GameEngine {
     public void resetGame() {
         // Enable the start button, disable the other buttons.
         gui.changeStartButtonEnabled(true);
-        gui.changeUserControlButtonEnabled(false);
+        gui.changeNextButtonEnabled(false);
+        gui.changeResetButtonEnabled(false);
+        gui.updateGameStateCounters(0, 0, 0, 0);
 
         // Set the player label to be empty.
         gui.changeCurrentPlayerLabel(null);
+    }
 
-        // End the game.
-        throw new NotImplementedException();
+    /**
+     * Update the count and area displays in the GUI of the two players.
+     */
+    public void updatePlayerCounters() {
+        gui.updateGameStateCounters(state.getNumberOfRedPoints(), state.getNumberOfBluePoints(), 0, 0);
     }
 }
