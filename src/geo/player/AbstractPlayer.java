@@ -1,12 +1,10 @@
 package geo.player;
 
 import geo.controller.GameController;
-import geo.engine.GameEngine;
 import geo.state.GameState;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;

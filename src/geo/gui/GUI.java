@@ -42,6 +42,7 @@ public class GUI {
     private JCheckBox limitNumberOfTurnsCheckBox;
     private JSpinner numberOfTurnsSpinner;
     private JLabel cursorPositionLabel;
+    private JCheckBox showVoronoiPreviewCheckBox;
 
     /**
      * The GUI is a singleton.
@@ -211,6 +212,6 @@ public class GUI {
         numberOfTurnsSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 20, 1));
 
         // Obviously, we have to initialize our drawing panel.
-        boardPanel = new GamePanel();
+        boardPanel = new GamePanel(this);
     }
 }

@@ -1,9 +1,7 @@
 package geo.state;
 
 import geo.controller.GameController;
-import geo.engine.GameEngine;
 import geo.player.AbstractPlayer;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.awt.*;
 import java.util.ArrayList;
