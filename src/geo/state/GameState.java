@@ -1,8 +1,14 @@
 package geo.state;
 
+import geo.controller.GameController;
+import geo.engine.GameEngine;
 import geo.player.AbstractPlayer;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * The current state of the playing board.
@@ -14,9 +20,32 @@ public class GameState {
     // The player that currently has the turn.
     private PlayerTurn currentPlayerTurn;
 
+    // The points put down by the blue and red players.
+    private final List<Point> bluePoints = new ArrayList<>();
+    private final List<Point> redPoints = new ArrayList<>();
+
     public GameState() {
         // To initialize, we should use the reset function.
         reset();
+    }
+
+    /**
+     * Set the predicates in the game controller.
+     *
+     * @param controller The controller that should receive the predicates.
+     */
+    public final void setPredicates(GameController controller) {
+        controller.setPredicates(this::addPoint);
+    }
+
+    /**
+     * Add a point to the state.
+     *
+     * @param p The point to add to the state.
+     * @return Whether the insertion of the point was successful or not.
+     */
+    private boolean addPoint(Point p) {
+        throw new NotImplementedException();
     }
 
     /**

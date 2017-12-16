@@ -2,12 +2,12 @@ package geo.controller;
 
 import geo.engine.GameEngine;
 import geo.state.GameState;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.awt.*;
+import java.util.function.Predicate;
 
 /**
- * A class in which all user related input is handled.
+ * A class in which all input is handled.
  */
 public class GameController {
     // The game state to apply the actions to.
@@ -15,6 +15,9 @@ public class GameController {
 
     // The engine to correspond messages with.
     private final GameEngine engine;
+
+    // Predicates used during the communication with the game state.
+    private Predicate<Point> addPoint;
 
     /**
      * Create a game controller, which will execute its actions on the given game state.
@@ -25,6 +28,18 @@ public class GameController {
     public GameController(GameEngine engine, GameState state) {
         this.state = state;
         this.engine = engine;
+
+        // Ask the state for predicates to access private methods.
+        this.state.setPredicates(this);
+    }
+
+    /**
+     * Set the predicates used to access the gamestate, to provide immutability in the player objects.
+     *
+     * @param addPoint The predicate that adds points to the game state.
+     */
+    public final void setPredicates(Predicate<Point> addPoint) {
+        this.addPoint = addPoint;
     }
 
     /**
@@ -34,7 +49,7 @@ public class GameController {
      * @return Whether the insertion of the point was successful or not.
      */
     public boolean addPoint(Point p) {
-        throw new NotImplementedException();
+        return addPoint.test(p);
     }
 
     /**

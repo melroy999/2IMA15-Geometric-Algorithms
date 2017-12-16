@@ -2,6 +2,7 @@ package geo.engine;
 
 import geo.controller.GameController;
 import geo.gui.GUI;
+
 import geo.player.AbstractPlayer;
 import geo.player.HumanPlayer;
 import geo.state.GameState;
@@ -48,9 +49,6 @@ public class GameEngine {
         // Create the gui.
         gui = GUI.createAndShow();
         gui.init(players, (HumanPlayer) players[0]);
-
-        // Set the initial players.
-        state.setPlayers(gui.getCurrentRedPlayer(), gui.getCurrentBluePlayer());
     }
 
     /**
@@ -67,6 +65,9 @@ public class GameEngine {
      * Start the game.
      */
     public void startGame() {
+        // Set the initial players.
+        state.setPlayers(gui.getCurrentRedPlayer(), gui.getCurrentBluePlayer());
+
         // Disable the start button.
         gui.changeStartButtonEnabled(false);
 

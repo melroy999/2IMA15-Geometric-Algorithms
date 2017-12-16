@@ -78,7 +78,7 @@ public class HumanPlayer extends AbstractPlayer implements ActionListener {
      * @param p The point the user wants to add.
      * @return Whether the insertion of the point was successful or not.
      */
-    protected final boolean addPointSynchronously(Point p) {
+    private boolean addPointSynchronously(Point p) {
         // If we reach this point, the addition of the point would have failed.
         return controller.addPoint(p);
     }
