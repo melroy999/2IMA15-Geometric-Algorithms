@@ -33,12 +33,11 @@ public class Label implements IDrawable {
     /**
      * Draw the shape.
      *
-     * @param g The graphics object to draw in.
-     * @param debug Whether we should view debug information.
+     * @param g The graphics object to drawPoints in.
      */
     @Override
-    public void draw(Graphics2D g, boolean debug) {
-        // If we debug, we also want to draw the label of the point.
+    public void draw(Graphics2D g) {
+        // If we debug, we also want to drawPoints the label of the point.
         g.setFont(Constants.font);
         g.setColor(Color.BLACK);
 

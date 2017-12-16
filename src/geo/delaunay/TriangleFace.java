@@ -25,16 +25,16 @@ public class TriangleFace extends Triangle2d implements Iterable<Edge<TriangleFa
     private static int counter = 0;
     public final int id;
 
-    // The label that we can draw in the gui.
+    // The label that we can drawPoints in the gui.
     private final Label label;
 
     // The shape of this label.
     private final Polygon shape;
 
-    // The circum circle we can draw in the gui.
+    // The circum circle we can drawPoints in the gui.
     private final Circle circumCircleShape;
 
-    // The circum center we can draw in the gui.
+    // The circum center we can drawPoints in the gui.
     private final Point circumCenterShape;
 
     // We will always have an outer face, so keep a static reference to it.
@@ -68,7 +68,7 @@ public class TriangleFace extends Triangle2d implements Iterable<Edge<TriangleFa
         shape = new Polygon("", e1.origin, e2.origin, e3.origin);
         label = new Label(c.x, c.y, "f" + id);
         circumCircleShape = new Circle(cc.x, cc.y, ccr);
-        circumCenterShape = new Point(cc.x, cc.y, "", Color.magenta);
+        circumCenterShape = new Point(cc.x, cc.y, Color.magenta);
     }
 
     /**
@@ -135,6 +135,50 @@ public class TriangleFace extends Triangle2d implements Iterable<Edge<TriangleFa
 
         // Return the arraylist.
         return edges;
+    }
+
+    /**
+     * Draw the shape.
+     *
+     * @param g The graphics object to draw in.
+     */
+    public void drawFace(Graphics2D g) {
+        // We draw the shape in a grey color, with alpha.
+        g.setColor(new Color(210, 210, 210, 50));
+
+        if(shape != null) shape.draw(g);
+    }
+
+    /**
+     * Draw the shape.
+     *
+     * @param g The graphics object to draw in.
+     */
+    public void drawCircumCenter(Graphics2D g) {
+        // Draw the label stored in the object.
+        if(circumCenterShape != null) circumCenterShape.draw(g);
+    }
+
+    /**
+     * Draw the shape.
+     *
+     * @param g The graphics object to draw in.
+     */
+    public void drawCircumCircle(Graphics2D g) {
+        // We draw circum circles in a magenta color.
+        g.setColor(Color.magenta);
+
+        // Draw the label stored in the object.
+        if(circumCircleShape != null) circumCircleShape.draw(g);
+    }
+
+    /**
+     * Draw the shape.
+     *
+     * @param g The graphics object to draw in.
+     */
+    public void drawLabel(Graphics2D g) {
+        if(label != null) label.draw(g);
     }
 
     /**

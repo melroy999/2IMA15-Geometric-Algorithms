@@ -45,20 +45,10 @@ public class Polygon implements IDrawable {
     /**
      * Draw the shape.
      *
-     * @param g The graphics object to draw in.
-     * @param debug Whether we should view debug information.
+     * @param g The graphics object to drawPoints in.
      */
     @Override
-    public void draw(Graphics2D g, boolean debug) {
-        if(debug) {
-            // If we debug, we also want to draw the label of the point.
-            g.setFont(Constants.font);
-            g.setColor(Color.BLACK);
-
-            // Draw the text.
-            g.drawString(label, x, y);
-        }
-
+    public void draw(Graphics2D g) {
         // Draw the shape, with the desired color.
         g.fill(shape);
     }

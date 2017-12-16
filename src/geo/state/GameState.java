@@ -1,12 +1,15 @@
 package geo.state;
 
 import geo.controller.GameController;
+import geo.delaunay.DelaunayMesh;
+import geo.delaunay.DelaunayTriangulator;
+import geo.delaunay.TriangleFace;
 import geo.player.AbstractPlayer;
+import geo.store.halfedge.Vertex;
+import geo.voronoi.VoronoiDiagram;
 
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -20,11 +23,20 @@ public class GameState {
     private PlayerTurn currentPlayerTurn;
 
     // The points put down by the blue and red players.
-    private final List<Point> bluePoints = new ArrayList<>();
-    private final List<Point> redPoints = new ArrayList<>();
+    private final List<Vertex<TriangleFace>> bluePoints = new ArrayList<>();
+    private final List<Vertex<TriangleFace>> redPoints = new ArrayList<>();
 
     // The current turn number, based on the amount of turns the red player has had.
     private int currentTurn;
+
+    // The triangulator.
+    private DelaunayTriangulator triangulator;
+
+    // The resulting voronoi diagram.
+    private VoronoiDiagram voronoiDiagram;
+
+    // The random instance used for shuffling.
+    private static final Random random = new Random(8988178178129387065L);
 
     public GameState() {
         // To initialize, we should use the reset function.
@@ -47,17 +59,70 @@ public class GameState {
      * @return Whether the insertion of the point was successful or not.
      */
     private boolean addPoint(Point p) {
-        if(currentPlayerTurn == PlayerTurn.RED) {
-            redPoints.add(p);
-        } else {
-            if(getNumberOfBluePoints() + 1 < getNumberOfRedPoints()) {
-                bluePoints.add(p);
-            } else {
-                // We are not allowed to add more points than the red player, thus refuse.
+        // First, convert to our own vertex type.
+        Vertex<TriangleFace> vertex = new Vertex<>(p.x, p.y, currentPlayerTurn);
+
+        // If the point already exists, do nothing.
+        if(checkPointExistence(vertex)) return false;
+
+        // Blue is only allowed to have n-1 points.
+        if(currentPlayerTurn == PlayerTurn.BLUE && getNumberOfRedPoints() <= getNumberOfBluePoints() + 1 ) {
+            return false;
+        }
+
+        // We have to enforce randomized incremental construction for the Delaunay triangulation...
+        triangulator = new DelaunayTriangulator();
+
+        // The list of all points, shuffled straight after.
+        List<Vertex<TriangleFace>> points = union(redPoints, bluePoints, Collections.singletonList(vertex));
+        Collections.shuffle(points, random);
+
+        // Insert all already known points, and the new point, in random order.
+        for(Vertex<TriangleFace> point : points) {
+            try {
+                triangulator.insert(point);
+            } catch (DelaunayMesh.EdgeNotFoundException | DelaunayMesh.PointInsertedInOuterFaceException e) {
+                e.printStackTrace();
                 return false;
             }
         }
+
+        // Create the voronoi diagram.
+        voronoiDiagram = new VoronoiDiagram(points);
+
+        // Only after all previous insertions pass, add the point to the list of points.
+        if(currentPlayerTurn == PlayerTurn.RED) {
+            redPoints.add(vertex);
+        } else {
+            bluePoints.add(vertex);
+        }
         return true;
+    }
+
+    /**
+     * Take the union of two lists.
+     *
+     * @param lists The lists we want to take the union of.
+     * @param <T> The type of objects in the list.
+     * @return The combination of the two lists.
+     */
+    @SafeVarargs
+    private static <T> List<T> union(List<T>... lists) {
+        Set<T> set = new HashSet<>();
+
+        for(List<T> list : lists) set.addAll(list);
+
+        return new ArrayList<>(set);
+    }
+
+    /**
+     * Check whether the given point already exists for one of the users.
+     * @param vertex The vertex we want to check the existence of.
+     * @return Whether there exists any point in the red or blue sets that is equal to the given point.
+     */
+    public boolean checkPointExistence(Vertex<TriangleFace> vertex) {
+        return redPoints.stream().anyMatch(v -> v.equals(vertex))
+                || bluePoints.stream().anyMatch(v -> v.equals(vertex));
     }
 
     /**
@@ -106,7 +171,7 @@ public class GameState {
      *
      * @return The blue points list as an immutable collection.
      */
-    public List<Point> getBluePoints() {
+    public List<Vertex<TriangleFace>> getBluePoints() {
         return Collections.unmodifiableList(bluePoints);
     }
 
@@ -124,7 +189,7 @@ public class GameState {
      *
      * @return The red points list as an immutable collection.
      */
-    public List<Point> getRedPoints() {
+    public List<Vertex<TriangleFace>> getRedPoints() {
         return Collections.unmodifiableList(redPoints);
     }
 
@@ -138,6 +203,15 @@ public class GameState {
     }
 
     /**
+     * Return a list containing all points.
+     *
+     * @return The points list.
+     */
+    public List<Vertex<TriangleFace>> getPoints() {
+        return union(redPoints, bluePoints);
+    }
+
+    /**
      * Reset the game state.
      */
     private void reset() {
@@ -148,6 +222,10 @@ public class GameState {
         // Reset all the stored data.
         bluePoints.clear();
         redPoints.clear();
+
+        // Set a triangulator and voronoi diagram, to avoid null pointers...
+        triangulator = new DelaunayTriangulator();
+        voronoiDiagram = new VoronoiDiagram(new ArrayList<>());
     }
 
     /**
@@ -159,6 +237,24 @@ public class GameState {
     public void setPlayers(AbstractPlayer red, AbstractPlayer blue) {
         players.put(PlayerTurn.RED, red);
         players.put(PlayerTurn.BLUE, blue);
+    }
+
+    /**
+     * Get all the visible faces.
+     *
+     * @return The faces that are leaves of the DAG and the outer face.
+     */
+    public Set<TriangleFace> getTriangulatedFaces() {
+        return triangulator.getTriangulatedFaces();
+    }
+
+    /**
+     * Get the current Voronoi diagram.
+     *
+     * @return The Voronoi diagram instance.
+     */
+    public VoronoiDiagram getVoronoiDiagram() {
+        return voronoiDiagram;
     }
 
     /**

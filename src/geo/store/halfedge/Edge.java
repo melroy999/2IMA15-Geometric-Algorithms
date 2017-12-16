@@ -3,6 +3,8 @@ package geo.store.halfedge;
 import geo.store.gui.Line;
 import geo.store.math.Point2d;
 
+import java.awt.*;
+
 /**
  * A half-edge in a half edge structure.
  */
@@ -26,7 +28,7 @@ public class Edge<T> {
     private static int counter = 0;
     public final int id;
 
-    // The shape that we can draw in the gui.
+    // The shape that we can drawPoints in the gui.
     private final Line shape;
 
     /**
@@ -48,7 +50,7 @@ public class Edge<T> {
         // Ensure that at least one incident edge is set for the vertex.
         origin.incidentEdge = this;
 
-        // Create a shape we can draw for this structure.
+        // Create a shape we can drawPoints for this structure.
         shape = new Line(origin, origin.interpolate(target, 0.5d));
     }
 
@@ -72,7 +74,7 @@ public class Edge<T> {
         // Ensure that at least one incident edge is set for the vertex.
         origin.incidentEdge = this;
 
-        // Create a shape we can draw for this structure.
+        // Create a shape we can drawPoints for this structure.
         shape = new Line(origin, origin.interpolate(target, 0.5d));
     }
 
@@ -96,6 +98,16 @@ public class Edge<T> {
         // Check if the sum of the lengths of a -> b + b -> c == a -> c.
         return almostEqual(this.origin.distance(p) + p.distance(this.twin.origin),
                 this.origin.distance(this.twin.origin));
+    }
+
+    /**
+     * Draw the object.
+     *
+     * @param g     The graphics object to use.
+     */
+    public void drawEdge(Graphics2D g) {
+        // Draw the shape stored in the object.
+        shape.draw(g);
     }
 
     /**

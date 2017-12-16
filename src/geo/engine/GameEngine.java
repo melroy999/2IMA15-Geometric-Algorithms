@@ -48,6 +48,7 @@ public class GameEngine {
         // Create the gui.
         gui = GUI.createAndShow();
         gui.init(players, (HumanPlayer) players[0]);
+        gui.setState(state);
     }
 
     /**
@@ -126,12 +127,15 @@ public class GameEngine {
 
         // Set the player label to be empty.
         gui.changeCurrentPlayerLabel(null);
+        gui.redrawGamePanel();
     }
 
     /**
      * Update the count and area displays in the GUI of the two players.
      */
     public void updatePlayerCounters() {
+        // Update the status, and ask for a game panel redraw.
         gui.updateGameStateCounters(state.getNumberOfRedPoints(), state.getNumberOfBluePoints(), 0, 0);
+        gui.redrawGamePanel();
     }
 }

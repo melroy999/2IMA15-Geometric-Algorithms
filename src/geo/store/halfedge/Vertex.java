@@ -21,14 +21,14 @@ public class Vertex<T> extends Point2d implements Iterable<Edge<T>> {
     private static int counter = 0;
     public final int id;
 
-    // The label that we can draw in the gui.
+    // The label that we can drawPoints in the gui.
     private final Label label;
 
     // Which player this vertex belongs to.
     public final GameState.PlayerTurn player;
 
     // The label of the vertex.
-    public final Point shape;
+    private final Point shape;
 
     /**
      * Create a vertex at the given coordinates.
@@ -48,17 +48,16 @@ public class Vertex<T> extends Point2d implements Iterable<Edge<T>> {
 
         // Create a drawable figures.
         label = new Label(x, y, "v" + id);
-        shape = new Point(x, y, "", player == GameState.PlayerTurn.RED ? Color.RED : Color.BLUE);
+        shape = new Point(x, y, player == GameState.PlayerTurn.RED ? Color.RED : Color.BLUE);
     }
 
     /**
      * Create a vertex at the given point.
      *
      * @param point The location where the point should be placed.
-     * @param player The player this vertex belongs to.
      */
-    public Vertex(Point2d point, GameState.PlayerTurn player) {
-        this(point.x, point.y, player);
+    public Vertex(Point2d point) {
+        this(point.x, point.y, null);
     }
 
     /**
@@ -121,5 +120,51 @@ public class Vertex<T> extends Point2d implements Iterable<Edge<T>> {
         public SymbolicVertex(double x, double y) {
             super(x, y, GameState.PlayerTurn.RED);
         }
+    }
+
+    /**
+     * Draw the shape.
+     *
+     * @param g The graphics object to draw in.
+     */
+    public void drawPoint(Graphics2D g) {
+        shape.draw(g);
+    }
+
+    /**
+     * Draw the shape.
+     *
+     * @param g The graphics object to draw in.
+     */
+    public void drawLabel(Graphics2D g) {
+        label.draw(g);
+    }
+
+    /**
+     * Two points are equal when the distance between the point centers is less than the radius of the points.
+     *
+     * @param obj The object we want to check equality for.
+     * @return True if the reference is the same, or the distance between the points is less than the radius.
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Vertex) {
+            // Points are equal if the distance between them is less than the radius.
+            Vertex<T> v = (Vertex<T>) obj;
+            return Math.sqrt(Math.pow(x - v.x, 2) + Math.pow(y - v.y, 2)) <= 10;
+        }
+        return super.equals(obj);
+    }
+
+    /**
+     * Create an 'unique' hash for the point.
+     *
+     * @return A hash for the point.
+     */
+    @Override
+    public int hashCode() {
+        long bits = java.lang.Double.doubleToLongBits(x);
+        bits ^= java.lang.Double.doubleToLongBits(y) * 31;
+        return (((int) bits) ^ ((int) (bits >> 32)));
     }
 }

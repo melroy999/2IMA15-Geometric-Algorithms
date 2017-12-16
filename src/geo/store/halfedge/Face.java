@@ -1,9 +1,11 @@
 package geo.store.halfedge;
 
 import geo.delaunay.TriangleFace;
+import geo.state.GameState;
 import geo.store.gui.Polygon;
 import geo.store.math.Point2d;
 
+import java.awt.*;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -70,6 +72,19 @@ public class Face implements Iterable<Edge<Face>> {
 
         // Return the arraylist.
         return edges;
+    }
+
+    /**
+     * Draw the shape.
+     *
+     * @param g The graphics object to draw in.
+     */
+    public void drawFace(Graphics2D g) {
+        // We draw the shape in a grey color, with alpha.
+        g.setColor(centerPoint.player == GameState.PlayerTurn.RED ?
+                new Color(255, 0, 0, 100) : new Color(0, 0, 255, 100));
+
+        shape.draw(g);
     }
 
     /**

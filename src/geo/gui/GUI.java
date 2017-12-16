@@ -43,6 +43,7 @@ public class GUI {
     private JSpinner numberOfTurnsSpinner;
     private JLabel cursorPositionLabel;
     private JCheckBox showVoronoiPreviewCheckBox;
+    private JCheckBox drawVoronoiDiagramCheckBox;
 
     /**
      * The GUI is a singleton.
@@ -127,6 +128,13 @@ public class GUI {
                 cursorPositionLabel.setText("(" + e.getX() + ", " + e.getY() + ")");
             }
         });
+
+        // Now, add action listeners to all objects that should trigger a redraw.
+        drawDebugLabelsCheckBox.addActionListener(e -> redrawGamePanel());
+        drawCircumCirclesCheckBox.addActionListener(e -> redrawGamePanel());
+        drawCircumCentersCheckBox.addActionListener(e -> redrawGamePanel());
+        drawDelaunayTriangulationCheckBox.addActionListener(e -> redrawGamePanel());
+        drawVoronoiDiagramCheckBox.addActionListener(e -> redrawGamePanel());
     }
 
     /**
@@ -207,6 +215,70 @@ public class GUI {
         blueBoardControlLabel.setText(blueArea + "%");
     }
 
+    /**
+     * Whether to draw the Delaunay triangulation.
+     *
+     * @return True if we want to draw the Delaunay triangulation, false otherwise.
+     */
+    public boolean drawDelaunayTriangulation() {
+        return drawDelaunayTriangulationCheckBox.isSelected();
+    }
+
+    /**
+     * Whether to draw the circum centers of the circum circles.
+     *
+     * @return True if we want to draw the circum centers, false otherwise.
+     */
+    public boolean drawCircumCenters() {
+        return drawCircumCentersCheckBox.isSelected();
+    }
+
+    /**
+     * Whether to draw the circum circles of the triangles in the triangulation.
+     *
+     * @return True if we want to draw the circum circles, false otherwise.
+     */
+    public boolean drawCircumCircles() {
+        return drawCircumCirclesCheckBox.isSelected();
+    }
+
+    /**
+     * Whether to draw the debug labels.
+     *
+     * @return True if we want to draw the debug labels, false otherwise.
+     */
+    public boolean drawDebugLabels() {
+        return drawDebugLabelsCheckBox.isSelected();
+    }
+
+    /**
+     * Whether to draw the Voronoi diagram the debug labels.
+     *
+     * @return True if we want to draw the Voronoi diagram, false otherwise.
+     */
+    public boolean drawVoronoiDiagram() {
+        return drawVoronoiDiagramCheckBox.isSelected();
+    }
+
+    /**
+     * Set the state to render in the board panel.
+     *
+     * @param state The state we want to render in the game panel.
+     */
+    public void setState(GameState state) {
+        ((GamePanel) boardPanel).setState(state);
+    }
+
+    /**
+     * Repaint the game panel.
+     */
+    public void redrawGamePanel() {
+        boardPanel.repaint();
+    }
+
+    /**
+     * Create the GUI components that are not automatically created.
+     */
     private void createUIComponents() {
         // We initialize the spinner using a special model, since we want to start at a different point.
         numberOfTurnsSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 20, 1));

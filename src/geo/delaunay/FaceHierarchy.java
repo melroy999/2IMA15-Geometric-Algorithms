@@ -113,7 +113,7 @@ public class FaceHierarchy extends DAG<TriangleFace> {
      *
      * @return The faces that are leaves of the DAG and the outer face.
      */
-    public Set<TriangleFace> getFaces() {
+    public Set<TriangleFace> getTriangulatedFaces() {
         // The currently active faces are all the leaves of the DAG.
         Set<TriangleFace> faces = getLeaves();
         faces.add(TriangleFace.outerFace);

@@ -185,4 +185,13 @@ public class DelaunayMesh {
                     "is on an edge, but an edge intersecting %s could not be found.", v, v));
         }
     }
+
+    /**
+     * Get all the visible faces.
+     *
+     * @return The faces that are leaves of the DAG and the outer face.
+     */
+    public Set<TriangleFace> getTriangulatedFaces() {
+        return faceIndex.getTriangulatedFaces();
+    }
 }

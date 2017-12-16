@@ -3,6 +3,8 @@ package geo.delaunay;
 import geo.store.halfedge.Edge;
 import geo.store.halfedge.Vertex;
 
+import java.util.Set;
+
 /**
  * A class that computes the Delaunay triangulation for a set of points.
  */
@@ -64,11 +66,11 @@ public class DelaunayTriangulator {
     }
 
     /**
-     * Get the mesh the triangulator is drawing in.
+     * Get all the visible faces.
      *
-     * @return The triangulation mash.
+     * @return The faces that are leaves of the DAG and the outer face.
      */
-    public DelaunayMesh getMesh() {
-        return mesh;
+    public Set<TriangleFace> getTriangulatedFaces() {
+        return mesh.getTriangulatedFaces();
     }
 }

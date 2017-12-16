@@ -25,11 +25,10 @@ public class Circle implements IDrawable {
     /**
      * Draw the shape.
      *
-     * @param g The graphics object to draw in.
-     * @param debug Whether to view debug information.
+     * @param g The graphics object to drawPoints in.
      */
     @Override
-    public void draw(Graphics2D g, boolean debug) {
+    public void draw(Graphics2D g) {
         // Draw the shape, with the desired color.
         g.draw(shape);
     }
