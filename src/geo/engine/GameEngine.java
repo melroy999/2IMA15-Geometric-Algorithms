@@ -6,7 +6,9 @@ import geo.gui.GUI;
 import geo.player.AbstractPlayer;
 import geo.player.HumanPlayer;
 import geo.state.GameState;
+import geo.voronoi.VoronoiDiagram;
 
+import java.awt.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -135,7 +137,15 @@ public class GameEngine {
      */
     public void updatePlayerCounters() {
         // Update the status, and ask for a game panel redraw.
-        gui.updateGameStateCounters(state.getNumberOfRedPoints(), state.getNumberOfBluePoints(), 0, 0);
+        VoronoiDiagram d = state.getVoronoiDiagram();
+
+        // First, calculate the area in percentages.
+        Dimension dim = gui.getGamePanelDimensions();
+        int t = dim.width * dim.height;
+        int redArea = (int) Math.round(100 * (d.getAreaRed() / t));
+        int blueArea = (int) Math.round(100 * (d.getAreaBlue() / t));
+
+        gui.updateGameStateCounters(state.getNumberOfRedPoints(), state.getNumberOfBluePoints(), redArea, blueArea);
         gui.redrawGamePanel();
     }
 }

@@ -95,4 +95,37 @@ public abstract class Tuple2d<T> {
      * @return An instance of the desired type, that is an extension of Tuple2d.
      */
     protected abstract T get(double x, double y);
+
+    /**
+     * Check whether the tuples are equal to one another.
+     *
+     * @param o The object we want to check the equality of.
+     * @return Whether the tuples have the same x and y coordinates.
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Tuple2d<?> tuple2d = (Tuple2d<?>) o;
+
+        if (Double.compare(tuple2d.x, x) != 0) return false;
+        return Double.compare(tuple2d.y, y) == 0;
+    }
+
+    /**
+     * Get an unique hash code.
+     *
+     * @return Hash code.
+     */
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        temp = Double.doubleToLongBits(x);
+        result = (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(y);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
 }

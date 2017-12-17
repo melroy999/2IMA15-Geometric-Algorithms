@@ -36,7 +36,7 @@ public class GameState {
     private VoronoiDiagram voronoiDiagram;
 
     // The random instance used for shuffling.
-    private static final Random random = new Random(8988178178129387065L);
+    private Random random;
 
     public GameState() {
         // To initialize, we should use the reset function.
@@ -66,7 +66,7 @@ public class GameState {
         if(checkPointExistence(vertex)) return false;
 
         // Blue is only allowed to have n-1 points.
-        if(currentPlayerTurn == PlayerTurn.BLUE && getNumberOfRedPoints() <= getNumberOfBluePoints() + 1 ) {
+        if(currentPlayerTurn == PlayerTurn.BLUE && getNumberOfRedPoints() <= getNumberOfBluePoints() + 1) {
             return false;
         }
 
@@ -226,6 +226,7 @@ public class GameState {
         // Set a triangulator and voronoi diagram, to avoid null pointers...
         triangulator = new DelaunayTriangulator();
         voronoiDiagram = new VoronoiDiagram(new ArrayList<>());
+        random = new Random(8988178178129387065L);
     }
 
     /**

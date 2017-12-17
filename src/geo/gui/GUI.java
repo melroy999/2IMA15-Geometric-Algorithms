@@ -277,6 +277,15 @@ public class GUI {
     }
 
     /**
+     * Get the size of the game panel.
+     *
+     * @return The size of the game panel as a dimension object.
+     */
+    public Dimension getGamePanelDimensions() {
+        return boardPanel.getSize();
+    }
+
+    /**
      * Create the GUI components that are not automatically created.
      */
     private void createUIComponents() {

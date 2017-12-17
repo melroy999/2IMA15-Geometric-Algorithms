@@ -24,6 +24,9 @@ public class Face implements Iterable<Edge<Face>> {
     // The shape of this label.
     private final Polygon shape;
 
+    // The area of this face.
+    private final double area;
+
     // The center point of the face.
     public final Vertex<TriangleFace> centerPoint;
 
@@ -50,6 +53,31 @@ public class Face implements Iterable<Edge<Face>> {
 
         // Create the shapes.
         shape = new Polygon("", edges.stream().map(e -> e.origin).toArray(Point2d[]::new));
+
+        // Calculate the area of the face.
+        this.area = calculateArea();
+    }
+
+    /**
+     * Calculate the total area of this face in pixels.
+     *
+     * @return The area of the face measured in pixels.
+     */
+    private double calculateArea() {
+        double doubleArea = 0;
+        for(Edge<Face> edge : this) {
+            doubleArea += (edge.origin.y + edge.next().origin.y) * (edge.next().origin.x - edge.origin.x);
+        }
+        return doubleArea / 2;
+    }
+
+    /**
+     * Get the area of the face.
+     *
+     * @return The area of the face.
+     */
+    public double getArea() {
+        return area;
     }
 
     /**
