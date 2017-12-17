@@ -133,6 +133,15 @@ public class GameEngine {
     }
 
     /**
+     * Get the color of the player that currently gets to add points.
+     *
+     * @return The color of the player that currently is active.
+     */
+    public GameState.PlayerTurn getPlayerTurn() {
+        return state.getCurrentPlayerTurn();
+    }
+
+    /**
      * Update the count and area displays in the GUI of the two players.
      */
     public void updatePlayerCounters() {
