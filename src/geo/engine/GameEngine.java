@@ -3,8 +3,10 @@ package geo.engine;
 import geo.controller.GameController;
 import geo.gui.GUI;
 
+import geo.player.AIPlayer;
 import geo.player.AbstractPlayer;
 import geo.player.HumanPlayer;
+import geo.player.ImportFilePlayer;
 import geo.state.GameState;
 import geo.voronoi.VoronoiDiagram;
 
@@ -31,9 +33,6 @@ public class GameEngine {
     // The pool in which we run player turns and other cpu heavy tasks.
     private final ExecutorService pool = Executors.newCachedThreadPool();
 
-    // A list of player types that we have.
-    private final AbstractPlayer[] players;
-
     /**
      * The game engine is a singleton, we only want one instance.
      */
@@ -42,14 +41,21 @@ public class GameEngine {
         state = new GameState();
         controller = new GameController(this, state);
 
-        // Create the player types we have.
-        players = new AbstractPlayer[] {
-            new HumanPlayer(controller)
+        // Create the player types we have for player 1.
+        AbstractPlayer[] players = new AbstractPlayer[]{
+                new HumanPlayer(controller, GameState.PlayerTurn.RED),
+                new ImportFilePlayer(controller, GameState.PlayerTurn.RED)
+        };
+
+        // Do the same for player 2.
+        AbstractPlayer[] players2 = new AbstractPlayer[] {
+                new HumanPlayer(controller, GameState.PlayerTurn.BLUE),
+                new ImportFilePlayer(controller, GameState.PlayerTurn.BLUE)
         };
 
         // Create the gui.
         gui = GUI.createAndShow();
-        gui.init(players, (HumanPlayer) players[0]);
+        gui.init(players, players2, (HumanPlayer) players[0]);
         gui.setState(state);
     }
 
@@ -69,6 +75,10 @@ public class GameEngine {
     public void startGame() {
         // Set the initial players.
         state.setPlayers(gui.getCurrentRedPlayer(), gui.getCurrentBluePlayer());
+
+        // Reset the ai, if applicable.
+        if(gui.getCurrentRedPlayer() instanceof AIPlayer) ((AIPlayer) gui.getCurrentRedPlayer()).reset();
+        if(gui.getCurrentBluePlayer() instanceof AIPlayer) ((AIPlayer) gui.getCurrentBluePlayer()).reset();
 
         // Disable the start button.
         gui.changeStartButtonEnabled(false);
@@ -101,18 +111,22 @@ public class GameEngine {
         // End the current players turn, which means that we should start the turn of the other player.
         state.changeTurn();
 
+        // Get the current player.
+        AbstractPlayer current = state.getCurrentPlayer();
+
         // Check whether we have a limited amount of turns. If not, just change the turn.
-        if(gui.getMaximumNumberOfTurns() == -1) {
+        if(gui.getMaximumNumberOfTurns() == -1 && !(current instanceof AIPlayer)) {
             // Initiate the turn change.
-            startPlayerTurn(state.getCurrentPlayer());
+            startPlayerTurn(current);
         } else {
             // Otherwise, only change the turn if we are below the maximum amount of turns.
-            if(state.getCurrentTurn() < gui.getMaximumNumberOfTurns()) {
+            if(state.getCurrentTurn() < gui.getMaximumNumberOfTurns() || (current instanceof AIPlayer && !((AIPlayer) current).isDone())) {
                 // Initiate the turn change.
-                startPlayerTurn(state.getCurrentPlayer());
+                startPlayerTurn(current);
             } else {
                 // Disable the next button, as the game is over.
                 gui.changeNextButtonEnabled(false);
+                gui.changeResetButtonEnabled(true);
             }
         }
     }

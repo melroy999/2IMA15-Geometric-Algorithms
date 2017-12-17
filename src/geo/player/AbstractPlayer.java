@@ -16,13 +16,18 @@ public abstract class AbstractPlayer {
     // A reference to the engine, such that we can communicate our moves towards it.
     private final GameController controller;
 
+    // The color of the player.
+    public final GameState.PlayerTurn color;
+
     /**
      * Create a player, given the game controller to communicate with.
      *
      * @param controller The game controller to communicate with.
+     * @param turn The turn this player should be active in.
      */
-    public AbstractPlayer(GameController controller) {
+    public AbstractPlayer(GameController controller, GameState.PlayerTurn turn) {
         this.controller = controller;
+        this.color = turn;
     }
 
     /**

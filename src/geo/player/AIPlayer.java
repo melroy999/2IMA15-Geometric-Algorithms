@@ -8,9 +8,10 @@ public abstract class AIPlayer extends AbstractPlayer {
      * Create a player, given the game controller to communicate with.
      *
      * @param controller The game controller to communicate with.
+     * @param turn The turn this player should be active in.
      */
-    public AIPlayer(GameController controller) {
-        super(controller);
+    public AIPlayer(GameController controller, GameState.PlayerTurn turn) {
+        super(controller, turn);
     }
 
     /**
@@ -33,4 +34,16 @@ public abstract class AIPlayer extends AbstractPlayer {
      * @param state The game state to read data from.
      */
     protected abstract void runAI(GameState state);
+
+    /**
+     * Check whether the ai player is done with his/her turns.
+     *
+     * @return True if done, false otherwise.
+     */
+    public abstract boolean isDone();
+
+    /**
+     * Reset the state of the AI so that we can use it again.
+     */
+    public abstract void reset();
 }

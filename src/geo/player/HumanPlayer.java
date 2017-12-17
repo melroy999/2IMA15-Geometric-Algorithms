@@ -20,9 +20,10 @@ public class HumanPlayer extends AbstractPlayer implements ActionListener {
      * Create a player, given the game controller to communicate with.
      *
      * @param controller The game controller to communicate with.
+     * @param turn The turn this player should be active in.
      */
-    public HumanPlayer(GameController controller) {
-        super(controller);
+    public HumanPlayer(GameController controller, GameState.PlayerTurn turn) {
+        super(controller, turn);
 
         // Set the controller to give the human player more functionality.
         this.controller = controller;

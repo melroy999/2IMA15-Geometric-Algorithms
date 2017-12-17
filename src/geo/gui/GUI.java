@@ -3,13 +3,16 @@ package geo.gui;
 import geo.engine.GameEngine;
 import geo.player.AbstractPlayer;
 import geo.player.HumanPlayer;
+import geo.player.ImportFilePlayer;
 import geo.state.GameState;
+import jdk.nashorn.internal.parser.AbstractParser;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionAdapter;
+import java.awt.event.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.util.Arrays;
 
 /**
@@ -44,23 +47,84 @@ public class GUI {
     private JLabel cursorPositionLabel;
     private JCheckBox showVoronoiPreviewCheckBox;
     private JCheckBox drawVoronoiDiagramCheckBox;
+    private JTextField playerRedFile;
+    private JTextField playerBlueFile;
 
     /**
      * The GUI is a singleton.
      */
     private GUI() {
         boardPanel.addMouseListener(new MouseAdapter() {
-            /**
-             * {@inheritDoc}
-             *
-             * @param e
-             */
             @Override
             public void mouseClicked(MouseEvent e) {
                 super.mouseClicked(e);
             }
         });
-        boardPanel.addMouseListener(new MouseAdapter() {
+
+        playerOneOptions.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                AbstractPlayer item = (AbstractPlayer) e.getItem();
+
+                if(item instanceof ImportFilePlayer) {
+                    // Set the player file selector field to visible.
+                    playerRedFile.setVisible(true);
+
+                    // Make a popup screen in which the user can select the appropriate file.
+                    File directory = new File("runs");
+                    if (! directory.exists()) directory.mkdir();
+
+                    JFileChooser fileChooser = new JFileChooser();
+                    fileChooser.setCurrentDirectory(directory);
+                    int result = fileChooser.showOpenDialog(rootPanel);
+
+                    if (result == JFileChooser.APPROVE_OPTION) {
+                        File selectedFile = fileChooser.getSelectedFile();
+                        playerRedFile.setText(selectedFile.getAbsolutePath());
+                        try {
+                            ((ImportFilePlayer) item).setReader(new FileReader(selectedFile));
+                        } catch (Exception e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                } else {
+                    // Set the player file selector field to not visible.
+                    playerRedFile.setVisible(false);
+                }
+
+            }
+        });
+
+        playerTwoOptions.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                AbstractPlayer item = (AbstractPlayer) e.getItem();
+
+                if(item instanceof ImportFilePlayer) {
+                    // Set the player file selector field to visible.
+                    playerBlueFile.setVisible(true);
+
+                    // Make a popup screen in which the user can select the appropriate file.
+                    File directory = new File("runs");
+                    if (! directory.exists()) directory.mkdir();
+
+                    JFileChooser fileChooser = new JFileChooser();
+                    fileChooser.setCurrentDirectory(directory);
+                    int result = fileChooser.showOpenDialog(rootPanel);
+
+                    if (result == JFileChooser.APPROVE_OPTION) {
+                        File selectedFile = fileChooser.getSelectedFile();
+                        playerBlueFile.setText(selectedFile.getAbsolutePath());
+                        try {
+                            ((ImportFilePlayer) item).setReader(new FileReader(selectedFile));
+                        } catch (Exception e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                } else {
+                    // Set the player file selector field to not visible.
+                    playerBlueFile.setVisible(false);
+                }
+
+            }
         });
     }
 
@@ -100,13 +164,14 @@ public class GUI {
     /**
      * Initialize the GUI with the desired values.
      *
-     * @param players The list of players the user can choose from.
+     * @param players The list of players the first user can choose from.
+     * @param players The list of players the second user can choose from.
      * @param player  The player that will control the game through the GUI.
      */
-    public void init(AbstractPlayer[] players, HumanPlayer player) {
+    public void init(AbstractPlayer[] players, AbstractPlayer[] players2, HumanPlayer player) {
         // Set the player options.
         Arrays.stream(players).forEach(p -> playerOneOptions.addItem(p));
-        Arrays.stream(players).forEach(p -> playerTwoOptions.addItem(p));
+        Arrays.stream(players2).forEach(p -> playerTwoOptions.addItem(p));
 
         // Add the player as a listener to the buttons and click events on the board panel.
         nextTurnButton.addActionListener(player);
