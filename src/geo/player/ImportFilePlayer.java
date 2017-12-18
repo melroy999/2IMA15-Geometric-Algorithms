@@ -21,10 +21,11 @@ public class ImportFilePlayer extends AIPlayer {
      * Create a player, given the game controller to communicate with.
      *
      * @param controller The game controller to communicate with.
+     * @param player The human player we should follow up with when the AI is done.
      * @param turn The turn this player should be active in.
      */
-    public ImportFilePlayer(GameController controller, GameState.PlayerTurn turn) {
-        super(controller, turn);
+    public ImportFilePlayer(GameController controller, HumanPlayer player, GameState.PlayerTurn turn) {
+        super(controller, player, turn);
     }
 
     /**

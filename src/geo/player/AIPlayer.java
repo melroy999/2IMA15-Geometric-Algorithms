@@ -4,14 +4,19 @@ import geo.controller.GameController;
 import geo.state.GameState;
 
 public abstract class AIPlayer extends AbstractPlayer {
+    // The player that follows the AI.
+    private final HumanPlayer player;
+
     /**
      * Create a player, given the game controller to communicate with.
      *
      * @param controller The game controller to communicate with.
+     * @param player The human player we should follow up with when the AI is done.
      * @param turn The turn this player should be active in.
      */
-    public AIPlayer(GameController controller, GameState.PlayerTurn turn) {
+    public AIPlayer(GameController controller, HumanPlayer player, GameState.PlayerTurn turn) {
         super(controller, turn);
+        this.player = player;
     }
 
     /**
@@ -46,4 +51,13 @@ public abstract class AIPlayer extends AbstractPlayer {
      * Reset the state of the AI so that we can use it again.
      */
     public abstract void reset();
+
+    /**
+     * Get the human player that follows up this AI player.
+     *
+     * @return The human player.
+     */
+    public HumanPlayer getPlayer() {
+        return player;
+    }
 }
