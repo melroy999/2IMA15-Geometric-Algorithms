@@ -60,9 +60,6 @@ public class VoronoiDiagram extends DAG<Point2d> {
             List<Vertex<Face>> vVertices = SutherlandHodgmanClipping.clipPolygon(circumCenters).stream().map(
                     (Function<Point2d, Vertex<Face>>) Vertex::new).collect(Collectors.toList());
 
-//            List<Vertex<Face>> vVertices = circumCenters.stream().map(
-//                    (Function<Point2d, Vertex<Face>>) Vertex::new).collect(Collectors.toList());
-
             // Create an edge between each of the Voronoi vertices.
             for (int i = 0; i < vVertices.size(); i++) {
                 Vertex<Face> v1 = vVertices.get(i);
@@ -112,7 +109,6 @@ public class VoronoiDiagram extends DAG<Point2d> {
         g.setColor(Color.black);
 
         // Draw all edges.
-        // NOTE: lets not draw lines... half edges fucking up and all... because we do not have an outside cycle.
         for (Face face : faces) {
             for (Edge<Face> edge : face) {
                 edge.drawEdge(g);

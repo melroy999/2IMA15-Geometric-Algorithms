@@ -1,17 +1,15 @@
 package geo.gui;
 
-import geo.engine.GameEngine;
+import geo.player.AIPlayer;
 import geo.player.AbstractPlayer;
 import geo.player.HumanPlayer;
 import geo.player.ImportFilePlayer;
 import geo.state.GameState;
-import jdk.nashorn.internal.parser.AbstractParser;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.Arrays;
 
@@ -22,13 +20,16 @@ public class GUI {
     // Reference to the singleton instance.
     private static GUI gui;
 
+    // The main frame.
+    private static JFrame frame;
+
     // Components of the GUI.
     private JPanel rootPanel;
     private JButton nextTurnButton;
     private JButton resetBoardButton;
     private JButton startButton;
-    private JComboBox<AbstractPlayer> playerTwoOptions;
-    private JComboBox<AbstractPlayer> playerOneOptions;
+    private JComboBox<AbstractPlayer> playerBlueOptions;
+    private JComboBox<AbstractPlayer> playerRedOptions;
     private JPanel statusBar;
     private JPanel boardPanel;
     private JPanel controlPanel;
@@ -47,8 +48,8 @@ public class GUI {
     private JLabel cursorPositionLabel;
     private JCheckBox showVoronoiPreviewCheckBox;
     private JCheckBox drawVoronoiDiagramCheckBox;
-    private JTextField playerRedFile;
-    private JTextField playerBlueFile;
+    private JPanel playerRedSettings;
+    private JPanel playerBlueSettings;
 
     /**
      * The GUI is a singleton.
@@ -61,69 +62,27 @@ public class GUI {
             }
         });
 
-        playerOneOptions.addItemListener(e -> {
+        playerRedOptions.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
-                AbstractPlayer item = (AbstractPlayer) e.getItem();
-
-                if(item instanceof ImportFilePlayer) {
-                    // Set the player file selector field to visible.
-                    playerRedFile.setVisible(true);
-
-                    // Make a popup screen in which the user can select the appropriate file.
-                    File directory = new File("runs");
-                    if (! directory.exists()) directory.mkdir();
-
-                    JFileChooser fileChooser = new JFileChooser();
-                    fileChooser.setCurrentDirectory(directory);
-                    int result = fileChooser.showOpenDialog(rootPanel);
-
-                    if (result == JFileChooser.APPROVE_OPTION) {
-                        File selectedFile = fileChooser.getSelectedFile();
-                        playerRedFile.setText(selectedFile.getAbsolutePath());
-                        try {
-                            ((ImportFilePlayer) item).setReader(new FileReader(selectedFile));
-                        } catch (Exception e1) {
-                            e1.printStackTrace();
-                        }
-                    }
-                } else {
-                    // Set the player file selector field to not visible.
-                    playerRedFile.setVisible(false);
+                // Switch to the correct panel by emptying the panel, and filling it with a new one.
+                playerRedSettings.removeAll();
+                if(e.getItem() instanceof AIPlayer) {
+                    playerRedSettings.add(((AIPlayer) e.getItem()).getPanel(), BorderLayout.CENTER);
                 }
-
+                frame.revalidate();
+                frame.repaint();
             }
         });
 
-        playerTwoOptions.addItemListener(e -> {
+        playerBlueOptions.addItemListener(e -> {
             if (e.getStateChange() == ItemEvent.SELECTED) {
-                AbstractPlayer item = (AbstractPlayer) e.getItem();
-
-                if(item instanceof ImportFilePlayer) {
-                    // Set the player file selector field to visible.
-                    playerBlueFile.setVisible(true);
-
-                    // Make a popup screen in which the user can select the appropriate file.
-                    File directory = new File("runs");
-                    if (! directory.exists()) directory.mkdir();
-
-                    JFileChooser fileChooser = new JFileChooser();
-                    fileChooser.setCurrentDirectory(directory);
-                    int result = fileChooser.showOpenDialog(rootPanel);
-
-                    if (result == JFileChooser.APPROVE_OPTION) {
-                        File selectedFile = fileChooser.getSelectedFile();
-                        playerBlueFile.setText(selectedFile.getAbsolutePath());
-                        try {
-                            ((ImportFilePlayer) item).setReader(new FileReader(selectedFile));
-                        } catch (Exception e1) {
-                            e1.printStackTrace();
-                        }
-                    }
-                } else {
-                    // Set the player file selector field to not visible.
-                    playerBlueFile.setVisible(false);
+                // Switch to the correct panel by emptying the panel, and filling it with a new one.
+                playerBlueSettings.removeAll();
+                if(e.getItem() instanceof AIPlayer) {
+                    playerBlueSettings.add(((AIPlayer) e.getItem()).getPanel(), BorderLayout.CENTER);
                 }
-
+                frame.revalidate();
+                frame.repaint();
             }
         });
     }
@@ -143,7 +102,7 @@ public class GUI {
             }
 
             // Initialize the singleton instance.
-            JFrame frame = new JFrame("[2IMA15] Geometric Algorithms - Voronoi");
+            frame = new JFrame("[2IMA15] Geometric Algorithms - Voronoi");
             frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             gui = new GUI();
             frame.setContentPane(gui.rootPanel);
@@ -170,8 +129,8 @@ public class GUI {
      */
     public void init(AbstractPlayer[] players, AbstractPlayer[] players2, HumanPlayer player) {
         // Set the player options.
-        Arrays.stream(players).forEach(p -> playerOneOptions.addItem(p));
-        Arrays.stream(players2).forEach(p -> playerTwoOptions.addItem(p));
+        Arrays.stream(players).forEach(p -> playerRedOptions.addItem(p));
+        Arrays.stream(players2).forEach(p -> playerBlueOptions.addItem(p));
 
         // Add the player as a listener to the buttons and click events on the board panel.
         nextTurnButton.addActionListener(player);
@@ -244,7 +203,7 @@ public class GUI {
      * @return The red player in the combobox.
      */
     public AbstractPlayer getCurrentRedPlayer() {
-        return (AbstractPlayer) playerOneOptions.getSelectedItem();
+        return (AbstractPlayer) playerRedOptions.getSelectedItem();
     }
 
     /**
@@ -253,7 +212,7 @@ public class GUI {
      * @return The red player in the combobox.
      */
     public AbstractPlayer getCurrentBluePlayer() {
-        return (AbstractPlayer) playerTwoOptions.getSelectedItem();
+        return (AbstractPlayer) playerBlueOptions.getSelectedItem();
     }
 
     /**

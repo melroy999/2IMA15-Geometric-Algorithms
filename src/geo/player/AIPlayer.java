@@ -3,6 +3,11 @@ package geo.player;
 import geo.controller.GameController;
 import geo.state.GameState;
 
+import javax.swing.*;
+
+/**
+ * Player template for artificial intelligence based players.
+ */
 public abstract class AIPlayer extends AbstractPlayer {
     /**
      * Create a player, given the game controller to communicate with.
@@ -12,6 +17,12 @@ public abstract class AIPlayer extends AbstractPlayer {
      */
     public AIPlayer(GameController controller, GameState.PlayerTurn turn) {
         super(controller, turn);
+        try {
+            // Make the application look like a windows application.
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -46,4 +57,11 @@ public abstract class AIPlayer extends AbstractPlayer {
      * Reset the state of the AI so that we can use it again.
      */
     public abstract void reset();
+
+    /**
+     * Get a panel containing the controls for this specific AI player.
+     *
+     * @return A JPanel which contains all required components to control the AI.
+     */
+    public abstract JPanel getPanel();
 }
