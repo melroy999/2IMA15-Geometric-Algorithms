@@ -42,20 +42,22 @@ public class GameEngine {
         controller = new GameController(this, state);
 
         // Create the player types we have for player 1.
+        HumanPlayer humanRed = new HumanPlayer(controller, GameState.PlayerTurn.RED);
         AbstractPlayer[] players = new AbstractPlayer[]{
-                new HumanPlayer(controller, GameState.PlayerTurn.RED),
-                new ImportFilePlayer(controller, GameState.PlayerTurn.RED)
+                humanRed,
+                new ImportFilePlayer(controller, humanRed, GameState.PlayerTurn.RED)
         };
 
         // Do the same for player 2.
+        HumanPlayer humanBlue = new HumanPlayer(controller, GameState.PlayerTurn.BLUE);
         AbstractPlayer[] players2 = new AbstractPlayer[] {
-                new HumanPlayer(controller, GameState.PlayerTurn.BLUE),
-                new ImportFilePlayer(controller, GameState.PlayerTurn.BLUE)
+                humanBlue,
+                new ImportFilePlayer(controller, humanBlue, GameState.PlayerTurn.BLUE)
         };
 
         // Create the gui.
         gui = GUI.createAndShow();
-        gui.init(players, players2, (HumanPlayer) players[0]);
+        gui.init(players, players2, humanRed);
         gui.setState(state);
     }
 
@@ -114,13 +116,25 @@ public class GameEngine {
         // Get the current player.
         AbstractPlayer current = state.getCurrentPlayer();
 
+        // If the player is an AI player, and it tells us it is done, convert it to a human player.
+        if((current instanceof AIPlayer && ((AIPlayer) current).isDone())) {
+            if(state.getCurrentPlayerTurn() == GameState.PlayerTurn.RED) {
+                state.setRedPlayer(((AIPlayer) current).getPlayer());
+            } else {
+                state.setBluePlayer(((AIPlayer) current).getPlayer());
+            }
+            current = state.getCurrentPlayer();
+        }
+
         // Check whether we have a limited amount of turns. If not, just change the turn.
+        // We cannot limit an AI.
         if(gui.getMaximumNumberOfTurns() == -1 && !(current instanceof AIPlayer)) {
             // Initiate the turn change.
             startPlayerTurn(current);
         } else {
             // Otherwise, only change the turn if we are below the maximum amount of turns.
-            if(state.getCurrentTurn() < gui.getMaximumNumberOfTurns() || (current instanceof AIPlayer && !((AIPlayer) current).isDone())) {
+            if(state.getCurrentTurn() < gui.getMaximumNumberOfTurns()
+                    || (current instanceof AIPlayer && !((AIPlayer) current).isDone())) {
                 // Initiate the turn change.
                 startPlayerTurn(current);
             } else {

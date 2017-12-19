@@ -9,14 +9,19 @@ import javax.swing.*;
  * Player template for artificial intelligence based players.
  */
 public abstract class AIPlayer extends AbstractPlayer {
+    // The player that follows the AI.
+    private final HumanPlayer player;
+
     /**
      * Create a player, given the game controller to communicate with.
      *
      * @param controller The game controller to communicate with.
+     * @param player The human player we should follow up with when the AI is done.
      * @param turn The turn this player should be active in.
      */
-    public AIPlayer(GameController controller, GameState.PlayerTurn turn) {
+    public AIPlayer(GameController controller, HumanPlayer player, GameState.PlayerTurn turn) {
         super(controller, turn);
+        this.player = player;
         try {
             // Make the application look like a windows application.
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -64,4 +69,13 @@ public abstract class AIPlayer extends AbstractPlayer {
      * @return A JPanel which contains all required components to control the AI.
      */
     public abstract JPanel getPanel();
+
+    /**
+     * Get the human player that follows up this AI player.
+     *
+     * @return The human player.
+     */
+    public HumanPlayer getPlayer() {
+        return player;
+    }
 }

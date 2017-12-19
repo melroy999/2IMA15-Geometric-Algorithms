@@ -241,6 +241,25 @@ public class GameState {
     }
 
     /**
+     * Set the red player that should be used within the game.
+     *
+     * @param red The red player object.
+     */
+    public void setRedPlayer(AbstractPlayer red) {
+        players.put(PlayerTurn.RED, red);
+    }
+
+
+    /**
+     * Set the blue player that should be used within the game.
+     *
+     * @param blue The blue player object.
+     */
+    public void setBluePlayer(AbstractPlayer blue) {
+        players.put(PlayerTurn.BLUE, blue);
+    }
+
+    /**
      * Get all the visible faces.
      *
      * @return The faces that are leaves of the DAG and the outer face.
