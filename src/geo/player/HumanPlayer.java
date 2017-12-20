@@ -69,19 +69,31 @@ public class HumanPlayer extends AbstractPlayer implements ActionListener {
      * @param e The mouse click event.
      */
     public void userMouseClickEvent(MouseEvent e) {
-        // Here, we avoid using updatePlayerCounters, since we are running in the EDT thread already for human players!
-        addPointSynchronously(e.getPoint());
+        if(e.getButton() == MouseEvent.BUTTON1) {
+            // Here, we avoid using updatePlayerCounters, since we are running in the EDT thread already for human players!
+            addPointSynchronously(e.getPoint());
+        } else if(e.getButton() == MouseEvent.BUTTON3){
+            // Same here, but we remove instead of add.
+            removePointSynchronously(e.getPoint());
+        }
     }
 
     /**
      * Do a direct non-threaded call to the add point function.
      *
      * @param p The point the user wants to add.
-     * @return Whether the insertion of the point was successful or not.
      */
-    private boolean addPointSynchronously(Point p) {
-        // If we reach this point, the addition of the point would have failed.
-        return controller.addPoint(p);
+    private void addPointSynchronously(Point p) {
+        controller.addPoint(p);
+    }
+
+    /**
+     * Do a direct non-threaded call to the remove point function.
+     *
+     * @param p The point the user wants to remove.
+     */
+    private void removePointSynchronously(Point p) {
+        controller.removePoint(p);
     }
 
     /**

@@ -19,6 +19,7 @@ public class GameController {
 
     // Predicates used during the communication with the game state.
     private Predicate<Point> addPoint;
+    private Predicate<Point> removePoint;
     private Runnable resetGame;
 
     // The two files in which we will log the player moves.
@@ -43,8 +44,9 @@ public class GameController {
      *
      * @param addPoint The predicate that adds points to the game state.
      */
-    public final void setPredicates(Predicate<Point> addPoint, Runnable resetGame) {
+    public final void setPredicates(Predicate<Point> addPoint, Predicate<Point> removePoint, Runnable resetGame) {
         this.addPoint = addPoint;
+        this.removePoint = removePoint;
         this.resetGame = resetGame;
     }
 
@@ -63,6 +65,27 @@ public class GameController {
         }
 
         if(addPoint.test(p)) {
+            engine.updatePlayerCounters();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Remove the given point.
+     *
+     * @param p The point to remove.
+     * @return Whether the point was removed successfully.
+     */
+    public boolean removePoint(Point p) {
+        // Write the moves of the player to the log.
+        if(engine.getPlayerTurn() == GameState.PlayerTurn.RED) {
+            redWriter.println("-" + p.toString());
+        } else {
+            blueWriter.println("-" + p.toString());
+        }
+
+        if(removePoint.test(p)) {
             engine.updatePlayerCounters();
             return true;
         }

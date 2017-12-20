@@ -58,6 +58,26 @@ public abstract class AbstractPlayer {
     }
 
     /**
+     * Remove the point.
+     *
+     * @param p The point to remove.
+     * @return Whether the removal of the point was successful.
+     */
+    protected final boolean removePoint(Point p) {
+        // Run the addition of a point on the event thread.
+        RunnableFuture<Boolean> runnable = new FutureTask<>(() -> controller.removePoint(p));
+        SwingUtilities.invokeLater(runnable);
+        try {
+            return runnable.get();
+        } catch (InterruptedException | ExecutionException ex) {
+            ex.printStackTrace();
+        }
+
+        // If we reach this point, the addition of the point would have failed.
+        return false;
+    }
+
+    /**
      * Notify the controller that the player wishes to end its turn.
      */
     protected final void endTurn() {

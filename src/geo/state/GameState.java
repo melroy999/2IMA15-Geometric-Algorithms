@@ -49,7 +49,7 @@ public class GameState {
      * @param controller The controller that should receive the predicates.
      */
     public final void setPredicates(GameController controller) {
-        controller.setPredicates(this::addPoint, this::reset);
+        controller.setPredicates(this::addPoint, this::removePoint, this::reset);
     }
 
     /**
@@ -70,11 +70,50 @@ public class GameState {
             return false;
         }
 
+        // Get the list of points, and reconstruct the triangulation/Voronoi diagram.
+        List<Vertex<TriangleFace>> points = union(redPoints, bluePoints, Collections.singletonList(vertex));
+        if(!reconstruct(points)) return false;
+
+        // Only after all previous insertions pass, add the point to the list of points.
+        if(currentPlayerTurn == PlayerTurn.RED) {
+            redPoints.add(vertex);
+        } else {
+            bluePoints.add(vertex);
+        }
+        return true;
+    }
+
+    /**
+     * Remove a point from the game state.
+     *
+     * @param p The point to remove.
+     * @return Whether the point was removed successfully or not.
+     */
+    private boolean removePoint(Point p) {
+        // First, convert to our own vertex type.
+        Vertex<TriangleFace> vertex = new Vertex<>(p.x, p.y, currentPlayerTurn);
+
+        // Remove the vertex, check if we removed any by checking the return value.
+        boolean hasMatch = (currentPlayerTurn == PlayerTurn.RED ? redPoints : bluePoints).removeIf(v -> v.equals(vertex));
+
+        // If we succeeded in removing, reconstruct. Otherwise return false.
+        if(hasMatch) {
+            reconstruct(union(redPoints, bluePoints));
+        }
+        return hasMatch;
+    }
+
+    /**
+     * Reconstruct the triangulation and the Voronoi diagram.
+     *
+     * @param points The list of points to use in the triangulation.
+     * @return Whether the operation was successful or not.
+     */
+    private boolean reconstruct(List<Vertex<TriangleFace>> points) {
         // We have to enforce randomized incremental construction for the Delaunay triangulation...
         triangulator = new DelaunayTriangulator();
 
         // The list of all points, shuffled straight after.
-        List<Vertex<TriangleFace>> points = union(redPoints, bluePoints, Collections.singletonList(vertex));
         Collections.shuffle(points, random);
 
         // Insert all already known points, and the new point, in random order.
@@ -89,13 +128,6 @@ public class GameState {
 
         // Create the voronoi diagram.
         voronoiDiagram = new VoronoiDiagram(points);
-
-        // Only after all previous insertions pass, add the point to the list of points.
-        if(currentPlayerTurn == PlayerTurn.RED) {
-            redPoints.add(vertex);
-        } else {
-            bluePoints.add(vertex);
-        }
         return true;
     }
 

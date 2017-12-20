@@ -16,7 +16,7 @@ import java.util.List;
 
 public class ImportFilePlayer extends AIPlayer {
     // A list of a list of moves to do.
-    private List<List<Point>> moves;
+    private List<List<Move>> moves;
 
     // The current index of the sublist we are iterating over.
     private int sublistid = 0;
@@ -73,12 +73,18 @@ public class ImportFilePlayer extends AIPlayer {
                     // If empty, we want to do the next turn. So add new arraylist.
                     moves.add(new ArrayList<>());
                 } else {
+                    // Check if it is a removal.
+                    boolean remove = line.startsWith("-");
+
                     // Otherwise, we can add a point. Parse it.
-                    String[] values = line.replace("java.awt.Point[x=", "")
+                    String[] values = line.replace("-", "")
+                            .replace("java.awt.Point[x=", "")
                             .replace("]", "")
                             .replace("y=", "").split(",");
 
-                    moves.get(moves.size() - 1).add(new Point(Integer.parseInt(values[0]), Integer.parseInt(values[1])));
+                    moves.get(moves.size() - 1).add(
+                            new Move(remove, new Point(Integer.parseInt(values[0]), Integer.parseInt(values[1])))
+                    );
                 }
             }
         } catch (IOException e) {
@@ -99,8 +105,8 @@ public class ImportFilePlayer extends AIPlayer {
     @Override
     protected void runAI(GameState state) {
         // Iterate over the moves, making them.
-        for(Point p : moves.get(sublistid)) {
-            addPoint(p);
+        for(Move p : moves.get(sublistid)) {
+            p.doMove();
 
             // Do a small sleep...
             try {
@@ -140,5 +146,35 @@ public class ImportFilePlayer extends AIPlayer {
     @Override
     public JPanel getPanel() {
         return rootPanel;
+    }
+
+    /**
+     * A class that manages the removal or addition of moves.
+     */
+    private class Move {
+        private final boolean remove;
+        private final Point p;
+
+        /**
+         * Create a move, which is either an insert or remove move.
+         *
+         * @param remove Whether we want to add or remove the given point.
+         * @param p The subject point.
+         */
+        public Move(boolean remove, Point p) {
+            this.remove = remove;
+            this.p = p;
+        }
+
+        /**
+         * Execute the stored move.
+         */
+        public void doMove() {
+            if(remove) {
+                removePoint(p);
+            } else {
+                addPoint(p);
+            }
+        }
     }
 }
