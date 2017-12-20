@@ -8,7 +8,9 @@ import geo.state.GameState;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileReader;
 import java.util.Arrays;
@@ -50,41 +52,13 @@ public class GUI {
     private JCheckBox drawVoronoiDiagramCheckBox;
     private JPanel playerRedSettings;
     private JPanel playerBlueSettings;
+    private JButton createScreenshotButton;
 
     /**
      * The GUI is a singleton.
      */
     private GUI() {
-        boardPanel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                super.mouseClicked(e);
-            }
-        });
 
-        playerRedOptions.addItemListener(e -> {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-                // Switch to the correct panel by emptying the panel, and filling it with a new one.
-                playerRedSettings.removeAll();
-                if(e.getItem() instanceof AIPlayer) {
-                    playerRedSettings.add(((AIPlayer) e.getItem()).getPanel(), BorderLayout.CENTER);
-                }
-                frame.revalidate();
-                frame.repaint();
-            }
-        });
-
-        playerBlueOptions.addItemListener(e -> {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-                // Switch to the correct panel by emptying the panel, and filling it with a new one.
-                playerBlueSettings.removeAll();
-                if(e.getItem() instanceof AIPlayer) {
-                    playerBlueSettings.add(((AIPlayer) e.getItem()).getPanel(), BorderLayout.CENTER);
-                }
-                frame.revalidate();
-                frame.repaint();
-            }
-        });
     }
 
     /**
@@ -159,6 +133,46 @@ public class GUI {
         drawCircumCentersCheckBox.addActionListener(e -> redrawGamePanel());
         drawDelaunayTriangulationCheckBox.addActionListener(e -> redrawGamePanel());
         drawVoronoiDiagramCheckBox.addActionListener(e -> redrawGamePanel());
+
+        boardPanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                super.mouseClicked(e);
+            }
+        });
+
+        playerRedOptions.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                // Switch to the correct panel by emptying the panel, and filling it with a new one.
+                playerRedSettings.removeAll();
+                if(e.getItem() instanceof AIPlayer) {
+                    playerRedSettings.add(((AIPlayer) e.getItem()).getPanel(), BorderLayout.CENTER);
+                }
+                frame.revalidate();
+                frame.repaint();
+            }
+        });
+
+        playerBlueOptions.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                // Switch to the correct panel by emptying the panel, and filling it with a new one.
+                playerBlueSettings.removeAll();
+                if(e.getItem() instanceof AIPlayer) {
+                    playerBlueSettings.add(((AIPlayer) e.getItem()).getPanel(), BorderLayout.CENTER);
+                }
+                frame.revalidate();
+                frame.repaint();
+            }
+        });
+
+        createScreenshotButton.addActionListener(e -> {
+            BufferedImage image = new BufferedImage(boardPanel.getWidth(), boardPanel.getHeight(), BufferedImage.TYPE_INT_RGB);
+            boardPanel.paint(image.createGraphics());
+
+            TransferableImage trans = new TransferableImage(image);
+            Clipboard c = Toolkit.getDefaultToolkit().getSystemClipboard();
+            c.setContents(trans, null);
+        });
     }
 
     /**
