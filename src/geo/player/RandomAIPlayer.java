@@ -12,6 +12,8 @@ public class RandomAIPlayer extends AIPlayer {
     // A list of a list of moves to do.
     private List<List<Move>> moves;
 
+    private JPanel borderPanel;
+
     /**
      * Create a player, given the game controller to communicate with.
      *
@@ -32,6 +34,11 @@ public class RandomAIPlayer extends AIPlayer {
     private void generateRandomMoves(long seed, int numPoints){
         Random generator = new Random(seed);
         //TODO: Fill list with numPoints amount of points that are in the playing field.
+        for (int i = 0; i < numPoints; i++){
+            // Generate x and y coords
+            generator.nextInt(borderPanel.getWidth()/*Limit of x playing field, get width of panel: panel.element.getWidth()*/);
+            generator.nextInt(borderPanel.getHeight()/*Limit of y playing field, get height of panel: panel.element.getHeight()*/);
+        }
     }
 
 
@@ -70,7 +77,7 @@ public class RandomAIPlayer extends AIPlayer {
      */
     @Override
     public JPanel getPanel() {
-        return null;
+        return borderPanel;
     }
 
 

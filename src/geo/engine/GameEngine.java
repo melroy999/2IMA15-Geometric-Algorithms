@@ -3,10 +3,7 @@ package geo.engine;
 import geo.controller.GameController;
 import geo.gui.GUI;
 
-import geo.player.AIPlayer;
-import geo.player.AbstractPlayer;
-import geo.player.HumanPlayer;
-import geo.player.ImportFilePlayer;
+import geo.player.*;
 import geo.state.GameState;
 import geo.voronoi.VoronoiDiagram;
 
@@ -45,7 +42,9 @@ public class GameEngine {
         HumanPlayer humanRed = new HumanPlayer(controller, GameState.PlayerTurn.RED);
         AbstractPlayer[] players = new AbstractPlayer[]{
                 humanRed,
-                new ImportFilePlayer(controller, humanRed, GameState.PlayerTurn.RED)
+                new ImportFilePlayer(controller, humanRed, GameState.PlayerTurn.RED),
+                //Remove this to fix all your problems
+                new RandomAIPlayer(controller, humanRed, GameState.PlayerTurn.RED)
         };
 
         // Do the same for player 2.
