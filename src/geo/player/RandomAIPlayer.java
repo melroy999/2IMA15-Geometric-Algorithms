@@ -5,6 +5,7 @@ import geo.state.GameState;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -12,7 +13,8 @@ public class RandomAIPlayer extends AIPlayer {
     // A list of a list of moves to do.
     private List<List<Move>> moves;
 
-    private JPanel borderPanel;
+    // The playing board panel.
+    private JPanel boardPanel;
 
     /**
      * Create a player, given the game controller to communicate with.
@@ -32,12 +34,16 @@ public class RandomAIPlayer extends AIPlayer {
      * @param numPoints The number of points to be placed.
      */
     private void generateRandomMoves(long seed, int numPoints){
+        // Create the list of moves.
+        moves = new ArrayList<>();
+        moves.add(new ArrayList<>());
         Random generator = new Random(seed);
         //TODO: Fill list with numPoints amount of points that are in the playing field.
         for (int i = 0; i < numPoints; i++){
             // Generate x and y coords
-            generator.nextInt(borderPanel.getWidth()/*Limit of x playing field, get width of panel: panel.element.getWidth()*/);
-            generator.nextInt(borderPanel.getHeight()/*Limit of y playing field, get height of panel: panel.element.getHeight()*/);
+            int x = generator.nextInt(boardPanel.getWidth()/*Limit of x playing field, get width of panel: panel.element.getWidth()*/);
+            int y = generator.nextInt(boardPanel.getHeight()/*Limit of y playing field, get height of panel: panel.element.getHeight()*/);
+            moves.get(moves.size() - 1).add(new Move(false, new Point(x, y)));
         }
     }
 
@@ -49,7 +55,7 @@ public class RandomAIPlayer extends AIPlayer {
      */
     @Override
     protected void runAI(GameState state) {
-
+        System.out.println("Do stuff");
     }
 
     /**
@@ -77,7 +83,7 @@ public class RandomAIPlayer extends AIPlayer {
      */
     @Override
     public JPanel getPanel() {
-        return borderPanel;
+        return boardPanel;
     }
 
 
