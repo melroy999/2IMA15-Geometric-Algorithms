@@ -13,8 +13,13 @@ public class RandomAIPlayer extends AIPlayer {
     // A list of a list of moves to do.
     private List<List<Move>> moves;
 
-    // The playing board panel.
-    private JPanel boardPanel;
+    private int sublistid = 0;
+
+    private boolean duplicate;
+
+    private JPanel rootPanel;
+    private JTextField seed;
+    private JTextField numPoints;
 
     /**
      * Create a player, given the game controller to communicate with.
@@ -39,11 +44,26 @@ public class RandomAIPlayer extends AIPlayer {
         moves.add(new ArrayList<>());
         Random generator = new Random(seed);
         //TODO: Fill list with numPoints amount of points that are in the playing field.
-        for (int i = 0; i < numPoints; i++){
-            // Generate x and y coords
-            int x = generator.nextInt(boardPanel.getWidth()/*Limit of x playing field, get width of panel: panel.element.getWidth()*/);
-            int y = generator.nextInt(boardPanel.getHeight()/*Limit of y playing field, get height of panel: panel.element.getHeight()*/);
-            moves.get(moves.size() - 1).add(new Move(false, new Point(x, y)));
+        int i = 0;
+        while (i < numPoints) {
+            int x = generator.nextInt(100/*Limit of x playing field, get width of panel: panel.element.getWidth()*/);
+            int y = generator.nextInt(100/*Limit of y playing field, get height of panel: panel.element.getHeight()*/);
+            int j = 0;
+            System.out.println(x);
+            duplicate = false;
+            // Check if the point already exists in moves
+            for(Move p : moves.get(j)){
+                if (p.p.x == x && p.p.y == y) {
+                    // Duplicate point, ignore and generate new x and y
+                    duplicate = true;
+                }
+                j++;
+            }
+            // If the random points are not duplicates, add the point to the list of moves.
+            if (!duplicate) {
+                moves.get(moves.size() - 1).add(new Move(false, new Point(x, y)));
+                i++;
+            }
         }
     }
 
@@ -56,6 +76,24 @@ public class RandomAIPlayer extends AIPlayer {
     @Override
     protected void runAI(GameState state) {
         System.out.println("Do stuff");
+        generateRandomMoves(2, 2);
+        Move pointx = moves.get(0).get(0);
+        System.out.println(pointx.p.x);
+
+        // Iterate over the moves, making them.
+        for(Move p : moves.get(sublistid)) {
+            p.doMove();
+
+            // Do a small sleep...
+            try {
+                Thread.sleep(700);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Increment the sublist id.
+        sublistid++;
     }
 
     /**
@@ -65,7 +103,7 @@ public class RandomAIPlayer extends AIPlayer {
      */
     @Override
     public boolean isDone() {
-        return false;
+        return !(sublistid < moves.size());
     }
 
     /**
@@ -73,7 +111,7 @@ public class RandomAIPlayer extends AIPlayer {
      */
     @Override
     public void reset() {
-
+        sublistid = 0;
     }
 
     /**
@@ -83,7 +121,7 @@ public class RandomAIPlayer extends AIPlayer {
      */
     @Override
     public JPanel getPanel() {
-        return boardPanel;
+        return rootPanel;
     }
 
 
