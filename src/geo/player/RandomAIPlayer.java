@@ -75,8 +75,12 @@ public class RandomAIPlayer extends AIPlayer {
      */
     @Override
     protected void runAI(GameState state) {
-        System.out.println("Do stuff");
-        generateRandomMoves(2, 2);
+        // Get the values for seed and numPoints
+        long seedValue = Long.parseLong(seed.getText());
+        int numPointsValue = Integer.parseInt(numPoints.getText());
+        // Create the list of moves to make
+        generateRandomMoves(seedValue, numPointsValue);
+        // For test purposes, remove later
         Move pointx = moves.get(0).get(0);
         System.out.println(pointx.p.x);
 
