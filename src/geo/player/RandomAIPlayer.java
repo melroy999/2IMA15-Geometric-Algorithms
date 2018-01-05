@@ -8,6 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class RandomAIPlayer extends AIPlayer {
 
@@ -41,11 +42,12 @@ public class RandomAIPlayer extends AIPlayer {
      */
     private void generateRandomMoves(long seed, int numPoints){
         points = new ArrayList<>();
+        Random generator = new Random(seed);
         int i = 0;
         // While there are not enough points, generate new random coordinates and try to add them
         while (i < numPoints) {
-            int x = (int) Math.floor(Math.random()*GUI.createAndShow().getGamePanelDimensions().width);
-            int y = (int) Math.floor(Math.random()*GUI.createAndShow().getGamePanelDimensions().height);
+            int x = (int) Math.floor(generator.nextDouble()*GUI.createAndShow().getGamePanelDimensions().width);
+            int y = (int) Math.floor(generator.nextDouble()*GUI.createAndShow().getGamePanelDimensions().height);
             System.out.println(x +" "+ y);
             // Reset duplicate value and j value
             duplicate = false;
