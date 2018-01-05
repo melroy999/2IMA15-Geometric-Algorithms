@@ -85,6 +85,7 @@ public class RandomAIPlayer extends AIPlayer {
      */
     @Override
     public void reset() {
+        turn = 0;
     }
 
     /**
