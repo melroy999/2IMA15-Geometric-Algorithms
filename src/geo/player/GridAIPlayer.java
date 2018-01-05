@@ -12,9 +12,6 @@ public class GridAIPlayer extends AIPlayer  {
     private JPanel rootPanel;
     private JTextField numPoints;
 
-    // A list of a list of moves to do.
-    private List<List<Move>> moves;
-
     // The current index of the sublist we are iterating over.
     private int sublistid = 0;
 
@@ -36,8 +33,6 @@ public class GridAIPlayer extends AIPlayer  {
      */
     public void createGrid(int numPoints){
         // TODO: Create a grid
-        moves = new ArrayList<>();
-        moves.add(new ArrayList<>());
     }
 
     /**
@@ -51,18 +46,6 @@ public class GridAIPlayer extends AIPlayer  {
         int numPointsValue = Integer.parseInt(numPoints.getText());
         // Create the list of moves
         createGrid(numPointsValue);
-
-        // Iterate over the moves, making them.
-        for(Move p : moves.get(sublistid)) {
-            p.doMove();
-
-            // Do a small sleep...
-            try {
-                Thread.sleep(700);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     /**
@@ -93,26 +76,4 @@ public class GridAIPlayer extends AIPlayer  {
         return rootPanel;
     }
 
-    /**
-     * A class that manages the addition of moves.
-     */
-    private class Move {
-        private final Point p;
-
-        /**
-         * Create a move.
-         *
-         * @param p The subject point.
-         */
-        public Move( Point p) {
-            this.p = p;
-        }
-
-        /**
-         * Execute the stored move.
-         */
-        public void doMove() {
-            addPoint(p);
-        }
-    }
 }
