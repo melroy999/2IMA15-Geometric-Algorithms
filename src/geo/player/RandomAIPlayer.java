@@ -6,15 +6,10 @@ import geo.gui.GUI;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 
 public class RandomAIPlayer extends AIPlayer {
 
-    private List<Point> points;
-
-    private boolean duplicate;
     private boolean canPlace;
 
     private JPanel rootPanel;
@@ -41,7 +36,6 @@ public class RandomAIPlayer extends AIPlayer {
      * @param numPoints The number of points to be placed.
      */
     private void generateRandomMoves(long seed, int numPoints){
-        points = new ArrayList<>();
         Random generator = new Random(seed);
         int i = 0;
         // While there are not enough points, generate new random coordinates and try to add them
@@ -49,20 +43,11 @@ public class RandomAIPlayer extends AIPlayer {
             int x = (int) Math.floor(generator.nextDouble()*GUI.createAndShow().getGamePanelDimensions().width);
             int y = (int) Math.floor(generator.nextDouble()*GUI.createAndShow().getGamePanelDimensions().height);
             System.out.println(x +" "+ y);
-            // Reset duplicate value and j value
-            duplicate = false;
-            // Check if the point already exists in moves
-            for(Point p : points){
-                // If x and y coordinates exists in list of moves, ignore and generate new x and y
-                if (p.x == x && p.y == y) {
-                    duplicate = true;
-                }
-            }
+            // Check if the point can be placed
             canPlace = addPoint(new Point(x, y));
             System.out.println(canPlace);
-            // If the random point is not duplicate, add the point to the list of moves and increase list size.
-            if (!duplicate && canPlace) {
-                points.add(new Point(x, y));
+            // If the random point can be placed
+            if (canPlace) {
                 i++;
             }
         }
