@@ -49,7 +49,7 @@ public class RandomAIPlayer extends AIPlayer {
         while (i < numPoints) {
             int x = generator.nextInt(100/*Limit of x playing field, get width of panel*/);
             int y = generator.nextInt(100/*Limit of y playing field, get height of panel*/);
-            System.out.println(x);
+            System.out.println(x +" "+ y);
             // Reset duplicate value and j value
             duplicate = false;
             int j = 0;
@@ -84,7 +84,6 @@ public class RandomAIPlayer extends AIPlayer {
         generateRandomMoves(seedValue, numPointsValue);
         // For test purposes, remove later
         Move pointx = moves.get(0).get(0);
-        System.out.println(pointx.p.x);
 
         // Iterate over the moves, making them.
         for(Move p : moves.get(sublistid)) {
@@ -109,7 +108,11 @@ public class RandomAIPlayer extends AIPlayer {
      */
     @Override
     public boolean isDone() {
-        return !(sublistid < moves.size());
+        if (sublistid == 0) {
+            return false;
+        } else {
+            return !(sublistid < moves.size());
+        }
     }
 
     /**

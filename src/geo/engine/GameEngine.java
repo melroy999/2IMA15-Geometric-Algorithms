@@ -43,7 +43,6 @@ public class GameEngine {
         AbstractPlayer[] players = new AbstractPlayer[]{
                 humanRed,
                 new ImportFilePlayer(controller, humanRed, GameState.PlayerTurn.RED),
-                //Remove this to fix all your problems
                 new RandomAIPlayer(controller, humanRed, GameState.PlayerTurn.RED)
         };
 
@@ -51,7 +50,8 @@ public class GameEngine {
         HumanPlayer humanBlue = new HumanPlayer(controller, GameState.PlayerTurn.BLUE);
         AbstractPlayer[] players2 = new AbstractPlayer[] {
                 humanBlue,
-                new ImportFilePlayer(controller, humanBlue, GameState.PlayerTurn.BLUE)
+                new ImportFilePlayer(controller, humanBlue, GameState.PlayerTurn.BLUE),
+                new RandomAIPlayer(controller, humanRed, GameState.PlayerTurn.BLUE)
         };
 
         // Create the gui.
