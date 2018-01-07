@@ -1,6 +1,7 @@
 package geo.player;
 
 import geo.controller.GameController;
+import geo.gui.GUI;
 import geo.state.GameState;
 
 import javax.swing.*;
@@ -36,7 +37,8 @@ public class GridAIPlayer extends AIPlayer  {
         int rows = (int) Math.ceil((Math.sqrt((double) numPoints)));
         //
         for (int i = 0; i < rows; i++){
-
+            // y-coord of point is the height of the panel / rows+1 * the row the points should be in.
+            int y = (int) Math.floor(GUI.createAndShow().getGamePanelDimensions().height / (rows+1))*(i+1);
         }
         turn++;
     }
