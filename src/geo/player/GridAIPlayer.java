@@ -12,8 +12,7 @@ public class GridAIPlayer extends AIPlayer  {
     private JPanel rootPanel;
     private JTextField numPoints;
 
-    // The current index of the sublist we are iterating over.
-    private int sublistid = 0;
+    private int turn = 0;
 
     /**
      * Create a player, given the game controller to communicate with.
@@ -33,6 +32,13 @@ public class GridAIPlayer extends AIPlayer  {
      */
     public void createGrid(int numPoints){
         // TODO: Create a grid
+        // Use the square root of the number of points rounded up as the amount of rows
+        int rows = (int) Math.ceil((Math.sqrt((double) numPoints)));
+        //
+        for (int i = 0; i < rows; i++){
+
+        }
+        turn++;
     }
 
     /**
@@ -44,7 +50,7 @@ public class GridAIPlayer extends AIPlayer  {
     protected void runAI(GameState state) {
         // Get the value for numPoints
         int numPointsValue = Integer.parseInt(numPoints.getText());
-        // Create the list of moves
+        // Create the moves and do them
         createGrid(numPointsValue);
     }
 
@@ -55,7 +61,7 @@ public class GridAIPlayer extends AIPlayer  {
      */
     @Override
     public boolean isDone() {
-        return false;
+        return (turn > 0);
     }
 
     /**
@@ -63,7 +69,7 @@ public class GridAIPlayer extends AIPlayer  {
      */
     @Override
     public void reset() {
-
+        turn = 0;
     }
 
     /**
