@@ -79,8 +79,8 @@ public class DelaunayMesh {
                 throw new EdgeNotFoundException(v);
             }
 
-            // Use the insert on edge of face insertion.
-            throw new NotImplementedException();
+            // Insert the vertex on the edge.
+            insertVertexOnEdge(v, edge.get());
         }
     }
 
@@ -109,6 +109,31 @@ public class DelaunayMesh {
 
         // Replace the original face by the new faces.
         faceIndex.replaceFaces(Collections.singletonList(face), faces);
+    }
+
+    private void insertVertexOnEdge(Vertex<TriangleFace> v, Edge<TriangleFace> edge) {
+        // Start with finding the edges surrounding the two faces, of which we have 4.
+        List<Edge<TriangleFace>> edges = new ArrayList<>();
+        edges.add(edge.next());
+        edges.add(edge.next().next());
+        edges.add(edge.twin.next());
+        edges.add(edge.twin.next().next());
+
+        // Create the new edges we need, edges going from the vertices of the edges in the cycle to the new vertex v.
+        List<Edge<TriangleFace>> connectors = edges.stream().map(
+                e -> new Edge<>(e.origin, v)).collect(Collectors.toList());
+
+        // Now, construct the faces.
+        List<TriangleFace> faces = new ArrayList<>();
+        for(int i = 0; i < edges.size(); i++) {
+            Edge<TriangleFace> v1_v2 = edges.get(i);
+            Edge<TriangleFace> v2_v = connectors.get((i + 1) % edges.size());
+            Edge<TriangleFace> v_v1 = connectors.get(i).twin;
+            faces.add(new TriangleFace(v1_v2, v2_v, v_v1));
+        }
+
+        // Replace the two original faces by the new faces.
+        faceIndex.replaceFaces(Arrays.asList(edge.incidentFace, edge.twin.incidentFace), faces);
     }
 
 
