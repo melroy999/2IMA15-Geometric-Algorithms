@@ -27,6 +27,7 @@
           </grid>
         </constraints>
         <properties>
+          <text value="20"/>
           <toolTipText value="#Points"/>
         </properties>
       </component>

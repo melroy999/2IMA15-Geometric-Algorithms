@@ -1,5 +1,6 @@
 package geo.player;
 
+import com.sun.org.apache.xpath.internal.SourceTree;
 import geo.controller.GameController;
 import geo.state.GameState;
 import geo.gui.GUI;
@@ -18,6 +19,8 @@ public class RandomAIPlayer extends AIPlayer {
 
     private int turn = 0;
 
+    private final Random random = new Random(666);
+
     /**
      * Create a player, given the game controller to communicate with.
      *
@@ -35,11 +38,15 @@ public class RandomAIPlayer extends AIPlayer {
      * @param seed The seed with which to generate the random numbers.
      * @param numPoints The number of points to be placed.
      */
-    private void generateRandomMoves(long seed, int numPoints){
+    private void generateRandomMoves(long seed, int numPoints, GameState state){
         Random generator = new Random(seed);
         int i = 0;
         // While there are not enough points, generate new random coordinates and try to add them
-        while (i < numPoints) {
+        while (i < numPoints ) {
+            // Check if blue player and if they want to place more or equal amount of points as red
+            if (state.getCurrentPlayerTurn() == GameState.PlayerTurn.BLUE && state.getNumberOfRedPoints() < i+2){
+                break;
+            }
             int x = (int) Math.floor(generator.nextDouble()*GUI.createAndShow().getGamePanelDimensions().width);
             int y = (int) Math.floor(generator.nextDouble()*GUI.createAndShow().getGamePanelDimensions().height);
             System.out.println(x +" "+ y);
@@ -50,6 +57,7 @@ public class RandomAIPlayer extends AIPlayer {
             if (canPlace) {
                 i++;
             }
+
         }
         turn++;
     }
@@ -63,10 +71,16 @@ public class RandomAIPlayer extends AIPlayer {
     @Override
     protected void runAI(GameState state) {
         // Get the values for seed and numPoints
-        long seedValue = Long.parseLong(seed.getText());
+        long seedValue;
+        try {
+            seedValue = Long.parseLong(seed.getText());
+        } catch (NumberFormatException n){
+            System.out.println("Fuck you");
+            seedValue = random.nextLong();
+        }
         int numPointsValue = Integer.parseInt(numPoints.getText());
         // Create the list of moves to make
-        generateRandomMoves(seedValue, numPointsValue);
+        generateRandomMoves(seedValue, numPointsValue, state);
     }
 
     /**
