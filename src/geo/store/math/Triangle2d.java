@@ -50,23 +50,24 @@ public class Triangle2d {
      * @return The circumcenter, I.e. the center of the circle that goes through all the corner points of the triangle.
      */
     private Point2d getCircumCenter() {
-        // We first need the midpoint of p1->p2 and p2->p3.
-        Point2d mid_p1_p2 = p1.interpolate(p2, 0.5d);
-        Point2d mid_p2_p3 = p2.interpolate(p3, 0.5d);
+        // Calculate the slopes of the two lines.
+        double s1 = (p2.y - p1.y) / (p2.x - p1.x + 10e-32);
+        double s2 = (p3.y - p2.y) / (p3.x - p2.x + 10e-32);
 
-        // Now find the negative reciprocal of the slope, such that we get the slope of the perpendicular bisector.
-        double slope_p1_p2 = -1 / ((p2.y - p1.y + 10e-32) / (p2.x - p1.x + 10e-32));
-        double slope_p2_p3 = -1 / ((p3.y - p2.y + 10e-32) / (p3.x - p2.x + 10e-32));
+        // Calculate x.
+        double x = 0.5d * (s1 * s2 * (p1.y - p3.y) + s2 * (p1.x + p2.x) - s1 * (p2.x + p3.x)) / (s2 - s1);
+        double y = -1/s1 * (x - 0.5d * (p1.x + p2.x)) + 0.5d * (p1.y + p2.y);
 
-        // Now, solve y = mx + b for b, b = y - mx where m is the slope and x and y are taken from the center point.
-        double b_p1_p2 = mid_p1_p2.y - slope_p1_p2 * mid_p1_p2.x;
-        double b_p2_p3 = mid_p2_p3.y - slope_p2_p3 * mid_p2_p3.x;
+        // If not a number, try something differently.
+        if(!Double.isFinite(y)) {
+            y = -1/s2 * (x - 0.5d * (p2.x + p3.x)) + 0.5d * (p2.y + p3.y);
+        }
 
-        // Now, find the x and y-coordinate of the intersection point.
-        double x = (b_p1_p2 - b_p2_p3) / (slope_p2_p3 - slope_p1_p2);
-        double y = (slope_p1_p2 * x) + b_p1_p2;
-
-        System.out.println("Circum center of " + p1 + " " + p2 + " " + p3 + " is at " + (new Point2d(x, y)));
+        if(Double.isInfinite(y)) {
+            System.out.println("Bad circum circle found.");
+            System.out.println("Circum center of " + p1 + " " + p2 + " " + p3 + " is at " + (new Point2d(x, y)));
+            System.out.println("s1=" + s1 + ", s2=" + s2);
+        }
 
         // Return the center.
         return new Point2d(x, y);

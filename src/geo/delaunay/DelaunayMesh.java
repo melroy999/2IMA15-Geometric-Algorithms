@@ -20,9 +20,9 @@ public class DelaunayMesh {
      */
     public DelaunayMesh() {
         // Initially, we should have a triangle already of sufficient size.
-        Vertex<TriangleFace> v1 = new Vertex.SymbolicVertex<>(-10e4, -10);
-        Vertex<TriangleFace> v2 = new Vertex.SymbolicVertex<>(10e4, -10);
-        Vertex<TriangleFace> v3 = new Vertex.SymbolicVertex<>(0, 10e4);
+        Vertex<TriangleFace> v1 = new Vertex.SymbolicVertex<>(-10e6, -10);
+        Vertex<TriangleFace> v2 = new Vertex.SymbolicVertex<>(10e6, -10);
+        Vertex<TriangleFace> v3 = new Vertex.SymbolicVertex<>(0, 10e6);
 
 //        Vertex<TriangleFace> v1 = new Vertex<>(10, 500 + 120, GameState.Player.RED);
 //        Vertex<TriangleFace> v2 = new Vertex<>(0.5 * 1910, 500 + 120, GameState.Player.RED);
