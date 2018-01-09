@@ -49,10 +49,10 @@ public class RandomAIPlayer extends AIPlayer {
             }
             int x = (int) Math.floor(generator.nextDouble()*GUI.createAndShow().getGamePanelDimensions().width);
             int y = (int) Math.floor(generator.nextDouble()*GUI.createAndShow().getGamePanelDimensions().height);
-            System.out.println(x +" "+ y);
+
             // Check if the point can be placed
             canPlace = addPoint(new Point(x, y));
-            System.out.println(canPlace);
+
             // If the random point can be placed
             if (canPlace) {
                 i++;
@@ -75,7 +75,7 @@ public class RandomAIPlayer extends AIPlayer {
         try {
             seedValue = Long.parseLong(seed.getText());
         } catch (NumberFormatException n){
-            System.out.println("Fuck you");
+            System.out.println("Using a random seed.");
             seedValue = random.nextLong();
         }
         int numPointsValue = Integer.parseInt(numPoints.getText());

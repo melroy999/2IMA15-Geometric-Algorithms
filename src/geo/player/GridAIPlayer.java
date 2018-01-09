@@ -35,7 +35,7 @@ public class GridAIPlayer extends AIPlayer  {
     public void createGrid(int numPoints){
         // Use the square root of the number of points rounded up as the amount of rows
         int rows = (int) Math.ceil((Math.sqrt((double) numPoints)));
-        System.out.println(rows);
+
         // The amount of points we still have to place
         int remainingPoints = numPoints;
         // The amount of rows that haven't had all points placed yet
@@ -47,7 +47,7 @@ public class GridAIPlayer extends AIPlayer  {
                     (int) (Math.floor(GUI.createAndShow().getGamePanelDimensions().height) / (rows) * 0.5);
             // The amount of points to be placed in a row
             int columns = (int) Math.ceil( (double)remainingPoints / remainingRows);
-            System.out.println(columns);
+
             for (int j = 0; j < columns; j++) {
                 // x-coord of point is the width of a voronoi face * column a point is in -1 +
                 // half of the width of a voronoi face
