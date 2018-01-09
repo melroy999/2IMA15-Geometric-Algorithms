@@ -100,9 +100,7 @@ public class TriangleFace extends Triangle2d implements Iterable<Edge<TriangleFa
      * circum circle of the face neighboring this edge. We check this for both sides of the edge.
      */
     public boolean isIllegal(Edge<TriangleFace> edge) {
-        return !(edge.origin instanceof Vertex.SymbolicVertex && edge.twin.origin instanceof Vertex.SymbolicVertex) &&
-                (circumCircleContains(edge.twin.previous().origin)
-                        || edge.twin.incidentFace.circumCircleContains(edge.previous().origin));
+        return circumCircleContains(edge.twin.previous().origin) || edge.twin.incidentFace.circumCircleContains(edge.previous().origin);
     }
 
     /**

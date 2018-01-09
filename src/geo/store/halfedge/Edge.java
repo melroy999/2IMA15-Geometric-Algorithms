@@ -118,7 +118,6 @@ public class Edge<T> {
      * @return True when the numbers are extremely close to one another.
      */
     private static boolean almostEqual(double a, double b){
-        System.out.println(a + ", " + b);
         return Math.abs(a-b) < 10e-6 /*Math.max(Math.ulp(a), Math.ulp(b))*/;
     }
 

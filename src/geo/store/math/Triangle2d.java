@@ -22,9 +22,19 @@ public class Triangle2d {
      * @param p3 The third corner point of the triangle.
      */
     public Triangle2d(Point2d p1, Point2d p2, Point2d p3) {
-        this.p1 = p1;
-        this.p2 = p2;
-        this.p3 = p3;
+        // Make sure that the edges are in CCW order!
+        double sign = (p2.x - p1.x) * (p2.y + p1.y) + (p3.x - p2.x) * (p3.y + p2.y) + (p1.x - p3.x) * (p1.y + p3.y);
+
+        // If the sign is negative, we are in CW order and should thus swap two points.
+        if(sign < 0) {
+            this.p1 = p1;
+            this.p2 = p3;
+            this.p3 = p2;
+        } else {
+            this.p1 = p1;
+            this.p2 = p2;
+            this.p3 = p3;
+        }
 
         // Find the center point.
         c = p1.add(p2).add(p3).scale(1/3d);
@@ -55,6 +65,8 @@ public class Triangle2d {
         // Now, find the x and y-coordinate of the intersection point.
         double x = (b_p1_p2 - b_p2_p3) / (slope_p2_p3 - slope_p1_p2);
         double y = (slope_p1_p2 * x) + b_p1_p2;
+
+        System.out.println("Circum center of " + p1 + " " + p2 + " " + p3 + " is at " + (new Point2d(x, y)));
 
         // Return the center.
         return new Point2d(x, y);
