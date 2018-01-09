@@ -28,24 +28,37 @@ public class GridAIPlayer extends AIPlayer  {
 
     /**
      * Create the list of moves in a grid pattern for the AI to take.
+     * We want to have voronoi faces of the same size if possible
      *
      * @param numPoints The number of points to be placed.
      */
     public void createGrid(int numPoints){
-        // TODO: Create a grid
         // Use the square root of the number of points rounded up as the amount of rows
         int rows = (int) Math.ceil((Math.sqrt((double) numPoints)));
+        System.out.println(rows);
+        // The amount of points we still have to place
         int remainingPoints = numPoints;
-        //
+        // The amount of rows that haven't had all points placed yet
+        int remainingRows = rows;
         for (int i = 0; i < rows; i++){
-            // y-coord of point is the height of the panel / rows+1 * the row the points should be in.
-            int y = (int) Math.floor(GUI.createAndShow().getGamePanelDimensions().height / (rows+1))*(i+1);
-            int columns = (int) Math.ceil( remainingPoints / rows);
+            // y-coord of point is the height of a voronoi face * row a point is in -1 +
+            // half of the height of a voronoi face
+            int y = (int) Math.floor(GUI.createAndShow().getGamePanelDimensions().height / (rows))*(i) +
+                    (int) (Math.floor(GUI.createAndShow().getGamePanelDimensions().height) / (rows) * 0.5);
+            // The amount of points to be placed in a row
+            int columns = (int) Math.ceil( (double)remainingPoints / remainingRows);
+            System.out.println(columns);
             for (int j = 0; j < columns; j++) {
-                int x = (int) Math.floor(GUI.createAndShow().getGamePanelDimensions().width / (columns+1))*(j+1);
+                // x-coord of point is the width of a voronoi face * column a point is in -1 +
+                // half of the width of a voronoi face
+                int x = (int) (Math.floor(GUI.createAndShow().getGamePanelDimensions().width / (columns))*(j)) +
+                        (int) (Math.floor(GUI.createAndShow().getGamePanelDimensions().width / (columns)) * 0.5);
                 // Add the point
                 addPoint(new Point(x, y));
             }
+            // Decrease the amount of points remaining and the amount of rows remaining
+            remainingPoints -= columns;
+            remainingRows -= 1;
         }
         turn++;
     }
@@ -62,7 +75,8 @@ public class GridAIPlayer extends AIPlayer  {
         try {
             numPointsValue = Integer.parseInt(numPoints.getText());
         } catch (NumberFormatException n){
-            numPointsValue = 9;
+            System.out.println("Please tell me how many points to place.");
+            return;
         }
         // Create the moves and do them
         createGrid(numPointsValue);
