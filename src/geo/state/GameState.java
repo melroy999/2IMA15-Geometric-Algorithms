@@ -114,7 +114,7 @@ public class GameState {
         triangulator = new DelaunayTriangulator();
 
         // The list of all points, shuffled straight after.
-//        Collections.shuffle(points, random);
+        Collections.shuffle(points, random);
 
         // Insert all already known points, and the new point, in random order.
         for(Vertex<TriangleFace> point : points) {

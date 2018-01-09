@@ -95,6 +95,10 @@ public class Edge<T> {
      * @return True if the point is on the line, otherwise false.
      */
     public boolean isPointOnEdge(Point2d p) {
+//        if(p.y == origin.y && p.y == twin.origin.y || p.x == origin.x && p.x == twin.origin.x) {
+//            return true;
+//        }
+
         // Check if the sum of the lengths of a -> b + b -> c == a -> c.
         return almostEqual(this.origin.distance(p) + p.distance(this.twin.origin),
                 this.origin.distance(this.twin.origin));
@@ -118,7 +122,7 @@ public class Edge<T> {
      * @return True when the numbers are extremely close to one another.
      */
     private static boolean almostEqual(double a, double b){
-        return Math.abs(a-b) < 10e-6 /*Math.max(Math.ulp(a), Math.ulp(b))*/;
+        return Math.abs(a-b) < 10e-16 /*Math.max(Math.ulp(a), Math.ulp(b))*/;
     }
 
     /**

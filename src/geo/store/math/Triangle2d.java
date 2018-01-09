@@ -1,5 +1,10 @@
 package geo.store.math;
 
+import geo.store.halfedge.Edge;
+import geo.store.halfedge.Face;
+
+import java.util.Arrays;
+
 /**
  * Data structure representing a triangle.
  */
@@ -63,10 +68,10 @@ public class Triangle2d {
             y = -1/s2 * (x - 0.5d * (p2.x + p3.x)) + 0.5d * (p2.y + p3.y);
         }
 
-        if(Double.isInfinite(y)) {
+        if(!Double.isFinite(y)) {
             System.out.println("Bad circum circle found.");
             System.out.println("Circum center of " + p1 + " " + p2 + " " + p3 + " is at " + (new Point2d(x, y)));
-            System.out.println("s1=" + s1 + ", s2=" + s2);
+            System.out.println("s1=" + s1 + ", s2=" + s2 + ", s3=" + (p1.y - p3.y) / (p1.x - p3.x + 10e-32));
         }
 
         // Return the center.
@@ -80,6 +85,12 @@ public class Triangle2d {
      * @return INSIDE if inside the triangle, BORDER if on the edge of the triangle, OUTSIDE otherwise.
      */
     public Location contains(Point2d p) {
+        // We have trouble with equal y searches, so hardcode it.
+//        if(p.y == p1.y && p.y == p2.y || p.y == p2.y && p.y == p3.y || p.y == p3.y && p.y == p1.y ||
+//                p.x == p1.x && p.x == p2.x || p.x == p2.x && p.x == p3.x || p.x == p3.x && p.x == p1.x) {
+//            return Location.BORDER;
+//        }
+
         // For this, we will use barycentric coordinates.
         // The point p can be redefined in terms of p1, p2 and p3 together with scalars, such that:
         //      p = a * p1 + b * p2 + c * p3
@@ -107,7 +118,7 @@ public class Triangle2d {
      * @return True if the distance between the point and the circumcenter is smaller than the circumcircle radius.
      */
     public boolean circumCircleContains(Point2d p) {
-        return cc.distance(p) < ccr;
+        return !Double.isNaN(cc.x) && !Double.isNaN(cc.y) ? cc.distance(p) < ccr : false;
     }
 
     /**
