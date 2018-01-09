@@ -97,7 +97,7 @@ public class GamePanel extends JPanel {
                 // Check if e is related to a symbolic vertex.
                 if(edge.origin instanceof Vertex.SymbolicVertex || edge.twin.origin instanceof Vertex.SymbolicVertex) {
                     // If it is, do not render.
-                    continue;
+//                    continue;
                 }
 
                 // We use a gray color for triangulation edges. Purple for invalid edges!

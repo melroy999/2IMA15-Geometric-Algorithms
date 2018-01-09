@@ -66,6 +66,42 @@ public class Triangle2d {
      * @param p The point we want to query the location of.
      * @return INSIDE if inside the triangle, BORDER if on the edge of the triangle, OUTSIDE otherwise.
      */
+//    public Location contains(Point2d p) {
+//        // Calculate the cross products.
+//        double x12 = crossProduct(p1, p2, p);
+//        double x23 = crossProduct(p2, p3, p);
+//        double x31 = crossProduct(p3, p1, p);
+//
+//        // Check if the signs are all equal.
+//        if(x12 >= 0 && x23 >= 0 && x31 >= 0) {
+//            // Since they are all at the same side, we possibly have that the vertex is on the edge.
+//            // So if any of them is 0, and the sign is the same, we know it is on the edge. Otherwise inside.
+//            if(almostEqual(x12, 0) || almostEqual(x23, 0) || almostEqual(x31, 0)) {
+//                return Location.BORDER;
+//            } else {
+//                return Location.INSIDE;
+//            }
+//        }
+//
+//        // Otherwise, it is outside.
+//        return Location.OUTSIDE;
+//    }
+//
+//    public double crossProduct(Point2d v1, Point2d v2, Point2d v3) {
+//        return (v2.x - v1.x) * (v3.y - v1.y) - (v2.y - v1.y) * (v3.x - v1.x);
+//    }
+//
+//    /**
+//     * Check whether the two numbers are almost equal, using the smallest distance between one double and the next.
+//     *
+//     * @param a The left side of the equation.
+//     * @param b The right side of the equation.
+//     * @return True when the numbers are extremely close to one another.
+//     */
+//    private static boolean almostEqual(double a, double b){
+//        return Math.abs(a-b) < 10e-6;
+//    }
+
     public Location contains(Point2d p) {
         // For this, we will use barycentric coordinates.
         // The point p can be redefined in terms of p1, p2 and p3 together with scalars, such that:

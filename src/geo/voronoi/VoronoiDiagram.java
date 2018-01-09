@@ -60,6 +60,7 @@ public class VoronoiDiagram extends DAG<Point2d> {
             List<Vertex<Face>> vVertices = SutherlandHodgmanClipping.clipPolygon(circumCenters).stream().map(
                     (Function<Point2d, Vertex<Face>>) Vertex::new).collect(Collectors.toList());
 
+
             // Create an edge between each of the Voronoi vertices.
             for (int i = 0; i < vVertices.size(); i++) {
                 Vertex<Face> v1 = vVertices.get(i);

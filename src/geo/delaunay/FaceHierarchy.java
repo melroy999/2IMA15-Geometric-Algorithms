@@ -100,7 +100,9 @@ public class FaceHierarchy extends DAG<TriangleFace> {
             // Otherwise, iterate over all children and do the same check.
             for(Node<TriangleFace> child : node.children) {
                 TriangleFace hit = findFace(p, child);
-                if(hit != null) return hit;
+                if(hit != null) {
+                    return hit;
+                }
             }
         }
 

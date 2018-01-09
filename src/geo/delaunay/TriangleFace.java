@@ -69,6 +69,8 @@ public class TriangleFace extends Triangle2d implements Iterable<Edge<TriangleFa
         label = new Label(c.x, c.y, "f" + id);
         circumCircleShape = new Circle(cc.x, cc.y, ccr);
         circumCenterShape = new Point(cc.x, cc.y, Color.magenta);
+
+        System.out.println("Creating face " + this);
     }
 
     /**

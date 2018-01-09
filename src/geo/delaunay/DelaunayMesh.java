@@ -1,5 +1,6 @@
 package geo.delaunay;
 
+import geo.state.GameState;
 import geo.store.halfedge.Edge;
 import geo.store.halfedge.Vertex;
 import geo.store.math.Triangle2d;
@@ -23,10 +24,6 @@ public class DelaunayMesh {
         Vertex<TriangleFace> v1 = new Vertex.SymbolicVertex<>(-10e6, -10e6);
         Vertex<TriangleFace> v2 = new Vertex.SymbolicVertex<>(10e6, -10e6);
         Vertex<TriangleFace> v3 = new Vertex.SymbolicVertex<>(0, 10e6);
-
-//        Vertex<TriangleFace> v1 = new Vertex<>(10, 500 + 120, GameState.Player.RED);
-//        Vertex<TriangleFace> v2 = new Vertex<>(0.5 * 1910, 500 + 120, GameState.Player.RED);
-//        Vertex<TriangleFace> v3 = new Vertex<>(0.5 * 960, 500 + 0.5 * 900, GameState.Player.RED);
 
         // Create edges in CCW order.
         Edge<TriangleFace> v1_v2 = new Edge<>(v1, v2);
@@ -69,6 +66,9 @@ public class DelaunayMesh {
 
         // Now, we should find out of it is inside of the triangle, or on one of the edges.
         if(face.contains(v) == Triangle2d.Location.INSIDE) {
+            // Report.
+            System.out.println("Inserting vertex " + v + " into face " + face);
+
             // Use the insert into inside face insertion.
             insertVertexInsideFace(v, face);
         } else {
@@ -78,6 +78,10 @@ public class DelaunayMesh {
             if(!edge.isPresent()) {
                 throw new EdgeNotFoundException(v);
             }
+
+
+            // Report.
+            System.out.println("Inserting vertex " + v + " on edge " + edge.get() + " with neighboring faces " + edge.get().incidentFace + " and " + edge.get().twin.incidentFace);
 
             // Insert the vertex on the edge.
             insertVertexOnEdge(v, edge.get());
@@ -133,7 +137,8 @@ public class DelaunayMesh {
         }
 
         // Replace the two original faces by the new faces.
-        faceIndex.replaceFaces(Arrays.asList(edge.incidentFace, edge.twin.incidentFace), faces);
+        faceIndex.replaceFaces(Collections.singletonList(edge.incidentFace), faces.subList(0,2));
+        faceIndex.replaceFaces(Collections.singletonList(edge.twin.incidentFace), faces.subList(2, 4));
     }
 
 
@@ -143,6 +148,8 @@ public class DelaunayMesh {
      * @param e The edge we want to swap out with another edge.
      */
     public void swapEdge(Edge<TriangleFace> e) {
+        System.out.println("Swapping edge " + e);
+
         // First, a sketch of the situation.
         /* We want to replace "e" with an edge from v1 to v2.
 
