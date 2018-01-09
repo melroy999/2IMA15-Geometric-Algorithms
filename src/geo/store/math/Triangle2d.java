@@ -1,9 +1,7 @@
 package geo.store.math;
 
-import geo.store.halfedge.Edge;
-import geo.store.halfedge.Face;
-
-import java.util.Arrays;
+import java.awt.*;
+import java.awt.geom.Path2D;
 
 /**
  * Data structure representing a triangle.
@@ -18,6 +16,9 @@ public class Triangle2d {
     // The circumcenter of the triangle, and the radius of the circumcircle.
     public final Point2d cc;
     public final double ccr;
+
+    // Create a 2d polygon to test contains.
+    private final Path2D shape;
 
     /**
      * Create a triangle, given the three corner points.
@@ -47,6 +48,13 @@ public class Triangle2d {
         // Find the circumcenter and radius of the circum circle.
         cc = getCircumCenter();
         ccr = cc.distance(p1);
+
+        // Create the shape.
+        shape = new Path2D.Double();
+        shape.moveTo(p1.x, p1.y);
+        shape.lineTo(p2.x, p2.y);
+        shape.lineTo(p3.x, p3.y);
+        shape.closePath();
     }
 
     /**
@@ -129,6 +137,17 @@ public class Triangle2d {
         }
         return false;
     }
+
+    /**
+     * In the worst case... use awt to check the contains, as it isn't error prone.
+     *
+     * @param p The point to check the existence of.
+     * @return Whether the point is contained in the shape.
+     */
+    public Location containsAlternative(Point2d p) {
+        return shape.contains(p.x, p.y) ? Location.INSIDE : Location.OUTSIDE;
+    }
+
 
     /**
      * Check if the given point is contained in the circumcircle.

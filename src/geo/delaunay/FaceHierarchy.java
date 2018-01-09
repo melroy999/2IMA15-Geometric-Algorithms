@@ -8,6 +8,7 @@ import geo.store.math.Triangle2d;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
  * A engine for point to face searches in the triangulation structure.
@@ -72,9 +73,14 @@ public class FaceHierarchy extends DAG<TriangleFace> {
      */
     public TriangleFace findFace(Point2d p) {
         // Recursively search through the nodes.
-        for(Node<TriangleFace> node : roots) {
-            TriangleFace hit = findFace(p, node);
-            if(hit != null) return hit;
+        TriangleFace face = findFace(f -> f.value.contains(p));
+        if(face != null) {
+            return face;
+        }
+
+        face = findFace(f -> f.value.containsAlternative(p));
+        if(face != null) {
+            return face;
         }
 
         // If not found, we know that it is the outside face, so return the outside face.
@@ -82,15 +88,30 @@ public class FaceHierarchy extends DAG<TriangleFace> {
     }
 
     /**
+     * Find the face that contains the given point.
+     *
+     * @return The corresponding face if it exists, the outer face otherwise.
+     */
+    private TriangleFace findFace(Function<Node<TriangleFace>, Triangle2d.Location> function) {
+        // Recursively search through the nodes.
+        for(Node<TriangleFace> node : roots) {
+            TriangleFace hit = findFace(node, function);
+            if(hit != null) return hit;
+        }
+
+        // If not found, return null.
+        return null;
+    }
+
+    /**
      * Find a face that contains the given point starting from the given node.
      *
-     * @param p The point we want to find.
      * @param node The node we want to start the search at.
      * @return The corresponding face if it exists, null otherwise.
      */
-    private TriangleFace findFace(Point2d p, Node<TriangleFace> node) {
+    private TriangleFace findFace(Node<TriangleFace> node, Function<Node<TriangleFace>, Triangle2d.Location> function) {
         // First, check if the point can be in this node, before proceeding checking the children.
-        Triangle2d.Location location = node.value.contains(p);
+        Triangle2d.Location location = function.apply(node);
         if(location != Triangle2d.Location.OUTSIDE) {
             // Check if we have children, if not, this is a leaf node and we return it as a result.
             if(node.children.isEmpty()) {
@@ -99,7 +120,7 @@ public class FaceHierarchy extends DAG<TriangleFace> {
 
             // Otherwise, iterate over all children and do the same check.
             for(Node<TriangleFace> child : node.children) {
-                TriangleFace hit = findFace(p, child);
+                TriangleFace hit = findFace(child, function);
                 if(hit != null) return hit;
             }
         }

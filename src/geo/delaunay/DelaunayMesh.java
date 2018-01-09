@@ -20,8 +20,8 @@ public class DelaunayMesh {
      */
     public DelaunayMesh() {
         // Initially, we should have a triangle already of sufficient size.
-        Vertex<TriangleFace> v1 = new Vertex.SymbolicVertex<>(-10e6, -10);
-        Vertex<TriangleFace> v2 = new Vertex.SymbolicVertex<>(10e6, -10);
+        Vertex<TriangleFace> v1 = new Vertex.SymbolicVertex<>(-10e6, -10e6);
+        Vertex<TriangleFace> v2 = new Vertex.SymbolicVertex<>(10e6, -10e6);
         Vertex<TriangleFace> v3 = new Vertex.SymbolicVertex<>(0, 10e6);
 
 //        Vertex<TriangleFace> v1 = new Vertex<>(10, 500 + 120, GameState.Player.RED);
@@ -70,7 +70,7 @@ public class DelaunayMesh {
         // Now, we should find out of it is inside of the triangle, or on one of the edges.
         if(face.contains(v) == Triangle2d.Location.INSIDE) {
 
-            System.out.println("Inserting " + v + " in face " + face);
+//            System.out.println("Inserting " + v + " in face " + face);
 
             // Use the insert into inside face insertion.
             insertVertexInsideFace(v, face);
@@ -82,7 +82,7 @@ public class DelaunayMesh {
                 throw new EdgeNotFoundException(v);
             }
 
-            System.out.println("Inserting " + v + " on edge " + edge);
+//            System.out.println("Inserting " + v + " on edge " + edge);
 
             // Insert the vertex on the edge.
             insertVertexOnEdge(v, edge.get());
