@@ -43,7 +43,8 @@ public class GameEngine {
         AbstractPlayer[] players = new AbstractPlayer[]{
                 humanRed,
                 new ImportFilePlayer(controller, humanRed, GameState.PlayerTurn.RED),
-                new RandomAIPlayer(controller, humanRed, GameState.PlayerTurn.RED)
+                new RandomAIPlayer(controller, humanRed, GameState.PlayerTurn.RED),
+                new GridAIPlayer(controller, humanRed, GameState.PlayerTurn.RED)
         };
 
         // Do the same for player 2.

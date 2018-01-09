@@ -35,10 +35,17 @@ public class GridAIPlayer extends AIPlayer  {
         // TODO: Create a grid
         // Use the square root of the number of points rounded up as the amount of rows
         int rows = (int) Math.ceil((Math.sqrt((double) numPoints)));
+        int remainingPoints = numPoints;
         //
         for (int i = 0; i < rows; i++){
             // y-coord of point is the height of the panel / rows+1 * the row the points should be in.
             int y = (int) Math.floor(GUI.createAndShow().getGamePanelDimensions().height / (rows+1))*(i+1);
+            int columns = (int) Math.ceil( remainingPoints / rows);
+            for (int j = 0; j < columns; j++) {
+                int x = (int) Math.floor(GUI.createAndShow().getGamePanelDimensions().width / (columns+1))*(j+1);
+                // Add the point
+                addPoint(new Point(x, y));
+            }
         }
         turn++;
     }
@@ -51,7 +58,12 @@ public class GridAIPlayer extends AIPlayer  {
     @Override
     protected void runAI(GameState state) {
         // Get the value for numPoints
-        int numPointsValue = Integer.parseInt(numPoints.getText());
+        int numPointsValue;
+        try {
+            numPointsValue = Integer.parseInt(numPoints.getText());
+        } catch (NumberFormatException n){
+            numPointsValue = 9;
+        }
         // Create the moves and do them
         createGrid(numPointsValue);
     }
