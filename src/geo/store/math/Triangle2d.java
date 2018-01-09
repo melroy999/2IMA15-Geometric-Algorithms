@@ -86,10 +86,15 @@ public class Triangle2d {
      */
     public Location contains(Point2d p) {
         // We have trouble with equal y searches, so hardcode it.
-//        if(p.y == p1.y && p.y == p2.y || p.y == p2.y && p.y == p3.y || p.y == p3.y && p.y == p1.y ||
-//                p.x == p1.x && p.x == p2.x || p.x == p2.x && p.x == p3.x || p.x == p3.x && p.x == p1.x) {
-//            return Location.BORDER;
-//        }
+        if(p.y == p1.y && p.y == p2.y) {
+            if(isOnVerticalLine(p, p1, p2)) return Location.BORDER;
+        }
+        if(p.y == p2.y && p.y == p3.y) {
+            if(isOnVerticalLine(p, p2, p3)) return Location.BORDER;
+        }
+        if(p.y == p3.y && p.y == p1.y) {
+            if(isOnVerticalLine(p, p3, p1)) return Location.BORDER;
+        }
 
         // For this, we will use barycentric coordinates.
         // The point p can be redefined in terms of p1, p2 and p3 together with scalars, such that:
@@ -112,13 +117,26 @@ public class Triangle2d {
         }
     }
 
+    public boolean isOnVerticalLine(Point2d p, Point2d p1, Point2d p2) {
+        if(Math.min(p1.x, p2.x) == p1.x) {
+            if(Math.min(p1.x, p.x) == p1.x && Math.max(p2.x, p.x) == p2.x) {
+                return true;
+            }
+        } else {
+            if(Math.min(p2.x, p.x) == p2.x && Math.max(p1.x, p.x) == p1.x) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Check if the given point is contained in the circumcircle.
      * @param p The point we want to check the position of.
      * @return True if the distance between the point and the circumcenter is smaller than the circumcircle radius.
      */
     public boolean circumCircleContains(Point2d p) {
-        return !Double.isNaN(cc.x) && !Double.isNaN(cc.y) ? cc.distance(p) < ccr : false;
+        return cc.distance(p) < ccr;
     }
 
     /**
