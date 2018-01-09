@@ -6,12 +6,15 @@ import geo.store.gui.Polygon;
 import geo.store.gui.Point;
 
 import geo.store.halfedge.Edge;
+import geo.store.halfedge.Face;
 import geo.store.halfedge.Vertex;
 import geo.store.math.Point2d;
 import geo.store.math.Triangle2d;
 
 import java.awt.*;
+import java.util.List;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -69,6 +72,10 @@ public class TriangleFace extends Triangle2d implements Iterable<Edge<TriangleFa
         label = new Label(c.x, c.y, "f" + id);
         circumCircleShape = new Circle(cc.x, cc.y, ccr);
         circumCenterShape = new Point(cc.x, cc.y, Color.magenta);
+
+        if(e1.origin.y == e2.origin.y && e2.origin.y == e3.origin.y) {
+            System.out.println("Equal ys");
+        }
     }
 
     /**
@@ -100,9 +107,7 @@ public class TriangleFace extends Triangle2d implements Iterable<Edge<TriangleFa
      * circum circle of the face neighboring this edge. We check this for both sides of the edge.
      */
     public boolean isIllegal(Edge<TriangleFace> edge) {
-        return !(edge.origin instanceof Vertex.SymbolicVertex && edge.twin.origin instanceof Vertex.SymbolicVertex) &&
-                (circumCircleContains(edge.twin.previous().origin)
-                        || edge.twin.incidentFace.circumCircleContains(edge.previous().origin));
+        return circumCircleContains(edge.twin.previous().origin) || edge.twin.incidentFace.circumCircleContains(edge.previous().origin);
     }
 
     /**

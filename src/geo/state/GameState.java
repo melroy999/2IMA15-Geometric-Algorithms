@@ -110,6 +110,8 @@ public class GameState {
      * @return Whether the operation was successful or not.
      */
     private boolean reconstruct(List<Vertex<TriangleFace>> points) {
+        System.out.println();
+
         // We have to enforce randomized incremental construction for the Delaunay triangulation...
         triangulator = new DelaunayTriangulator();
 
@@ -140,7 +142,7 @@ public class GameState {
      */
     @SafeVarargs
     private static <T> List<T> union(List<T>... lists) {
-        Set<T> set = new HashSet<>();
+        Set<T> set = new LinkedHashSet<>();
 
         for(List<T> list : lists) set.addAll(list);
 

@@ -20,8 +20,8 @@ public class DelaunayMesh {
      */
     public DelaunayMesh() {
         // Initially, we should have a triangle already of sufficient size.
-        Vertex<TriangleFace> v1 = new Vertex.SymbolicVertex<>(-10e6, -10e6);
-        Vertex<TriangleFace> v2 = new Vertex.SymbolicVertex<>(10e6, -10e6);
+        Vertex<TriangleFace> v1 = new Vertex.SymbolicVertex<>(-10e6, -10);
+        Vertex<TriangleFace> v2 = new Vertex.SymbolicVertex<>(10e6, -10);
         Vertex<TriangleFace> v3 = new Vertex.SymbolicVertex<>(0, 10e6);
 
 //        Vertex<TriangleFace> v1 = new Vertex<>(10, 500 + 120, GameState.Player.RED);
@@ -69,6 +69,9 @@ public class DelaunayMesh {
 
         // Now, we should find out of it is inside of the triangle, or on one of the edges.
         if(face.contains(v) == Triangle2d.Location.INSIDE) {
+
+            System.out.println("Inserting " + v + " in face " + face);
+
             // Use the insert into inside face insertion.
             insertVertexInsideFace(v, face);
         } else {
@@ -79,8 +82,10 @@ public class DelaunayMesh {
                 throw new EdgeNotFoundException(v);
             }
 
-            // Use the insert on edge of face insertion.
-            throw new NotImplementedException();
+            System.out.println("Inserting " + v + " on edge " + edge);
+
+            // Insert the vertex on the edge.
+            insertVertexOnEdge(v, edge.get());
         }
     }
 
@@ -109,6 +114,32 @@ public class DelaunayMesh {
 
         // Replace the original face by the new faces.
         faceIndex.replaceFaces(Collections.singletonList(face), faces);
+    }
+
+    private void insertVertexOnEdge(Vertex<TriangleFace> v, Edge<TriangleFace> edge) {
+        // Start with finding the edges surrounding the two faces, of which we have 4.
+        List<Edge<TriangleFace>> edges = new ArrayList<>();
+        edges.add(edge.next());
+        edges.add(edge.next().next());
+        edges.add(edge.twin.next());
+        edges.add(edge.twin.next().next());
+
+        // Create the new edges we need, edges going from the vertices of the edges in the cycle to the new vertex v.
+        List<Edge<TriangleFace>> connectors = edges.stream().map(
+                e -> new Edge<>(e.origin, v)).collect(Collectors.toList());
+
+        // Now, construct the faces.
+        List<TriangleFace> faces = new ArrayList<>();
+        for(int i = 0; i < edges.size(); i++) {
+            Edge<TriangleFace> v1_v2 = edges.get(i);
+            Edge<TriangleFace> v2_v = connectors.get((i + 1) % edges.size());
+            Edge<TriangleFace> v_v1 = connectors.get(i).twin;
+            faces.add(new TriangleFace(v1_v2, v2_v, v_v1));
+        }
+
+        // Replace the two original faces by the new faces.
+        faceIndex.replaceFaces(Collections.singletonList(edge.incidentFace), faces.subList(0,2));
+        faceIndex.replaceFaces(Collections.singletonList(edge.twin.incidentFace), faces.subList(2, 4));
     }
 
 

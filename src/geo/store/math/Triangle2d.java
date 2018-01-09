@@ -1,5 +1,10 @@
 package geo.store.math;
 
+import geo.store.halfedge.Edge;
+import geo.store.halfedge.Face;
+
+import java.util.Arrays;
+
 /**
  * Data structure representing a triangle.
  */
@@ -22,9 +27,19 @@ public class Triangle2d {
      * @param p3 The third corner point of the triangle.
      */
     public Triangle2d(Point2d p1, Point2d p2, Point2d p3) {
-        this.p1 = p1;
-        this.p2 = p2;
-        this.p3 = p3;
+        // Make sure that the edges are in CCW order!
+        double sign = (p2.x - p1.x) * (p2.y + p1.y) + (p3.x - p2.x) * (p3.y + p2.y) + (p1.x - p3.x) * (p1.y + p3.y);
+
+        // If the sign is negative, we are in CW order and should thus swap two points.
+        if(sign < 0) {
+            this.p1 = p1;
+            this.p2 = p3;
+            this.p3 = p2;
+        } else {
+            this.p1 = p1;
+            this.p2 = p2;
+            this.p3 = p3;
+        }
 
         // Find the center point.
         c = p1.add(p2).add(p3).scale(1/3d);
@@ -40,21 +55,24 @@ public class Triangle2d {
      * @return The circumcenter, I.e. the center of the circle that goes through all the corner points of the triangle.
      */
     private Point2d getCircumCenter() {
-        // We first need the midpoint of p1->p2 and p2->p3.
-        Point2d mid_p1_p2 = p1.interpolate(p2, 0.5d);
-        Point2d mid_p2_p3 = p2.interpolate(p3, 0.5d);
+        // Calculate the slopes of the two lines.
+        double s1 = (p2.y - p1.y) / (p2.x - p1.x + 10e-32);
+        double s2 = (p3.y - p2.y) / (p3.x - p2.x + 10e-32);
 
-        // Now find the negative reciprocal of the slope, such that we get the slope of the perpendicular bisector.
-        double slope_p1_p2 = -1 / ((p2.y - p1.y + 10e-32) / (p2.x - p1.x + 10e-32));
-        double slope_p2_p3 = -1 / ((p3.y - p2.y + 10e-32) / (p3.x - p2.x + 10e-32));
+        // Calculate x.
+        double x = 0.5d * (s1 * s2 * (p1.y - p3.y) + s2 * (p1.x + p2.x) - s1 * (p2.x + p3.x)) / (s2 - s1);
+        double y = -1/s1 * (x - 0.5d * (p1.x + p2.x)) + 0.5d * (p1.y + p2.y);
 
-        // Now, solve y = mx + b for b, b = y - mx where m is the slope and x and y are taken from the center point.
-        double b_p1_p2 = mid_p1_p2.y - slope_p1_p2 * mid_p1_p2.x;
-        double b_p2_p3 = mid_p2_p3.y - slope_p2_p3 * mid_p2_p3.x;
+        // If not a number, try something differently.
+        if(!Double.isFinite(y)) {
+            y = -1/s2 * (x - 0.5d * (p2.x + p3.x)) + 0.5d * (p2.y + p3.y);
+        }
 
-        // Now, find the x and y-coordinate of the intersection point.
-        double x = (b_p1_p2 - b_p2_p3) / (slope_p2_p3 - slope_p1_p2);
-        double y = (slope_p1_p2 * x) + b_p1_p2;
+        if(!Double.isFinite(y)) {
+            System.out.println("Bad circum circle found.");
+            System.out.println("Circum center of " + p1 + " " + p2 + " " + p3 + " is at " + (new Point2d(x, y)));
+            System.out.println("s1=" + s1 + ", s2=" + s2 + ", s3=" + (p1.y - p3.y) / (p1.x - p3.x + 10e-32));
+        }
 
         // Return the center.
         return new Point2d(x, y);
@@ -67,6 +85,17 @@ public class Triangle2d {
      * @return INSIDE if inside the triangle, BORDER if on the edge of the triangle, OUTSIDE otherwise.
      */
     public Location contains(Point2d p) {
+        // We have trouble with equal y searches, so hardcode it.
+        if(p.y == p1.y && p.y == p2.y) {
+            if(isOnVerticalLine(p, p1, p2)) return Location.BORDER;
+        }
+        if(p.y == p2.y && p.y == p3.y) {
+            if(isOnVerticalLine(p, p2, p3)) return Location.BORDER;
+        }
+        if(p.y == p3.y && p.y == p1.y) {
+            if(isOnVerticalLine(p, p3, p1)) return Location.BORDER;
+        }
+
         // For this, we will use barycentric coordinates.
         // The point p can be redefined in terms of p1, p2 and p3 together with scalars, such that:
         //      p = a * p1 + b * p2 + c * p3
@@ -86,6 +115,19 @@ public class Triangle2d {
             // If none of the above, it has to be outside.
             return Location.OUTSIDE;
         }
+    }
+
+    public boolean isOnVerticalLine(Point2d p, Point2d p1, Point2d p2) {
+        if(Math.min(p1.x, p2.x) == p1.x) {
+            if(Math.min(p1.x, p.x) == p1.x && Math.max(p2.x, p.x) == p2.x) {
+                return true;
+            }
+        } else {
+            if(Math.min(p2.x, p.x) == p2.x && Math.max(p1.x, p.x) == p1.x) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
