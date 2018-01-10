@@ -36,6 +36,10 @@ public class GridAIPlayer extends AIPlayer  {
         // Use the square root of the number of points rounded up as the amount of rows
         int rows = (int) Math.ceil((Math.sqrt((double) numPoints)));
 
+        // The points we want to add.
+        Point[] points = new Point[numPoints];
+        int num = 0;
+
         // The amount of points we still have to place
         int remainingPoints = numPoints;
         // The amount of rows that haven't had all points placed yet
@@ -54,12 +58,14 @@ public class GridAIPlayer extends AIPlayer  {
                 int x = (int) (Math.floor(GUI.createAndShow().getGamePanelDimensions().width / (columns))*(j)) +
                         (int) (Math.floor(GUI.createAndShow().getGamePanelDimensions().width / (columns)) * 0.5);
                 // Add the point
-                addPoint(new Point(x, y));
+//                addPoint(new Point(x, y));
+                points[num++] = new Point(x, y);
             }
             // Decrease the amount of points remaining and the amount of rows remaining
             remainingPoints -= columns;
             remainingRows -= 1;
         }
+        addPoints(points);
         turn++;
     }
 

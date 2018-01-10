@@ -1,5 +1,6 @@
 package geo.state;
 
+import com.sun.xml.internal.ws.wsdl.writer.document.Fault;
 import geo.controller.GameController;
 import geo.delaunay.DelaunayMesh;
 import geo.delaunay.DelaunayTriangulator;
@@ -11,6 +12,7 @@ import geo.voronoi.VoronoiDiagram;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * The current state of the playing board.
@@ -49,7 +51,7 @@ public class GameState {
      * @param controller The controller that should receive the predicates.
      */
     public final void setPredicates(GameController controller) {
-        controller.setPredicates(this::addPoint, this::removePoint, this::reset);
+        controller.setPredicates(this::addPoint, this::removePoint, this::reset, this::addPoints);
     }
 
     /**
@@ -58,21 +60,21 @@ public class GameState {
      * @param p The point to add to the state.
      * @return Whether the insertion of the point was successful or not.
      */
-    private boolean addPoint(Point p) {
+    private FaultStatus addPoint(Point p) {
         // First, convert to our own vertex type.
         Vertex<TriangleFace> vertex = new Vertex<>(p.x, p.y, currentPlayerTurn);
 
         // If the point already exists, do nothing.
-        if(checkPointExistence(vertex)) return false;
+        if(checkPointExistence(vertex)) return FaultStatus.PointExists;
 
         // Blue is only allowed to have n-1 points.
         if(currentPlayerTurn == PlayerTurn.BLUE && getNumberOfRedPoints() <= getNumberOfBluePoints() + 1) {
-            return false;
+            return FaultStatus.TooManyPoints;
         }
 
         // Get the list of points, and reconstruct the triangulation/Voronoi diagram.
         List<Vertex<TriangleFace>> points = union(redPoints, bluePoints, Collections.singletonList(vertex));
-        if(!reconstruct(points)) return false;
+        if(!reconstruct(points)) return FaultStatus.Error;
 
         // Only after all previous insertions pass, add the point to the list of points.
         if(currentPlayerTurn == PlayerTurn.RED) {
@@ -80,7 +82,54 @@ public class GameState {
         } else {
             bluePoints.add(vertex);
         }
-        return true;
+
+        return FaultStatus.None;
+    }
+
+    /**
+     * Add the points to the state.
+     *
+     * @param points The points to add to the state.
+     * @return Whether the insertion of all points was successful or not.
+     */
+    private List<FaultStatus> addPoints(Point[] points) {
+        // The collection of fault codes we want to return...
+        List<FaultStatus> status = new ArrayList<>();
+
+        // First, convert all the points to our own vertex type.
+        List<Vertex<TriangleFace>> vertices = Arrays.stream(points).map(p -> new Vertex<TriangleFace>(p.x, p.y, currentPlayerTurn)).collect(Collectors.toList());
+
+        // Filter out the points that already exist.
+        vertices = vertices.stream().filter(e -> !checkPointExistence(e)).collect(Collectors.toList());
+        if(vertices.size() != points.length) status.add(FaultStatus.PointExists);
+
+        // Blue is only allowed to have n-1 points.
+        if(currentPlayerTurn == PlayerTurn.BLUE && getNumberOfRedPoints() <= getNumberOfBluePoints() + points.length) {
+            // We cannot place all points. take a subset and add those we can.
+            status.add(FaultStatus.TooManyPoints);
+            vertices = vertices.subList(0, getNumberOfRedPoints() - getNumberOfBluePoints() - 1);
+        }
+
+        // Get the list of points, and reconstruct the triangulation/Voronoi diagram.
+        List<Vertex<TriangleFace>> points2 = union(redPoints, bluePoints, vertices);
+
+        // Add all the points, check if we passed or failed. If nothing went wrong, add all points to the list of points.
+        if(reconstruct(points2)) {
+            // Only after all previous insertions pass, add the point to the list of points.
+            for(Vertex<TriangleFace> vertex : vertices) {
+                if(currentPlayerTurn == PlayerTurn.RED) {
+                    redPoints.add(vertex);
+                } else {
+                    bluePoints.add(vertex);
+                }
+            }
+        } else {
+            // Otherwise, return an error code.
+            status.add(FaultStatus.Error);
+        }
+
+        // Now, return None if status is empty, status otherwise.
+        return status.isEmpty() ? Collections.singletonList(FaultStatus.None) : status;
     }
 
     /**
@@ -323,5 +372,9 @@ public class GameState {
         public PlayerTurn next() {
             return this == RED ? BLUE : RED;
         }
+    }
+
+    public enum FaultStatus {
+        PointExists, TooManyPoints, Error, None
     }
 }

@@ -5,22 +5,28 @@ import geo.store.graph.Node;
 import geo.store.math.Point2d;
 import geo.store.math.Triangle2d;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * A engine for point to face searches in the triangulation structure.
  * We extend the DAG data structure, as we need access to its data.
  */
 public class FaceHierarchy extends DAG<TriangleFace> {
+    // We keep a mapping of all faces from ids to instances... for easy replacements.
+    private final HashMap<Integer, Node<TriangleFace>> idToFaceNode = new HashMap<>();
+
     /**
      * Insert a new node at the root level.
      */
     public void insertRootFace(TriangleFace face) {
         // Simply add the face to the root.
-        roots.add(new Node<>(face));
+        Node<TriangleFace> node = new Node<>(face);
+
+        // Add the face to the id map.
+        idToFaceNode.put(face.id, node);
+        roots.add(node);
     }
 
     /**
@@ -30,38 +36,15 @@ public class FaceHierarchy extends DAG<TriangleFace> {
      * @param replacement The faces we want to replace the original faces with by making them children of the originals.
      */
     public void replaceFaces(List<TriangleFace> original, List<TriangleFace> replacement) {
-//        System.out.println("Replacing faces " + Arrays.toString(original.stream().map(f -> f.id).toArray(Integer[]::new)) + " with " + Arrays.toString(replacement.stream().map(f -> f.id).toArray(Integer[]::new)));
+        // Lets first convert the replacements to nodes, and add them to the mapping.
+        List<Node<TriangleFace>> replacementNodes = replacement.stream().map(Node::new).collect(Collectors.toList());
+        replacementNodes.forEach(n -> idToFaceNode.put(n.value.id, n));
 
-        // Lets first convert the replacements to nodes.
-        List<Node<TriangleFace>> replacementNodes = new ArrayList<>();
-        for(TriangleFace r : replacement) replacementNodes.add(new Node<>(r));
-
-        // We first have to find the children, and then add the replacements to the children.
-        // Recursively search through the nodes...
-        for(Node<TriangleFace> node : roots) {
-            replaceFaces(original, replacementNodes, node);
-        }
-    }
-
-    /**
-     * Add the replacement faces as children to the original faces, starting from the given node.
-     *
-     * @param original THe faces that are currently in the DAG.
-     * @param replacement The faces we want to replace the original faces with, as nodes.
-     * @param node The node we want to start searching from.
-     */
-    private void replaceFaces(List<TriangleFace> original, List<Node<TriangleFace>> replacement, Node<TriangleFace> node) {
-        // If the value of the node is one of the faces we are looking for, replace it.
-        if(original.contains(node.value)) {
-            // If the face already has children, we have visited it already. So do not add the replacements again.
-            if(node.children.isEmpty()) {
-                node.children.addAll(replacement);
-            }
-        } else {
-            // Else, continue searching.
-            for(Node<TriangleFace> c : node.children) {
-                replaceFaces(original, replacement, c);
-            }
+        // Now look up the corresponding node references in the mapping.
+        for(TriangleFace f : original) {
+            // Add the children.
+            Node<TriangleFace> node = idToFaceNode.get(f.id);
+            if(node != null) node.children.addAll(replacementNodes);
         }
     }
 
@@ -73,14 +56,14 @@ public class FaceHierarchy extends DAG<TriangleFace> {
      */
     public TriangleFace findFace(Point2d p) {
         // Recursively search through the nodes.
-        TriangleFace face = findFace(f -> f.value.contains(p));
+        Node<TriangleFace> face = findFace(f -> f.value.contains(p));
         if(face != null) {
-            return face;
+            return face.value;
         }
 
         face = findFace(f -> f.value.containsAlternative(p));
         if(face != null) {
-            return face;
+            return face.value;
         }
 
         // If not found, we know that it is the outside face, so return the outside face.
@@ -92,10 +75,10 @@ public class FaceHierarchy extends DAG<TriangleFace> {
      *
      * @return The corresponding face if it exists, the outer face otherwise.
      */
-    private TriangleFace findFace(Function<Node<TriangleFace>, Triangle2d.Location> function) {
+    private Node<TriangleFace> findFace(Function<Node<TriangleFace>, Triangle2d.Location> function) {
         // Recursively search through the nodes.
         for(Node<TriangleFace> node : roots) {
-            TriangleFace hit = findFace(node, function);
+            Node<TriangleFace> hit = findFace(node, function);
             if(hit != null) return hit;
         }
 
@@ -109,18 +92,18 @@ public class FaceHierarchy extends DAG<TriangleFace> {
      * @param node The node we want to start the search at.
      * @return The corresponding face if it exists, null otherwise.
      */
-    private TriangleFace findFace(Node<TriangleFace> node, Function<Node<TriangleFace>, Triangle2d.Location> function) {
+    private Node<TriangleFace> findFace(Node<TriangleFace> node, Function<Node<TriangleFace>, Triangle2d.Location> function) {
         // First, check if the point can be in this node, before proceeding checking the children.
         Triangle2d.Location location = function.apply(node);
         if(location != Triangle2d.Location.OUTSIDE) {
             // Check if we have children, if not, this is a leaf node and we return it as a result.
             if(node.children.isEmpty()) {
-                return node.value;
+                return node;
             }
 
             // Otherwise, iterate over all children and do the same check.
             for(Node<TriangleFace> child : node.children) {
-                TriangleFace hit = findFace(child, function);
+                Node<TriangleFace> hit = findFace(child, function);
                 if(hit != null) return hit;
             }
         }
@@ -138,6 +121,7 @@ public class FaceHierarchy extends DAG<TriangleFace> {
         // The currently active faces are all the leaves of the DAG.
         Set<TriangleFace> faces = getLeaves();
         faces.add(TriangleFace.outerFace);
+
         return faces;
     }
 }

@@ -11,8 +11,6 @@ import java.util.Random;
 
 public class RandomAIPlayer extends AIPlayer {
 
-    private boolean canPlace;
-
     private JPanel rootPanel;
     private JTextField seed;
     private JTextField numPoints;
@@ -51,13 +49,12 @@ public class RandomAIPlayer extends AIPlayer {
             int y = (int) Math.floor(generator.nextDouble()*GUI.createAndShow().getGamePanelDimensions().height);
 
             // Check if the point can be placed
-            canPlace = addPoint(new Point(x, y));
+            GameState.FaultStatus status = addPoint(new Point(x, y));
 
             // If the random point can be placed
-            if (canPlace) {
+            if (status == GameState.FaultStatus.None) {
                 i++;
             }
-
         }
         turn++;
     }

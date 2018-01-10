@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -18,7 +20,8 @@ public class GameController {
     private final GameEngine engine;
 
     // Predicates used during the communication with the game state.
-    private Predicate<Point> addPoint;
+    private Function<Point, GameState.FaultStatus> addPoint;
+    private Function<Point[], List<GameState.FaultStatus>> addPoints;
     private Predicate<Point> removePoint;
     private Runnable resetGame;
 
@@ -44,10 +47,11 @@ public class GameController {
      *
      * @param addPoint The predicate that adds points to the game state.
      */
-    public final void setPredicates(Predicate<Point> addPoint, Predicate<Point> removePoint, Runnable resetGame) {
+    public final void setPredicates(Function<Point, GameState.FaultStatus> addPoint, Predicate<Point> removePoint, Runnable resetGame, Function<Point[], List<GameState.FaultStatus>> addPoints) {
         this.addPoint = addPoint;
         this.removePoint = removePoint;
         this.resetGame = resetGame;
+        this.addPoints = addPoints;
     }
 
     /**
@@ -56,7 +60,7 @@ public class GameController {
      * @param p The point to add to the game state.
      * @return Whether the insertion of the point was successful or not.
      */
-    public boolean addPoint(Point p) {
+    public GameState.FaultStatus addPoint(Point p) {
         // Write the moves of the player to the log.
         if(engine.getPlayerTurn() == GameState.PlayerTurn.RED) {
             redWriter.println(p.toString());
@@ -64,11 +68,37 @@ public class GameController {
             blueWriter.println(p.toString());
         }
 
-        if(addPoint.test(p)) {
+        GameState.FaultStatus status = addPoint.apply(p);
+
+        if(status == GameState.FaultStatus.None) {
             engine.updatePlayerCounters();
-            return true;
         }
-        return false;
+
+        return status;
+    }
+
+    /**
+     * Add the given points to the game state.
+     *
+     * @param points The points to add to the game state.
+     * @return Whether the insertion of all points was successful or not.
+     */
+    public List<GameState.FaultStatus> addPoints(Point[] points) {
+        // Write the moves of the player to the log.
+        for(Point p : points) {
+            if(engine.getPlayerTurn() == GameState.PlayerTurn.RED) {
+                redWriter.println(p.toString());
+            } else {
+                blueWriter.println(p.toString());
+            }
+        }
+
+        List<GameState.FaultStatus> success = addPoints.apply(points);
+
+        // Since we add multiple points, we probably have added single points anyhow.
+        engine.updatePlayerCounters();
+
+        return success;
     }
 
     /**
