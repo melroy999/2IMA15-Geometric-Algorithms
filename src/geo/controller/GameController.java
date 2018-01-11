@@ -4,10 +4,7 @@ import geo.engine.GameEngine;
 import geo.state.GameState;
 
 import java.awt.*;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -172,5 +169,12 @@ public class GameController {
 
         // Reset the game state.
         resetGame.run();
+    }
+
+    /**
+     * Start the trials.
+     */
+    public void startTrials() {
+        engine.startTrials();
     }
 }

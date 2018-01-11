@@ -53,6 +53,8 @@ public class GUI {
     private JPanel playerRedSettings;
     private JPanel playerBlueSettings;
     private JButton createScreenshotButton;
+    private JButton startExperimentButton;
+    private JTextField numberOfTrialsField;
 
     /**
      * The GUI is a singleton.
@@ -110,6 +112,7 @@ public class GUI {
         nextTurnButton.addActionListener(player);
         resetBoardButton.addActionListener(player);
         startButton.addActionListener(player);
+        startExperimentButton.addActionListener(player);
         boardPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -221,12 +224,30 @@ public class GUI {
     }
 
     /**
+     * Set the current red player by id.
+     *
+     * @param id The id of the player we want to set.
+     */
+    public void setCurrentRedPlayer(int id) {
+        playerRedOptions.setSelectedIndex(id);
+    }
+
+    /**
      * Get the currently selected red button.
      *
      * @return The red player in the combobox.
      */
     public AbstractPlayer getCurrentBluePlayer() {
         return (AbstractPlayer) playerBlueOptions.getSelectedItem();
+    }
+
+    /**
+     * Set the current blue player by id.
+     *
+     * @param id The id of the player we want to set.
+     */
+    public void setCurrentBluePlayer(int id) {
+        playerBlueOptions.setSelectedIndex(id);
     }
 
     /**
@@ -332,5 +353,18 @@ public class GUI {
 
         // Obviously, we have to initialize our drawing panel.
         boardPanel = new GamePanel(this);
+    }
+
+    /**
+     * Return the number of trials the user desires.
+     *
+     * @return The number if given, -1 otherwise.
+     */
+    public int getNumberOfTrials() {
+        try {
+            return Integer.parseInt(numberOfTrialsField.getText());
+        } catch(NumberFormatException e) {
+            return -1;
+        }
     }
 }

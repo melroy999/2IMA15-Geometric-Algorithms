@@ -59,6 +59,13 @@ public abstract class AIPlayer extends AbstractPlayer {
     public abstract boolean isDone();
 
     /**
+     * Whether the AI has a random part.
+     *
+     * @return True if randomness is used, false otherwise.
+     */
+    public abstract boolean isRandom();
+
+    /**
      * Reset the state of the AI so that we can use it again.
      */
     public abstract void reset();

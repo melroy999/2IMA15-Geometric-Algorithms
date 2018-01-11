@@ -99,6 +99,16 @@ public class GridAIPlayer extends AIPlayer  {
     }
 
     /**
+     * Whether the AI has a random part.
+     *
+     * @return True if randomness is used, false otherwise.
+     */
+    @Override
+    public boolean isRandom() {
+        return false;
+    }
+
+    /**
      * Reset the state of the AI so that we can use it again.
      */
     @Override

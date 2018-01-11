@@ -57,6 +57,9 @@ public class HumanPlayer extends AbstractPlayer implements ActionListener {
             case "Start":
                 startGame();
                 return;
+            case "Start trials":
+                startTrials();
+                return;
         }
 
         // Print any actions we have not handled.
@@ -99,14 +102,21 @@ public class HumanPlayer extends AbstractPlayer implements ActionListener {
     /**
      * Start the game.
      */
-    private void startGame() {
+    public void startGame() {
         SwingUtilities.invokeLater(controller::startGame);
+    }
+
+    /**
+     * Start the game.
+     */
+    public void startTrials() {
+        SwingUtilities.invokeLater(controller::startTrials);
     }
 
     /**
      * Initiate a game reset.
      */
-    private void resetGame() {
+    public void resetGame() {
         SwingUtilities.invokeLater(controller::resetGame);
     }
 }

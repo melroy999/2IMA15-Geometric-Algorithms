@@ -8,6 +8,9 @@ import geo.state.GameState;
 import geo.voronoi.VoronoiDiagram;
 
 import java.awt.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -30,6 +33,12 @@ public class GameEngine {
     // The pool in which we run player turns and other cpu heavy tasks.
     private final ExecutorService pool = Executors.newCachedThreadPool();
 
+    // The pool in which we run the experiment run.
+    private final ExecutorService experimentPool = Executors.newCachedThreadPool();
+
+    // Hold the human player that can control the game.
+    private final HumanPlayer controllerHack;
+
     /**
      * The game engine is a singleton, we only want one instance.
      */
@@ -40,6 +49,7 @@ public class GameEngine {
 
         // Create the player types we have for player 1.
         HumanPlayer humanRed = new HumanPlayer(controller, GameState.PlayerTurn.RED);
+        controllerHack = humanRed;
         AbstractPlayer[] players = new AbstractPlayer[]{
                 humanRed,
                 new ImportFilePlayer(controller, humanRed, GameState.PlayerTurn.RED),
@@ -69,6 +79,18 @@ public class GameEngine {
     public static GameEngine getEngine() {
         if (engine == null) engine = new GameEngine();
         return engine;
+    }
+
+    public HumanPlayer getControllerHack() {
+        return controllerHack;
+    }
+
+    public int getNumberOfRedPoints() {
+        return state.getNumberOfRedPoints();
+    }
+
+    public int getNumberOfBluePoints() {
+        return state.getNumberOfBluePoints();
     }
 
     /**
@@ -184,5 +206,85 @@ public class GameEngine {
 
         gui.updateGameStateCounters(state.getNumberOfRedPoints(), state.getNumberOfBluePoints(), redArea, blueArea);
         gui.redrawGamePanel();
+    }
+
+    /**
+     * Get the current scoring information as a semicolon separated string.
+     * @return A string containing the number of points and the areas the players posses.
+     */
+    public String getScoreDataAsString() {
+        // Update the status, and ask for a game panel redraw.
+        VoronoiDiagram d = state.getVoronoiDiagram();
+
+        // First, calculate the area in percentages.
+        Dimension dim = gui.getGamePanelDimensions();
+        int t = dim.width * dim.height;
+        double redArea = d.getAreaRed() / t;
+        double blueArea = d.getAreaBlue() / t;
+
+        // Now, build the string.
+        return state.getNumberOfRedPoints() + "; " + state.getNumberOfBluePoints() + "; " + redArea + "; " + blueArea;
+    }
+
+    public void startTrials() {
+        // We only support automation of certain players.
+        if(gui.getCurrentRedPlayer() instanceof HumanPlayer || gui.getCurrentBluePlayer() instanceof HumanPlayer) {
+            System.out.println("No automation available against human players.");
+            return;
+        }
+
+        AIPlayer red = (AIPlayer) gui.getCurrentRedPlayer();
+        AIPlayer blue = (AIPlayer) gui.getCurrentBluePlayer();
+
+        // Now, at least one of the players should be random.
+        if(!red.isRandom() && !blue.isRandom()) {
+            System.out.println("The definition of insanity is doing the same thing over and over and expecting different results. Please add an AI that has randomness...");
+            return;
+        }
+
+        // Check if the number of runs field is filled in...
+        int trials = gui.getNumberOfTrials();
+
+        if(trials == -1) {
+            System.out.println("Please give the number of trials.");
+            return;
+        }
+
+        experimentPool.execute(() -> {
+            try {
+                // Start by creating a file to store the results in.
+                PrintWriter pw = new PrintWriter(new File(gui.getCurrentRedPlayer() + "_" + gui.getCurrentBluePlayer() + "_" + trials + ".csv"));
+                StringBuilder sb = new StringBuilder();
+
+                sb.append("\"sep=;\"\n");
+                sb.append("#RED; #BLUE; AREA_RED; AREA_BLUE \n");
+
+                // Repeat the trial.
+                for (int i = 0; i < trials; i++) {
+                    engine.getControllerHack().startGame();
+
+                    // Now wait for as long as required to get the expected number of points.
+                    do {
+                        try {
+                            Thread.sleep(500);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    } while (!red.isDone() || !blue.isDone());
+
+                    // Note down the score.
+                    sb.append(engine.getScoreDataAsString()).append('\n');
+
+                    // Reset the game.
+                    engine.getControllerHack().resetGame();
+                }
+
+                pw.write(sb.toString());
+                pw.close();
+            } catch(FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
+
     }
 }
