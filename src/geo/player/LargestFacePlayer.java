@@ -10,6 +10,7 @@ import geo.gui.GUI;
 
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import java.util.Comparator;
 import java.util.List;
 import java.awt.Point;
 import java.awt.Dimension;
@@ -87,7 +88,7 @@ public class LargestFacePlayer extends AIPlayer {
         //Remove our largestPoint, obviously it would be closest.
         Vertex<TriangleFace> nearestPoint = state.getPoints().stream()
                 .filter((a) -> a.id != largestPoint.id)
-                .min((a,b) -> Double.compare(a.distance(largestPoint),b.distance(largestPoint))).get();
+                .min(Comparator.comparingDouble(a -> a.distance(largestPoint))).get();
         //Find the Vector pointing from nearestPoint to largestPoint,
         Vector2d direction = new Vector2d(largestPoint.x - nearestPoint.x, largestPoint.y - nearestPoint.y).normalize().scale(20);
         // and place our move beside largestPoint in this direction.
@@ -112,7 +113,7 @@ public class LargestFacePlayer extends AIPlayer {
         return state.getVoronoiDiagram().getFaces()
                 .stream()
                 .filter((a) -> a.centerPoint.player != getPlayer().color)
-                .max((a,b) -> Double.compare(a.getArea(), b.getArea()))
+                .max(Comparator.comparingDouble(Face::getArea))
                 .get();
     }
 
