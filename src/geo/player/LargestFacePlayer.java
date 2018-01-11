@@ -27,6 +27,7 @@ public class LargestFacePlayer extends AIPlayer {
 
     //Number of turns performed by the player.
     private int turn = 0;
+    private boolean isDone = false;
 
     //Counter to see whether we're making bad moves (preventing eternal loops).
     private int failedMoves = 0;
@@ -53,10 +54,14 @@ public class LargestFacePlayer extends AIPlayer {
         while (turn < moves){
             if (failedMoves > 2){
                 System.out.println("Terminating AI run after "+turn+" moves, too many consecutive invalid moves.");
+                isDone = true;
                 return;
             }
             doMove(state);
         }
+
+        // We are done, set the done flag.
+        isDone = true;
     }
 
     /**
@@ -90,7 +95,7 @@ public class LargestFacePlayer extends AIPlayer {
                 .filter((a) -> a.id != largestPoint.id)
                 .min(Comparator.comparingDouble(a -> a.distance(largestPoint))).get();
         //Find the Vector pointing from nearestPoint to largestPoint,
-        Vector2d direction = new Vector2d(largestPoint.x - nearestPoint.x, largestPoint.y - nearestPoint.y).normalize().scale(20);
+        Vector2d direction = new Vector2d(largestPoint.x - nearestPoint.x, largestPoint.y - nearestPoint.y).normalize().scale(12);
         // and place our move beside largestPoint in this direction.
         int x = (int) (largestPoint.x + direction.x);
         int y = (int) (largestPoint.y + direction.y);
@@ -100,6 +105,7 @@ public class LargestFacePlayer extends AIPlayer {
             turn++;
             failedMoves = 0;
         }   else {
+            System.out.println(status);
             failedMoves ++;
         }
     }
@@ -118,10 +124,20 @@ public class LargestFacePlayer extends AIPlayer {
     }
 
     @Override
-    public boolean isDone(){ return turn > 0; }
+    public boolean isDone(){ return isDone; }
+
+    /**
+     * Whether the AI has a random part.
+     *
+     * @return True if randomness is used, false otherwise.
+     */
+    @Override
+    public boolean isRandom() {
+        return false;
+    }
 
     @Override
-    public void reset(){ turn = 0; failedMoves = 0; }
+    public void reset(){ turn = 0; failedMoves = 0; isDone = false; }
 
     @Override
     public JPanel getPanel(){ return rootPanel; }
