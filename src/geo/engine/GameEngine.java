@@ -44,7 +44,8 @@ public class GameEngine {
                 humanRed,
                 new ImportFilePlayer(controller, humanRed, GameState.PlayerTurn.RED),
                 new RandomAIPlayer(controller, humanRed, GameState.PlayerTurn.RED),
-                new GridAIPlayer(controller, humanRed, GameState.PlayerTurn.RED)
+                new GridAIPlayer(controller, humanRed, GameState.PlayerTurn.RED),
+                new LargestFacePlayer(controller, humanRed, GameState.PlayerTurn.RED)
         };
 
         // Do the same for player 2.
