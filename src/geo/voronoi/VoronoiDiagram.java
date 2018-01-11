@@ -133,4 +133,10 @@ public class VoronoiDiagram extends DAG<Point2d> {
     public double getAreaBlue() {
         return areaBlue;
     }
+
+    /**
+     * Get the list of faces that make up this diagram.
+     * @return List of faces.
+     */
+    public List<Face> getFaces() { return faces; }
 }

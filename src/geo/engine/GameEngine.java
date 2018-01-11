@@ -54,7 +54,7 @@ public class GameEngine {
                 humanRed,
                 new ImportFilePlayer(controller, humanRed, GameState.PlayerTurn.RED),
                 new RandomAIPlayer(controller, humanRed, GameState.PlayerTurn.RED),
-                new GridAIPlayer(controller, humanRed, GameState.PlayerTurn.RED)
+                new GridAIPlayer(controller, humanRed, GameState.PlayerTurn.RED),
         };
 
         // Do the same for player 2.
@@ -62,7 +62,8 @@ public class GameEngine {
         AbstractPlayer[] players2 = new AbstractPlayer[] {
                 humanBlue,
                 new ImportFilePlayer(controller, humanBlue, GameState.PlayerTurn.BLUE),
-                new RandomAIPlayer(controller, humanRed, GameState.PlayerTurn.BLUE)
+                new RandomAIPlayer(controller, humanRed, GameState.PlayerTurn.BLUE),
+                new LargestFacePlayer(controller, humanBlue, GameState.PlayerTurn.BLUE)
         };
 
         // Create the gui.
