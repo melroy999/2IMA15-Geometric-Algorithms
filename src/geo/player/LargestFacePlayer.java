@@ -1,17 +1,12 @@
 package geo.player;
 
 import geo.controller.GameController;
-import geo.delaunay.TriangleFace;
 import geo.state.GameState;
-import geo.store.halfedge.Face;
-import geo.store.halfedge.Vertex;
-import geo.store.math.Vector2d;
 import geo.gui.GUI;
 
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.util.Comparator;
-import java.util.List;
 import java.awt.Point;
 import java.awt.Dimension;
 
@@ -69,59 +64,59 @@ public class LargestFacePlayer extends AIPlayer {
      * @param state current GameState.
      */
     protected void doMove(GameState state){
-        //Look at opponent's points.
-        List<Vertex<TriangleFace>> opponentPoints = (getPlayer().color == GameState.PlayerTurn.RED ? state.getBluePoints() : state.getRedPoints());
-
-        //If opponent has not placed any points, then place a point in the centre.
-        if (opponentPoints.isEmpty()){
-            Dimension dim = GUI.createAndShow().getGamePanelDimensions();
-            GameState.FaultStatus status = addPoint(new Point(dim.width/2, dim.height/2));
-
-            if (status == GameState.FaultStatus.None){
-                turn++;
-                failedMoves = 0;
-            }   else {
-                failedMoves ++;
-            }
-            return;
-        }
-
-        //First, find the largest Face and the point inside that face.
-        Face largestFace = findLargestFace(state);
-        Vertex<TriangleFace> largestPoint = largestFace.centerPoint;
-        //Then, find the nearest other point, since we wish to place our point away from it.
-        //Remove our largestPoint, obviously it would be closest.
-        Vertex<TriangleFace> nearestPoint = state.getPoints().stream()
-                .filter((a) -> a.id != largestPoint.id)
-                .min(Comparator.comparingDouble(a -> a.distance(largestPoint))).get();
-        //Find the Vector pointing from nearestPoint to largestPoint,
-        Vector2d direction = new Vector2d(largestPoint.x - nearestPoint.x, largestPoint.y - nearestPoint.y).normalize().scale(12);
-        // and place our move beside largestPoint in this direction.
-        int x = (int) (largestPoint.x + direction.x);
-        int y = (int) (largestPoint.y + direction.y);
-        GameState.FaultStatus status = addPoint(new Point(x, y));
-
-        if (status == GameState.FaultStatus.None){
-            turn++;
-            failedMoves = 0;
-        }   else {
-            System.out.println(status);
-            failedMoves ++;
-        }
+//        //Look at opponent's points.
+//        List<Vertex<TriangleFace>> opponentPoints = (getPlayer().color == GameState.PlayerTurn.RED ? state.getBluePoints() : state.getRedPoints());
+//
+//        //If opponent has not placed any points, then place a point in the centre.
+//        if (opponentPoints.isEmpty()){
+//            Dimension dim = GUI.createAndShow().getGamePanelDimensions();
+//            GameState.FaultStatus status = addPoint(new Point(dim.width/2, dim.height/2));
+//
+//            if (status == GameState.FaultStatus.None){
+//                turn++;
+//                failedMoves = 0;
+//            }   else {
+//                failedMoves ++;
+//            }
+//            return;
+//        }
+//
+//        //First, find the largest Face and the point inside that face.
+//        Face largestFace = findLargestFace(state);
+//        Vertex<TriangleFace> largestPoint = largestFace.centerPoint;
+//        //Then, find the nearest other point, since we wish to place our point away from it.
+//        //Remove our largestPoint, obviously it would be closest.
+//        Vertex<TriangleFace> nearestPoint = state.getPoints().stream()
+//                .filter((a) -> a.id != largestPoint.id)
+//                .min(Comparator.comparingDouble(a -> a.distance(largestPoint))).get();
+//        //Find the Vector pointing from nearestPoint to largestPoint,
+//        Vector2d direction = new Vector2d(largestPoint.x - nearestPoint.x, largestPoint.y - nearestPoint.y).normalize().scale(12);
+//        // and place our move beside largestPoint in this direction.
+//        int x = (int) (largestPoint.x + direction.x);
+//        int y = (int) (largestPoint.y + direction.y);
+//        GameState.FaultStatus status = addPoint(new Point(x, y));
+//
+//        if (status == GameState.FaultStatus.None){
+//            turn++;
+//            failedMoves = 0;
+//        }   else {
+//            System.out.println(status);
+//            failedMoves ++;
+//        }
     }
 
-    /**
-     * Find largest Face in Voronoi Diagram according to Face.getArea().
-     * @param state current GameState.
-     * @return Face that has the largest area.
-     */
-    private Face findLargestFace(GameState state){
-        return state.getVoronoiDiagram().getFaces()
-                .stream()
-                .filter((a) -> a.centerPoint.player != getPlayer().color)
-                .max(Comparator.comparingDouble(Face::getArea))
-                .get();
-    }
+//    /**
+//     * Find largest Face in Voronoi Diagram according to Face.getArea().
+//     * @param state current GameState.
+//     * @return Face that has the largest area.
+//     */
+//    private Face findLargestFace(GameState state){
+//        return state.getVoronoiDiagram().getFaces()
+//                .stream()
+//                .filter((a) -> a.centerPoint.player != getPlayer().color)
+//                .max(Comparator.comparingDouble(Face::getArea))
+//                .get();
+//    }
 
     @Override
     public boolean isDone(){ return isDone; }

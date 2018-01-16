@@ -3,7 +3,17 @@ package geo.store.math;
 /**
  * A class representing a 2d vector.
  */
-public class Vector2d extends Tuple2d<Vector2d> {
+public class Vector2d extends Tuple2d<Vector2d>  {
+    /**
+     * Define a vector by giving an x and y-coordinates.
+     *
+     * @param p1 The starting point of the vector.
+     * @param p2 The end point of the vector.
+     */
+    public Vector2d(Tuple2d p1, Tuple2d p2) {
+        super(p2.x - p1.x, p2.y - p1.y);
+    }
+
     /**
      * Define a vector by giving an x and y-coordinates.
      *
@@ -15,15 +25,13 @@ public class Vector2d extends Tuple2d<Vector2d> {
     }
 
     /**
-     * Create a new instance of a tuple2d subclass.
+     * Find the determinant of the two vectors.
      *
-     * @param x The x-coordinate of the tuple.
-     * @param y The y-coordinate of the point.
-     * @return An instance of the desired type, that is an extension of Tuple2d.
+     * @param v The vector to take the determinant with.
+     * @return The determinant of the vector that would be created when multiplying the two vectors.
      */
-    @Override
-    protected Vector2d get(double x, double y) {
-        return new Vector2d(x, y);
+    public double det(Vector2d v) {
+        return x * v.y - y * v.x;
     }
 
     /**
@@ -53,5 +61,17 @@ public class Vector2d extends Tuple2d<Vector2d> {
     public Vector2d normalize() {
         double l = length();
         return new Vector2d(x / l, y / l);
+    }
+
+    /**
+     * Create a new instance of a tuple2d subclass.
+     *
+     * @param x The x-coordinate of the tuple.
+     * @param y The y-coordinate of the point.
+     * @return An instance of the desired type, that is an extension of Tuple2d.
+     */
+    @Override
+    protected Vector2d get(double x, double y) {
+        return new Vector2d(x, y);
     }
 }

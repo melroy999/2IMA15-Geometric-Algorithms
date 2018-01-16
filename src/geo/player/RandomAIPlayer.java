@@ -37,26 +37,26 @@ public class RandomAIPlayer extends AIPlayer {
      * @param numPoints The number of points to be placed.
      */
     private void generateRandomMoves(long seed, int numPoints, GameState state){
-        Random generator = new Random(seed);
-        int i = 0;
-        // While there are not enough points, generate new random coordinates and try to add them
-        while (i < numPoints ) {
-            // Check if blue player and if they want to place more or equal amount of points as red
-            if (state.getCurrentPlayerTurn() == GameState.PlayerTurn.BLUE && state.getNumberOfRedPoints() < i+2){
-                break;
-            }
-            int x = (int) Math.floor(generator.nextDouble()*GUI.createAndShow().getGamePanelDimensions().width);
-            int y = (int) Math.floor(generator.nextDouble()*GUI.createAndShow().getGamePanelDimensions().height);
-
-            // Check if the point can be placed
-            GameState.FaultStatus status = addPoint(new Point(x, y));
-
-            // If the random point can be placed
-            if (status == GameState.FaultStatus.None) {
-                i++;
-            }
-        }
-        turn++;
+//        Random generator = new Random(seed);
+//        int i = 0;
+//        // While there are not enough points, generate new random coordinates and try to add them
+//        while (i < numPoints ) {
+//            // Check if blue player and if they want to place more or equal amount of points as red
+//            if (state.getCurrentPlayerTurn() == GameState.PlayerTurn.BLUE && state.getNumberOfRedPoints() < i+2){
+//                break;
+//            }
+//            int x = (int) Math.floor(generator.nextDouble()*GUI.createAndShow().getGamePanelDimensions().width);
+//            int y = (int) Math.floor(generator.nextDouble()*GUI.createAndShow().getGamePanelDimensions().height);
+//
+//            // Check if the point can be placed
+//            GameState.FaultStatus status = addPoint(new Point(x, y));
+//
+//            // If the random point can be placed
+//            if (status == GameState.FaultStatus.None) {
+//                i++;
+//            }
+//        }
+//        turn++;
     }
 
 

@@ -5,9 +5,7 @@ import geo.gui.GUI;
 
 import geo.player.*;
 import geo.state.GameState;
-import geo.voronoi.VoronoiDiagram;
 
-import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -37,7 +35,7 @@ public class GameEngine {
     private final ExecutorService experimentPool = Executors.newCachedThreadPool();
 
     // Hold the human player that can control the game.
-    private final HumanPlayer controllerHack;
+    private final HumanPlayer humanController;
 
     /**
      * The game engine is a singleton, we only want one instance.
@@ -49,7 +47,7 @@ public class GameEngine {
 
         // Create the player types we have for player 1.
         HumanPlayer humanRed = new HumanPlayer(controller, GameState.PlayerTurn.RED);
-        controllerHack = humanRed;
+        humanController = humanRed;
         AbstractPlayer[] players = new AbstractPlayer[]{
                 humanRed,
                 new ImportFilePlayer(controller, humanRed, GameState.PlayerTurn.RED),
@@ -80,18 +78,6 @@ public class GameEngine {
     public static GameEngine getEngine() {
         if (engine == null) engine = new GameEngine();
         return engine;
-    }
-
-    public HumanPlayer getControllerHack() {
-        return controllerHack;
-    }
-
-    public int getNumberOfRedPoints() {
-        return state.getNumberOfRedPoints();
-    }
-
-    public int getNumberOfBluePoints() {
-        return state.getNumberOfBluePoints();
     }
 
     /**
@@ -196,16 +182,7 @@ public class GameEngine {
      * Update the count and area displays in the GUI of the two players.
      */
     public void updatePlayerCounters() {
-        // Update the status, and ask for a game panel redraw.
-        VoronoiDiagram d = state.getVoronoiDiagram();
-
-        // First, calculate the area in percentages.
-        Dimension dim = gui.getGamePanelDimensions();
-        int t = dim.width * dim.height;
-        int redArea = (int) Math.round(100 * (d.getAreaRed() / t));
-        int blueArea = (int) Math.round(100 * (d.getAreaBlue() / t));
-
-        gui.updateGameStateCounters(state.getNumberOfRedPoints(), state.getNumberOfBluePoints(), redArea, blueArea);
+        gui.updateGameStateCounters(0, 0, 0, 0);
         gui.redrawGamePanel();
     }
 
@@ -214,17 +191,8 @@ public class GameEngine {
      * @return A string containing the number of points and the areas the players posses.
      */
     public String getScoreDataAsString() {
-        // Update the status, and ask for a game panel redraw.
-        VoronoiDiagram d = state.getVoronoiDiagram();
-
-        // First, calculate the area in percentages.
-        Dimension dim = gui.getGamePanelDimensions();
-        int t = dim.width * dim.height;
-        double redArea = d.getAreaRed() / t;
-        double blueArea = d.getAreaBlue() / t;
-
         // Now, build the string.
-        return state.getNumberOfRedPoints() + "; " + state.getNumberOfBluePoints() + "; " + redArea + "; " + blueArea;
+        return 0 + "; " + 0 + "; " + 0 + "; " + 0;
     }
 
     public void startTrials() {
@@ -262,7 +230,7 @@ public class GameEngine {
 
                 // Repeat the trial.
                 for (int i = 0; i < trials; i++) {
-                    engine.getControllerHack().startGame();
+                    engine.humanController.startGame();
 
                     // Now wait for as long as required to get the expected number of points.
                     do {
@@ -277,7 +245,7 @@ public class GameEngine {
                     sb.append(engine.getScoreDataAsString()).append('\n');
 
                     // Reset the game.
-                    engine.getControllerHack().resetGame();
+                    engine.humanController.resetGame();
                 }
 
                 pw.write(sb.toString());
