@@ -1,6 +1,13 @@
 package geo.store.math;
 
+import geo.delaunay.TriangulationMesh;
 import geo.store.halfedge.TriangleFace;
+import geo.store.halfedge.Vertex;
+
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * A class representing a 2d triangle.
@@ -12,6 +19,13 @@ public class Triangle2d {
     // Other characteristics we can already gather for a triangle.
     protected final Point2d circumCenter;
     protected final double circumRadius;
+
+    // Flags that track whether we have symbolic points.
+    public final boolean topSymbolicPoint;
+    public final boolean bottomSymbolicPoint;
+
+    // Find the highest point in the list, using the predicate on page 210.
+    public static Comparator<Point2d> heightComparator = (o1, o2) -> (o1.y > o2.y || (o1.y == o2.y && o2.x > o2.y)) ? 1 : -1;
 
     /**
      * Create a triangle using the three points as the corner points.
@@ -25,6 +39,10 @@ public class Triangle2d {
         this.p2 = p2;
         this.p3 = p3;
 
+        List<Point2d> points = Arrays.asList(p1, p2, p3);
+        topSymbolicPoint = points.stream().anyMatch(p -> p instanceof Vertex.SymbolicTopVertex);
+        bottomSymbolicPoint = points.stream().anyMatch(p -> p instanceof Vertex.SymbolicBottomVertex);
+
         // Check for illegal cases.
         checkIllegality();
 
@@ -37,15 +55,50 @@ public class Triangle2d {
      * We deep certain triangles illegal. We check those cases here.
      */
     private void checkIllegality() {
-        // If all points are collinear, we have an illegal case.
-        int orientation = orientation();
-        if(orientation == 0) {
-            throw new CollinearPointsException(this);
-        }
+        // We have to keep in mind that we might have symbolic points. Check if we do.
+        List<Point2d> points = Arrays.asList(p1, p2, p3);
 
-        // Check if the points are in counter clockwise order.
-        if(orientation == -1) {
-            throw new ClockwiseException(this);
+        if(topSymbolicPoint || bottomSymbolicPoint) {
+            // Collinearity will never happen here, period.
+
+            // This will be a lot of fun. Lets start with the case where both are present.
+            if(topSymbolicPoint && bottomSymbolicPoint) {
+                // To be in CCW order, bottom must always be followed by top.
+                for(int i = 0; i < points.size(); i++) {
+                    if(points.get(i) instanceof Vertex.SymbolicBottomVertex) {
+                        if(!(points.get((i + 1) % points.size()) instanceof Vertex.SymbolicTopVertex)) {
+                            throw new ClockwiseException(this);
+                        }
+                    }
+                }
+            } else {
+                for(int i = 0; i < points.size(); i++) {
+                    // Get the next two points.
+                    Point2d p1 = points.get((i + 1) % points.size());
+                    Point2d p2 = points.get((i + 2) % points.size());
+
+                    // Use the comparator in triangulation mesh.
+                    if(points.get(i) instanceof Vertex.SymbolicTopVertex) {
+                        if(heightComparator.compare(p1, p2) < 0) throw new ClockwiseException(this);
+                    }
+
+                    if(points.get(i) instanceof Vertex.SymbolicBottomVertex) {
+                        if (heightComparator.compare(p2, p1) < 0) throw new ClockwiseException(this);
+                    }
+                }
+            }
+        } else {
+            // Otherwise, just do what we usually do...
+            // If all points are collinear, we have an illegal case.
+            int orientation = orientation();
+            if(orientation == 0) {
+                throw new CollinearPointsException(this);
+            }
+
+            // Check if the points are in counter clockwise order.
+            if(orientation == -1) {
+                throw new ClockwiseException(this);
+            }
         }
     }
 
@@ -99,7 +152,35 @@ public class Triangle2d {
      * @return True if the radius is larger than the distance between the cc and p.
      */
     public boolean isInCircumCircle(Point2d p) {
-        return circumCenter.distance(p) < circumRadius;
+        // Depending on whether we have symbolic points, we have to do something different here.
+        if(topSymbolicPoint && bottomSymbolicPoint) {
+            // It is inside if it is below the non symbolic point in height order.
+            // However, a point that does not qualify this condition does not exist by definition, so it is always inside.
+            return true;
+        } else if(topSymbolicPoint || bottomSymbolicPoint) {
+            List<Point2d> points = Arrays.asList(p1, p2, p3);
+
+            for (int i = 0; i < points.size(); i++) {
+                // Get the next two points.
+                Point2d p1 = points.get((i + 1) % points.size());
+                Point2d p2 = points.get((i + 2) % points.size());
+
+                // In any case, the points should be left of the line in question.
+                if (points.get(i) instanceof Vertex.SymbolicTopVertex || points.get(i) instanceof Vertex.SymbolicBottomVertex) {
+                    return checkRelativeSide(p1, p2, p) <= 0;
+                }
+            }
+
+            // We should always have a match in the loop, thus this return value should not be required.
+            return false;
+        } else {
+                // Just do the normal thing.
+                return circumCenter.distance(p) < circumRadius;
+            }
+        }
+
+    private double checkRelativeSide(Point2d p1, Point2d p2, Point2d p) {
+        return (p2.y - p1.y) * (p.x - p1.x) + (-p2.x + p1.x) * (p.y - p1.y);
     }
 
     /**

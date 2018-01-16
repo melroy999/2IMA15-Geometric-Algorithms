@@ -112,4 +112,39 @@ public class Vertex<T> extends Point2d implements Iterable<Edge<T>> {
         return "v" + id + "(" + String.format(Locale.ROOT, "%.1f", x) + ","
                 + String.format(Locale.ROOT, "%.1f", y) + ")";
     }
+
+    /**
+     * A symbolic point representing a point at infinity above the points.
+     */
+    public static class SymbolicTopVertex extends Vertex<TriangleFace> {
+
+        /**
+         * Create a vertex at the given coordinates.
+         */
+        public SymbolicTopVertex() {
+            super(0, 0, null);
+        }
+
+        @Override
+        public String toString() {
+            return "SymbolicTopVertex{}";
+        }
+    }
+
+    /**
+     * A symbolic point representing a point at infinity below the points.
+     */
+    public static class SymbolicBottomVertex extends Vertex<TriangleFace> {
+        /**
+         * Create a vertex at the given coordinates.
+         */
+        public SymbolicBottomVertex() {
+            super(0, 0, null);
+        }
+
+        @Override
+        public String toString() {
+            return "SymbolicBottomVertex{}";
+        }
+    }
 }

@@ -1,5 +1,6 @@
 package geo.store.math;
 
+import geo.store.halfedge.Vertex;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -10,6 +11,24 @@ class Triangle2dTest {
     public void counterClockwiseExceptionTriangle2dTest() {
         assertThrows(Triangle2d.ClockwiseException.class,
                 ()-> new Triangle2d(new Point2d(0, 0), new Point2d(0, 1), new Point2d(1, 0)));
+    }
+
+    @Test
+    public void counterClockwiseExceptionTriangle2dTest2() {
+        assertThrows(Triangle2d.ClockwiseException.class,
+                ()-> new Triangle2d(new Point2d(0, 0), new Vertex.SymbolicTopVertex(), new Vertex.SymbolicBottomVertex()));
+    }
+
+    @Test
+    public void counterClockwiseExceptionTriangle2dTest3() {
+        assertThrows(Triangle2d.ClockwiseException.class,
+                ()-> new Triangle2d(new Point2d(0, 0), new Vertex.SymbolicTopVertex(), new Point2d(1, -5)));
+    }
+
+    @Test
+    public void counterClockwiseExceptionTriangle2dTest4() {
+        assertThrows(Triangle2d.ClockwiseException.class,
+                ()-> new Triangle2d(new Point2d(1, -5), new Vertex.SymbolicBottomVertex(), new Point2d(0, 0)));
     }
 
     @Test
@@ -69,5 +88,29 @@ class Triangle2dTest {
         Assertions.assertFalse(t.isInCircumCircle(new Point2d(10e9, 0)));
         Assertions.assertFalse(t.isInCircumCircle(new Point2d(10e9, 10e9)));
         Assertions.assertEquals(Math.sqrt(Math.pow(10e9d, 2) + Math.pow(10e9d, 2)) / 2, t.circumRadius, 10e-6);
+    }
+
+    @Test
+    public void inCircumCircleTest2() {
+        Triangle2d t = new Triangle2d(new Point2d(0, 0), new Vertex.SymbolicBottomVertex(), new Vertex.SymbolicTopVertex());
+        Assertions.assertTrue(t.isInCircumCircle(new Point2d(0.5, 0.5)));
+        Assertions.assertTrue(t.isInCircumCircle(new Point2d(1, 0)));
+        Assertions.assertTrue(t.isInCircumCircle(new Point2d(10e9, 10e9)));
+    }
+
+    @Test
+    public void inCircumCircleTest3() {
+        Triangle2d t = new Triangle2d(new Point2d(0, 0), new Point2d(5, 6), new Vertex.SymbolicBottomVertex());
+        Assertions.assertFalse(t.isInCircumCircle(new Point2d(0.5, 0.5)));
+        Assertions.assertTrue(t.isInCircumCircle(new Point2d(0, 1)));
+        Assertions.assertFalse(t.isInCircumCircle(new Point2d(10e9, 10e9)));
+    }
+
+    @Test
+    public void inCircumCircleTest4() {
+        Triangle2d t = new Triangle2d(new Point2d(0, 0), new Vertex.SymbolicTopVertex(), new Point2d(5, 6));
+        Assertions.assertTrue(t.isInCircumCircle(new Point2d(0.5, 0.5)));
+        Assertions.assertFalse(t.isInCircumCircle(new Point2d(0, 1)));
+        Assertions.assertTrue(t.isInCircumCircle(new Point2d(10e9, 10e9)));
     }
 }
