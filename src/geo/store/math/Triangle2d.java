@@ -1,11 +1,13 @@
 package geo.store.math;
 
+import geo.store.halfedge.TriangleFace;
+
 /**
  * A class representing a 2d triangle.
  */
 public class Triangle2d {
     // The three corner points of the triangle.
-    protected final Point2d p1, p2, p3;
+    public final Point2d p1, p2, p3;
 
     // Other characteristics we can already gather for a triangle.
     protected final Point2d circumCenter;
@@ -106,7 +108,7 @@ public class Triangle2d {
      * @param v1 The value we want to check zero equality of.
      * @return Whether v1 is close enough to 0 to be considered 0.
      */
-    private boolean equalsZero(double v1) {
+    public boolean equalsZero(double v1) {
         return equals(v1, 0d);
     }
 
@@ -117,7 +119,7 @@ public class Triangle2d {
      * @param v2 The second value.
      * @return Whether x and y are close enough to each other, according to an epsilon comparison.
      */
-    private boolean equals(double v1, double v2) {
+    public boolean equals(double v1, double v2) {
         // Here we use the smallest difference between double values to determine if the doubles are close enough.
         long expectedBits = Double.doubleToLongBits(v1) < 0 ? 0x8000000000000000L - Double.doubleToLongBits(v1) : Double.doubleToLongBits(v1);
         long actualBits = Double.doubleToLongBits(v2) < 0 ? 0x8000000000000000L - Double.doubleToLongBits(v2) : Double.doubleToLongBits(v2);
@@ -142,6 +144,9 @@ public class Triangle2d {
         }
     }
 
+    /**
+     * An exception that will be thrown when the points are given in clockwise order.
+     */
     public static class ClockwiseException extends RuntimeException {
         /**
          * Constructs a new runtime exception with {@code null} as its
