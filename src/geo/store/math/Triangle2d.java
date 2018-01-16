@@ -1,14 +1,19 @@
 package geo.store.math;
 
+import geo.delaunay.TriangleFace;
+import geo.store.halfedge.Edge;
+import geo.store.halfedge.Vertex;
+
 import java.awt.*;
 import java.awt.geom.Path2D;
+import java.util.NoSuchElementException;
 
 /**
  * Data structure representing a triangle.
  */
 public class Triangle2d {
     // Each triangle consists of three corner points, represented as points.
-    protected final Point2d p1, p2, p3;
+    protected final Vertex<TriangleFace> p1, p2, p3;
 
     // The center point of the triangle.
     public final Point2d c;
@@ -27,7 +32,7 @@ public class Triangle2d {
      * @param p2 The second corner point of the triangle.
      * @param p3 The third corner point of the triangle.
      */
-    public Triangle2d(Point2d p1, Point2d p2, Point2d p3) {
+    public Triangle2d(Vertex<TriangleFace> p1, Vertex<TriangleFace> p2, Vertex<TriangleFace> p3) {
         // Make sure that the edges are in CCW order!
         double sign = (p2.x - p1.x) * (p2.y + p1.y) + (p3.x - p2.x) * (p3.y + p2.y) + (p1.x - p3.x) * (p1.y + p3.y);
 
@@ -94,9 +99,13 @@ public class Triangle2d {
      */
     public Location contains(Point2d p) {
         // We have trouble with equal y searches, so hardcode it.
-        if(isOnVerticalLine(p, p1, p2)) return Location.BORDER;
-        if(isOnVerticalLine(p, p2, p3)) return Location.BORDER;
-        if(isOnVerticalLine(p, p3, p1)) return Location.BORDER;
+        Location l;
+        if((l = isOnVerticalLine(p, p1, p2)) == Location.BORDER) return l;
+        if((l = isOnVerticalLine(p, p2, p3)) == Location.BORDER) return l;
+        if((l = isOnVerticalLine(p, p3, p1)) == Location.BORDER) return l;
+        if((l = isOnHorizontalLine(p, p1, p2)) == Location.BORDER) return l;
+        if((l = isOnHorizontalLine(p, p2, p3)) == Location.BORDER) return l;
+        if((l = isOnHorizontalLine(p, p3, p1)) == Location.BORDER) return l;
 
         // For this, we will use barycentric coordinates.
         // The point p can be redefined in terms of p1, p2 and p3 together with scalars, such that:
@@ -111,12 +120,41 @@ public class Triangle2d {
             // The point is in the triangle if and only if a, b and c are in the range (0,1).
             if(a > 0d && a < 1d && b > 0d && b < 1d && c > 0d && c < 1d) return Location.INSIDE;
 
+            l = Location.BORDER;
+            l.e = null;
             // Otherwise, we are on the border if we are in the range [0,1] for a, b and c.
-            return Location.BORDER;
+            // Depending on which condition holds, set the location.
+            if(almostEqual(a, 1d) || almostEqual(b, 1d) || almostEqual(c, 1d)) {
+                // Should not happen, since we do not allow new points to be close to other points.
+                throw new RuntimeException("Points found at the same position.");
+            } else if(almostEqual(a, 0d)) {
+                // The point is away from a, so on the edge between p2 and p3.
+                l.e = p2.edges().stream().filter(e -> e.twin.origin == p3).findAny().get();
+            } else if(almostEqual(b, 0d)) {
+                // The point is away from b, so on the edge between p1 and p3.
+                try {
+                    l.e = p1.edges().stream().filter(e -> e.twin.origin == p3).findAny().get();
+                } catch (NoSuchElementException e) {
+                    System.out.println(this);
+                    System.out.println("p1 connected to: " + p1.edges());
+                    System.out.println("p2 connected to: " + p2.edges());
+                    System.out.println("p3 connected to: " + p3.edges());
+                    e.printStackTrace();
+                }
+            } else {
+                // The point is away from c, so on the edge between p1 and p2.
+                l.e = p1.edges().stream().filter(e -> e.twin.origin == p2).findAny().get();
+            }
+
+            return l;
         } else {
             // If none of the above, it has to be outside.
             return Location.OUTSIDE;
         }
+    }
+
+    private static boolean almostEqual(double a, double b){
+        return Math.abs(a-b) < 10e-5 /*Math.max(Math.ulp(a), Math.ulp(b))*/;
     }
 
     /**
@@ -127,20 +165,52 @@ public class Triangle2d {
      * @param p2 The end of the line segment.
      * @return Whether p shares the y-coordinate with p1 and p2, and p is between p1 and p2.
      */
-    public boolean isOnVerticalLine(Point2d p, Point2d p1, Point2d p2) {
+    public Location isOnHorizontalLine(Point2d p, Vertex<TriangleFace> p1, Vertex<TriangleFace> p2) {
         if(p.y == p1.y && p.y == p2.y) {
             if(Math.min(p1.x, p2.x) == p1.x) {
                 if(Math.min(p1.x, p.x) == p1.x && Math.max(p2.x, p.x) == p2.x) {
-                    return true;
+                    Location l = Location.BORDER;
+                    l.e = p1.edges().stream().filter(e -> e.twin.origin.equals(p2)).findAny().get();
+                    return l;
                 }
             } else {
                 if(Math.min(p2.x, p.x) == p2.x && Math.max(p1.x, p.x) == p1.x) {
-                    return true;
+                    Location l = Location.BORDER;
+                    l.e = p1.edges().stream().filter(e -> e.twin.origin.equals(p2)).findAny().get();
+                    return l;
                 }
             }
         }
 
-        return false;
+        return null;
+    }
+
+    /**
+     * Check whether the given point p is on a vertical line between p1 and p2.
+     *
+     * @param p The point we want to check the location of.
+     * @param p1 The start of the line segment.
+     * @param p2 The end of the line segment.
+     * @return Whether p shares the x-coordinate with p1 and p2, and p is between p1 and p2.
+     */
+    public Location isOnVerticalLine(Point2d p, Vertex<TriangleFace> p1, Vertex<TriangleFace> p2) {
+        if(p.x == p1.x && p.x == p2.x) {
+            if(Math.min(p1.y, p2.y) == p1.y) {
+                if(Math.min(p1.y, p.y) == p1.y && Math.max(p2.y, p.y) == p2.y) {
+                    Location l = Location.BORDER;
+                    l.e = p1.edges().stream().filter(e -> e.twin.origin.equals(p2)).findAny().get();
+                    return l;
+                }
+            } else {
+                if(Math.min(p2.y, p.y) == p2.y && Math.max(p1.y, p.y) == p1.y) {
+                    Location l = Location.BORDER;
+                    l.e = p1.edges().stream().filter(e -> e.twin.origin.equals(p2)).findAny().get();
+                    return l;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -167,6 +237,10 @@ public class Triangle2d {
      * An enumeration that represents the position of a point relative to the triangle.
      */
     public enum Location {
-        INSIDE, BORDER, OUTSIDE
+        INSIDE, BORDER, OUTSIDE;
+
+        // The edge the algorithm reports the point is on, if applicable.
+        public Edge<TriangleFace> e;
     }
+
 }

@@ -60,32 +60,32 @@ public class DelaunayMesh {
      */
     public void insertVertex(Vertex<TriangleFace> v) throws PointInsertedInOuterFaceException, EdgeNotFoundException {
         // Start by finding the face that contains the vertex.
-        TriangleFace face = faceIndex.findFace(v);
+        FaceHierarchy.SearchResult search = faceIndex.findFace(v);
 
         // If this face is the outer face, something is wrong and we should terminate.
-        if(face instanceof TriangleFace.OuterTriangleFace) {
+        if(search.face instanceof TriangleFace.OuterTriangleFace) {
             throw new PointInsertedInOuterFaceException(v);
         }
 
         // Now, we should find out of it is inside of the triangle, or on one of the edges.
-        if(face.contains(v) == Triangle2d.Location.INSIDE) {
+        if(search.location == Triangle2d.Location.INSIDE) {
 
 //            System.out.println("Inserting " + v + " in face " + face);
 
             // Use the insert into inside face insertion.
-            insertVertexInsideFace(v, face);
+            insertVertexInsideFace(v, search.face);
         } else {
             // Find which edge the point is on.
-            Optional<Edge<TriangleFace>> edge = face.edges().stream().filter(e -> e.isPointOnEdge(v)).findAny();
+            Edge<TriangleFace> edge = search.location.e;
 
-            if(!edge.isPresent()) {
+            if(edge == null) {
                 throw new EdgeNotFoundException(v);
             }
 
 //            System.out.println("Inserting " + v + " on edge " + edge);
 
             // Insert the vertex on the edge.
-            insertVertexOnEdge(v, edge.get());
+            insertVertexOnEdge(v, edge);
         }
     }
 

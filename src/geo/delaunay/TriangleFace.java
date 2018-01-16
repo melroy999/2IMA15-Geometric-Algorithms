@@ -67,15 +67,21 @@ public class TriangleFace extends Triangle2d implements Iterable<Edge<TriangleFa
         // Let the first edge be the outer component.
         outerComponent = e1;
 
+        // Sanity test. The points p1, p2 and p3 should have edges to one another...
+        if(p1.incidentEdge.incidentFace != null) {
+            if(p1.edges().stream().noneMatch(e -> e.twin.origin == p2)) throw new RuntimeException("Error on p1 -> p2");
+            if(p1.edges().stream().noneMatch(e -> e.twin.origin == p3)) throw new RuntimeException("Error on p1 -> p3");
+            if(p2.edges().stream().noneMatch(e -> e.twin.origin == p1)) throw new RuntimeException("Error on p2 -> p1");
+            if(p2.edges().stream().noneMatch(e -> e.twin.origin == p3)) throw new RuntimeException("Error on p2 -> p3");
+            if(p3.edges().stream().noneMatch(e -> e.twin.origin == p1)) throw new RuntimeException("Error on p3 -> p1");
+            if(p3.edges().stream().noneMatch(e -> e.twin.origin == p2)) throw new RuntimeException("Error on p3 -> p2");
+        }
+
         // Create a shapes.
         shape = new Polygon("", e1.origin, e2.origin, e3.origin);
         label = new Label(c.x, c.y, "f" + id);
         circumCircleShape = new Circle(cc.x, cc.y, ccr);
         circumCenterShape = new Point(cc.x, cc.y, Color.magenta);
-
-        if(e1.origin.y == e2.origin.y && e2.origin.y == e3.origin.y) {
-            System.out.println("Equal ys");
-        }
     }
 
     /**
@@ -85,7 +91,7 @@ public class TriangleFace extends Triangle2d implements Iterable<Edge<TriangleFa
      * @param p2 The second corner point of the triangle.
      * @param p3 The third corner point of the triangle.
      */
-    private TriangleFace(Point2d p1, Point2d p2, Point2d p3) {
+    private TriangleFace(Vertex<TriangleFace> p1, Vertex<TriangleFace> p2, Vertex<TriangleFace> p3) {
         super(p1, p2, p3);
 
         // Assign a new id.
@@ -208,7 +214,7 @@ public class TriangleFace extends Triangle2d implements Iterable<Edge<TriangleFa
          * Create an outer face.
          */
         private OuterTriangleFace() {
-            super(new Point2d(), new Point2d(), new Point2d());
+            super(new Vertex<>(new Point2d()), new Vertex<>(new Point2d()), new Vertex<>(new Point2d()));
         }
 
         /**
