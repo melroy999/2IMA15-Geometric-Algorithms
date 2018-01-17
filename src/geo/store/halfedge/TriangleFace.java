@@ -50,7 +50,8 @@ public class TriangleFace extends Face<TriangleFace> {
             // If both are symbolic, by definition the face should contain it, if the y is smaller than the top point.
             // So first, find the top point.
             Point2d top = points.stream().filter(e -> !(e instanceof Vertex.SymbolicBottomVertex || e instanceof Vertex.SymbolicTopVertex)).findAny().get();
-            if(top.y > p.y) {
+
+            if(top.y >= p.y) {
                 return new ContainsResult(Location.INSIDE, this, null);
             }
         } else if(t.bottomSymbolicPoint || t.topSymbolicPoint) {

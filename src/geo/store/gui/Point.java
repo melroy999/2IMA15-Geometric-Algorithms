@@ -53,4 +53,15 @@ public class Point implements IDrawable {
         g.setColor(color);
         g.fill(shape);
     }
+
+    /**
+     * Draw the shape.
+     *
+     * @param g The graphics object to drawPoints in.
+     */
+    public void draw(Graphics2D g, Color color) {
+        // Draw the shape, with the desired color.
+        g.setColor(color);
+        g.fill(shape);
+    }
 }

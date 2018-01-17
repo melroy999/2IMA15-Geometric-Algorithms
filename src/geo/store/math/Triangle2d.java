@@ -25,7 +25,7 @@ public class Triangle2d {
     public final boolean bottomSymbolicPoint;
 
     // Find the highest point in the list, using the predicate on page 210.
-    public static Comparator<Point2d> heightComparator = (o1, o2) -> (o1.y > o2.y || (o1.y == o2.y && o2.x > o2.y)) ? 1 : -1;
+    public static Comparator<Point2d> heightComparator = (o1, o2) -> (o1.y > o2.y || (o1.y == o2.y && o2.x > o1.x)) ? 1 : -1;
 
     /**
      * Create a triangle using the three points as the corner points.

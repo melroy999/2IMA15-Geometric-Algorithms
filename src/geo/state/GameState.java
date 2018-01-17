@@ -248,7 +248,7 @@ public class GameState {
             mesh = new TriangulationMesh(vertices);
 
             // The list of all points, which are shuffled with the use of a random seed.
-            Collections.shuffle(vertices, random);
+//            Collections.shuffle(vertices, random);
         }
 
         // Insert all already known points, and the new point, in random order.
@@ -293,7 +293,11 @@ public class GameState {
     public void drawVertices(Graphics2D g) {
         // Paint all the points.
         for(Vertex v : union(redPoints, bluePoints)) {
-            v.drawVertex(g);
+            if(v != mesh.getP0()) {
+                v.drawVertex(g);
+            } else {
+                v.drawVertex(g, Color.GREEN);
+            }
         }
     }
 

@@ -92,6 +92,15 @@ public class Vertex<T> extends Point2d implements Iterable<Edge<T>> {
     }
 
     /**
+     * Draw the shape.
+     *
+     * @param g The graphics object to draw in.
+     */
+    public void drawVertex(Graphics2D g, Color color) {
+        shape.draw(g, color);
+    }
+
+    /**
      * Two points are equal when the distance between the point centers is less than the radius of the points.
      *
      * @param obj The object we want to check equality for.

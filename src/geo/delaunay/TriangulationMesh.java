@@ -76,7 +76,7 @@ public class TriangulationMesh {
         }
 
         // Legalize when we are done with insertions.
-        legalize(v);
+//        legalize(v);
     }
 
     /**
@@ -200,11 +200,20 @@ public class TriangulationMesh {
         Edge<TriangleFace> v2_v1 = new Edge<>(v2, v1);
 
         // Create the new faces.
-        TriangleFace f1 = new TriangleFace(Arrays.asList(v2_v1, tl, bl));
-        TriangleFace f2 = new TriangleFace(Arrays.asList(v2_v1.twin, br, tr));
+        try {
+            TriangleFace f1 = new TriangleFace(Arrays.asList(v2_v1, tl, bl));
+            TriangleFace f2 = new TriangleFace(Arrays.asList(v2_v1.twin, br, tr));
 
-        // We replace the original faces with two other faces.
-        searcher.replaceFaces(Arrays.asList((TriangleFace) e.incidentFace, (TriangleFace) e.twin.incidentFace), Arrays.asList(f1, f2));
+            // We replace the original faces with two other faces.
+            searcher.replaceFaces(Arrays.asList((TriangleFace) e.incidentFace, (TriangleFace) e.twin.incidentFace), Arrays.asList(f1, f2));
+        } catch(Triangle2d.ClockwiseException ex) {
+            System.out.println("Edge: " + e + ", faces " + e.incidentFace + " and " + e.twin.incidentFace);
+            System.out.println("v1: " + v1 + ", v2: " + v2);
+            System.out.println("e: " + e + ", tr: " + tr + ", tl: " + tl);
+            System.out.println("e.twin: " + e.twin + ", bl: " + bl + ", br: " + br);
+            System.out.println("v2_v1: " + v2_v1);
+            throw ex;
+        }
     }
 
     /**
@@ -233,6 +242,10 @@ public class TriangulationMesh {
             legalizeEdge(edge.twin.next());
             legalizeEdge(edge.twin.previous());
         }
+    }
+
+    public Vertex<TriangleFace> getP0() {
+        return p0;
     }
 
     /**
