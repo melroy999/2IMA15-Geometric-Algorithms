@@ -6,7 +6,9 @@ import geo.store.halfedge.Vertex;
 import geo.store.math.Triangle2d;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 /**
  * The mesh in which we store the Delaunay triangulation.
@@ -230,6 +232,27 @@ public class TriangulationMesh {
             // Legalize the edges that might be affected, at the opposite side of the change.
             legalizeEdge(edge.twin.next());
             legalizeEdge(edge.twin.previous());
+        }
+    }
+
+    /**
+     * Draw the edges in the triangulation mesh.
+     *
+     * @param g The graphics object to draw objects with.
+     */
+    public void drawTriangulationMesh(Graphics2D g) {
+        // First get the set of faces to draw.
+        Set<TriangleFace> faces = searcher.getTriangulatedFaces();
+
+        // Set the lines to be 3 pixels wide.
+        g.setStroke(new BasicStroke(3));
+        g.setColor(Color.gray);
+
+        // Draw all the edges.
+        for (TriangleFace face : faces) {
+            for(Edge<TriangleFace> edge : face.edges()) {
+                edge.drawEdge(g);
+            }
         }
     }
 }

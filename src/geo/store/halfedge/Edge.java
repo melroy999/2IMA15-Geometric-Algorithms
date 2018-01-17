@@ -1,7 +1,10 @@
 package geo.store.halfedge;
 
+import geo.store.gui.Line;
 import geo.store.math.Point2d;
 import geo.store.math.Vector2d;
+
+import java.awt.*;
 
 /**
  * A half-edge in a half edge structure.
@@ -26,6 +29,9 @@ public class Edge<T> {
     private static int counter = 0;
     public final int id = counter++;
 
+    // The visual representation of the edge.
+    private final Line shape;
+
     /**
      * Create a half-edge pair originating from the given vertex.
      *
@@ -41,6 +47,23 @@ public class Edge<T> {
 
         // Ensure that at least one incident edge is set for the vertex.
         origin.incidentEdge = this;
+
+        // Create a visual representation of the line.
+        if(!(origin instanceof Vertex.SymbolicTopVertex || origin instanceof Vertex.SymbolicBottomVertex)) {
+            if(!(target instanceof Vertex.SymbolicTopVertex || target instanceof Vertex.SymbolicBottomVertex)) {
+                shape = new Line(origin, origin.interpolate(target, 0.5d));
+            } else {
+                // Draw a straight line with the same y coordinate.
+                shape = new Line(origin, new Point2d(target instanceof Vertex.SymbolicTopVertex ? 4000 : -10, origin.y));
+            }
+        } else {
+            if(!(target instanceof Vertex.SymbolicTopVertex || target instanceof Vertex.SymbolicBottomVertex)) {
+                shape = new Line(new Point2d(origin instanceof Vertex.SymbolicTopVertex ? 4000 : -10, target.y), target);
+            } else {
+                // Both are symbolic, so don't draw.
+                shape = null;
+            }
+        }
     }
 
     /**
@@ -59,6 +82,24 @@ public class Edge<T> {
 
         // Ensure that at least one incident edge is set for the vertex.
         origin.incidentEdge = this;
+
+        // Create a shape we can drawPoints for this structure.
+        // Create a visual representation of the line.
+        if(!(origin instanceof Vertex.SymbolicTopVertex || origin instanceof Vertex.SymbolicBottomVertex)) {
+            if(!(target instanceof Vertex.SymbolicTopVertex || target instanceof Vertex.SymbolicBottomVertex)) {
+                shape = new Line(origin, origin.interpolate(target, 0.5d));
+            } else {
+                // Draw a straight line with the same y coordinate.
+                shape = new Line(origin, new Point2d(target instanceof Vertex.SymbolicTopVertex ? 4000 : -10, origin.y));
+            }
+        } else {
+            if(!(target instanceof Vertex.SymbolicTopVertex || target instanceof Vertex.SymbolicBottomVertex)) {
+                shape = new Line(new Point2d(origin instanceof Vertex.SymbolicTopVertex ? 4000 : -10, target.y), target);
+            } else {
+                // Both are symbolic, so don't draw.
+                shape = null;
+            }
+        }
     }
 
     /**
@@ -109,6 +150,16 @@ public class Edge<T> {
         double x = Math.max(0, Math.min(1, v1.dot(v2) / lengthSquared));
         Point2d projection = p1.add(v2.scale(x));
         return p.distance(projection);
+    }
+
+    /**
+     * Draw the object.
+     *
+     * @param g     The graphics object to use.
+     */
+    public void drawEdge(Graphics2D g) {
+        // Draw the shape stored in the object.
+        if(shape != null) shape.draw(g);
     }
 
     /**

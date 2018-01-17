@@ -269,8 +269,32 @@ public class GameState {
         bluePoints.clear();
         redPoints.clear();
 
+        // Reset the mesh.
+        mesh = null;
+
         // Reset the random seed.
         random = new Random(8988178178129387065L);
+    }
+
+    /**
+     * Draw the edges in the triangulation mesh.
+     *
+     * @param g The graphics object to draw objects with.
+     */
+    public void drawTriangulationMesh(Graphics2D g) {
+        if(mesh != null) mesh.drawTriangulationMesh(g);
+    }
+
+    /**
+     * Draw the points that have been placed on the board.
+     *
+     * @param g The graphics object to draw objects with.
+     */
+    public void drawVertices(Graphics2D g) {
+        // Paint all the points.
+        for(Vertex v : union(redPoints, bluePoints)) {
+            v.drawVertex(g);
+        }
     }
 
     /**

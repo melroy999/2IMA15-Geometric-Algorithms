@@ -1,8 +1,10 @@
 package geo.store.halfedge;
 
 import geo.state.GameState;
+import geo.store.gui.Point;
 import geo.store.math.Point2d;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Locale;
@@ -24,6 +26,9 @@ public class Vertex<T> extends Point2d implements Iterable<Edge<T>> {
     // The static radius of a vertex.
     private final static int radius = 10;
 
+    // The shape of the vertex.
+    private final Point shape;
+
     /**
      * Create a vertex at the given coordinates.
      *
@@ -36,6 +41,9 @@ public class Vertex<T> extends Point2d implements Iterable<Edge<T>> {
 
         // Set the player.
         this.player = player;
+
+        // Create the drawable figures.
+        shape = new Point(x, y, player == GameState.PlayerTurn.RED ? Color.RED : Color.BLUE, radius);
     }
 
     /**
@@ -72,6 +80,15 @@ public class Vertex<T> extends Point2d implements Iterable<Edge<T>> {
 
         // Now, return the iterator over this array edges.
         return edges.iterator();
+    }
+
+    /**
+     * Draw the shape.
+     *
+     * @param g The graphics object to draw in.
+     */
+    public void drawVertex(Graphics2D g) {
+        shape.draw(g);
     }
 
     /**

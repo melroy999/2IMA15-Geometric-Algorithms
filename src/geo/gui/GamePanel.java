@@ -45,5 +45,9 @@ public class GamePanel extends JPanel {
         // Convert to a two-dimensional space graphics object.
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        // Draw all the triangulation edges.
+        state.drawTriangulationMesh(g2);
+        state.drawVertices(g2);
     }
 }
