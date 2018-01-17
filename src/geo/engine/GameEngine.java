@@ -63,7 +63,8 @@ public class GameEngine {
                 humanBlue,
                 new ImportFilePlayer(controller, humanBlue, GameState.PlayerTurn.BLUE),
                 new RandomAIPlayer(controller, humanRed, GameState.PlayerTurn.BLUE),
-                new LargestFacePlayer(controller, humanBlue, GameState.PlayerTurn.BLUE)
+                new LargestFacePlayer(controller, humanBlue, GameState.PlayerTurn.BLUE),
+                new LargestEdgePlayer(controller, humanBlue, GameState.PlayerTurn.BLUE)
         };
 
         // Create the gui.
