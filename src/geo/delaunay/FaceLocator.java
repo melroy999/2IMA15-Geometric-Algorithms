@@ -54,7 +54,7 @@ public class FaceLocator extends DAG<TriangleFace> {
      *
      * @return The corresponding face if it exists, the outer face otherwise.
      */
-    private TriangleFace.ContainsResult findFace(Point2d p) {
+    public TriangleFace.ContainsResult findFace(Point2d p) {
         // Recursively search through the nodes.
         for(Node<TriangleFace> node : roots) {
             TriangleFace.ContainsResult hit = findFace(node, p);

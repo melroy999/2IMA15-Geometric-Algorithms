@@ -210,6 +210,15 @@ public class Triangle2d {
         return !Double.isNaN(v1) && !Double.isNaN(v2) && difference <= 5;
     }
 
+    @Override
+    public String toString() {
+        return "{" +
+                "" + p1 +
+                ", " + p2 +
+                ", " + p3 +
+                "}";
+    }
+
     /**
      * An exception that will be thrown when the area of a triangle is zero,
      * implying that the points are collinear.

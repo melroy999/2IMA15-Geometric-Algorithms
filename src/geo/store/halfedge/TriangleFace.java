@@ -15,6 +15,9 @@ public class TriangleFace extends Face<TriangleFace> {
     // Values that influence the containment test.
     private final double epsilon = 10e-6;
 
+    // The original edges in the triangle... Because of mutability issues.
+    private final ArrayList<Edge<TriangleFace>> edges;
+
     /**
      * Create a face, given the edges surrounding it in counter clock wise order.
      *
@@ -22,6 +25,7 @@ public class TriangleFace extends Face<TriangleFace> {
      */
     public TriangleFace(List<Edge<TriangleFace>> edges) {
         super(edges);
+        this.edges = new ArrayList<>(edges);
 
         // Check for illegalities.
         if (edges.size() != 3) throw new TrianglePointCountException();
@@ -38,36 +42,18 @@ public class TriangleFace extends Face<TriangleFace> {
      *         Next to the location, the face and appropriate edge is returned when applicable.
      */
     public ContainsResult contains(Point2d p) {
+        // The points as a list, for convenience.
+        List<Point2d> points = Arrays.asList(t.p1, t.p2, t.p3);
+
         // First check if we have symbolic vertices.
         if(t.bottomSymbolicPoint && t.topSymbolicPoint) {
-            // If both are symbolic, by definition the face should contain it.
-            // Find the non symbolic point.
-            List<Point2d> points = Arrays.asList(t.p1, t.p2, t.p3);
-            Point2d target = points.stream().filter(p1 -> !(p1 instanceof Vertex.SymbolicTopVertex || p1 instanceof Vertex.SymbolicBottomVertex)).findAny().get();
-
-            // Now, if the point has the same y-coordinate, it is on an edge.
-            // This is a tricky situation, as replacing the edge would be inappropriate here.
-            // TODO handle this.
-            if(equalsZero(target.y - p.y)) {
-                // Find the appropriate edge.
-                Edge<TriangleFace> edge;
-
-                if(p.x < target.x) {
-                    // It is the edge going to the bottom point, which should originate in our target.
-                    edge = this.edges().stream().filter(e -> e.origin == target).findAny().get();
-                } else {
-                    // Edge originating from the top point.
-                    edge = this.edges().stream().filter(e -> e.twin.origin == target).findAny().get();
-                }
-
-                return new ContainsResult(Location.BORDER_FLAGGED, this, edge);
+            // If both are symbolic, by definition the face should contain it, if the y is smaller than the top point.
+            // So first, find the top point.
+            Point2d top = points.stream().filter(e -> !(e instanceof Vertex.SymbolicBottomVertex || e instanceof Vertex.SymbolicTopVertex)).findAny().get();
+            if(top.y > p.y) {
+                return new ContainsResult(Location.INSIDE, this, null);
             }
-
-            // Otherwise it is inside though...
-            return new ContainsResult(Location.INSIDE, this, null);
-
         } else if(t.bottomSymbolicPoint || t.topSymbolicPoint) {
-            List<Point2d> points = Arrays.asList(t.p1, t.p2, t.p3);
 
             for (int i = 0; i < points.size(); i++) {
                 // Get the next two points.
@@ -76,67 +62,29 @@ public class TriangleFace extends Face<TriangleFace> {
 
                 if(points.get(i) instanceof Vertex.SymbolicTopVertex || points.get(i) instanceof Vertex.SymbolicBottomVertex) {
                     // Keep in mind however that it can be on the edges to the symbolic point as well.
-                    Edge<TriangleFace> edge = this.edges().stream().filter(e -> e.origin == p1).findAny().get();
-                    if (equalsZero(edge.getDistancePointToSegment(p))) {
-                        // It is on the edge, so return the edge.
-                        return new ContainsResult(Location.BORDER, this, edge);
+                    Optional<Edge<TriangleFace>> edge = this.edges().stream().filter(e -> e.origin == p1).findAny();
+                    if(!edge.isPresent()) {
+                        throw new RuntimeException("Cannot find an edge originating from " + p1 + " in face " + this + ", triangle object is " + t);
+                    }
+
+                    if (equalsZero(edge.get().getDistancePointToSegment(p))) {
+                        // It is on the edge with no symbolic vertices, so return the edge.
+                        return new ContainsResult(Location.BORDER, this, edge.get());
                     }
 
                     if (points.get(i) instanceof Vertex.SymbolicTopVertex) {
-                        // We need the point to be left of p1 and p2.
-                        Point2d top = points.get(i);
-
-                        // Now, check if it shares the y-coordinate with p1 or p2.
-                        if (equalsZero(p1.y - p.y)) {
-                            // If it does, and it is right of the point, it is on the edge originating from point i.
-                            if (p1.x < p.x) {
-                                edge = this.edges().stream().filter(e -> e.origin == top).findAny().get();
-                                return new ContainsResult(Location.BORDER_FLAGGED, this, edge);
-                            }
-                        }
-
-                        if (equalsZero(p2.y - p.y)) {
-                            // If it does, and it is right of the point, it is on the edge pointing to point i.
-                            if (p2.x < p.x) {
-                                edge = this.edges().stream().filter(e -> e.origin == p2).findAny().get();
-                                return new ContainsResult(Location.BORDER_FLAGGED, this, edge);
-                            }
-                        }
-
                         // Now, we can check if it is inside. It is inside if it is left of p1 -> p2, outside otherwise.
                         // It must be between p1 and p2 though in height!
-                        if (checkRelativeSide(p1, p2, p) <= 0 && p1.y > p.y && p2.y < p.y) {
+                        if (checkRelativeSide(p1, p2, p) <= 0 && p1.y >= p.y && p2.y <= p.y) {
                             return new ContainsResult(Location.INSIDE, this, null);
                         }
                     } else {
-                        // We need the point to be left of p1 and p2.
-                        Point2d bottom = points.get(i);
-
-                        // Now, check if it shares the y-coordinate with p1 or p2.
-                        if (equalsZero(p1.y - p.y)) {
-                            // If it does, and it is left of the point, it is on the edge originating from the symbolic point, to p2.
-                            if (p1.x > p.x) {
-                                edge = this.edges().stream().filter(e -> e.origin == bottom).findAny().get();
-                                return new ContainsResult(Location.BORDER_FLAGGED, this, edge);
-                            }
-                        }
-
-                        if (equalsZero(p2.y - p.y)) {
-                            // If it does, and it is left of the point, it is on the edge originating from p1.
-                            if (p2.x > p.x) {
-                                edge = this.edges().stream().filter(e -> e.origin == p2).findAny().get();
-                                return new ContainsResult(Location.BORDER_FLAGGED, this, edge);
-                            }
-                        }
-
                         // Now, we can check if it is inside. It is inside if it is left of p1 -> p2, outside otherwise.
                         // It must be between p1 and p2 though in height!
-                        if (checkRelativeSide(p1, p2, p) <= 0 && p2.y > p.y && p1.y < p.y) {
+                        if (checkRelativeSide(p1, p2, p) <= 0 && p2.y >= p.y && p1.y <= p.y) {
                             return new ContainsResult(Location.INSIDE, this, null);
                         }
                     }
-
-
                 }
             }
         } else {
@@ -214,7 +162,7 @@ public class TriangleFace extends Face<TriangleFace> {
         public final Location location;
 
         // The face we found this point in, if applicable.
-        public final Face<TriangleFace> face;
+        public final TriangleFace face;
 
         // The edge the point is on, if applicable.
         public final Edge<TriangleFace> edge;
@@ -226,7 +174,7 @@ public class TriangleFace extends Face<TriangleFace> {
          * @param face The face the result is in, if applicable.
          * @param edge The edge the point is on, if applicable.
          */
-        public ContainsResult(Location location, Face<TriangleFace> face, Edge<TriangleFace> edge) {
+        public ContainsResult(Location location, TriangleFace face, Edge<TriangleFace> edge) {
             this.location = location;
             this.face = face;
             this.edge = edge;
@@ -234,10 +182,120 @@ public class TriangleFace extends Face<TriangleFace> {
     }
 
     /**
+     * Check whether the edge should be considered legal.
+     *
+     * @param edge The edge we want to check legality of.
+     * @param p The highest point in our point set.
+     * @return Whether the edge is legal according to the rules.
+     */
+    public boolean isEdgeLegal(Edge<TriangleFace> edge, Vertex<TriangleFace> p) {
+        // This can be tricky. If the edge is part of the bounding triangle, it is always legal.
+        if (isEdgePartOfInitialTriangle(edge, p)) return true;
+
+        // The vertices v2, v1 for our convenience.
+        Vertex<TriangleFace> v2 = edge.twin.previous().origin;
+        Vertex<TriangleFace> v1 = edge.previous().origin;
+
+        if(!t.bottomSymbolicPoint && !t.topSymbolicPoint) {
+            // Now, if we have no symbolic points in the triangle, we should treat it has a normal triangle.
+            /* The situation is as follows
+                                    v1
+                                  /    \
+                                 /      \
+                               tl        tr
+                              /            \
+                             v -- e ------- w
+                             v -- e.twin -- w
+                              \            /
+                               bl        br
+                                 \      /
+                                  \    /
+                                    v2
+             */
+            return !(t.isInCircumCircle(v2) || ((TriangleFace) edge.twin.incidentFace).t.isInCircumCircle(v1));
+        }
+
+        // Now, we might have that we have one of the symbolic points... I will have to think about this.
+        if(t.bottomSymbolicPoint && t.topSymbolicPoint) {
+            // We have both symbolic points, but not the largest point.
+            // We know that the edge cannot be connected to both symbolic points, so it is one or the other.
+            // This will only happen if the point is the bottom most point, which will thus have a circum circle of unlimited size.
+            // So only points below the point should be seen as illegal, which will not happen, so legal.
+            return true;
+        }
+
+        if(t.bottomSymbolicPoint) {
+            // We have the bottom symbolic point in the triangle. Depending on whether we have a symbolic point in the edge...
+            if(edge.origin instanceof Vertex.SymbolicBottomVertex) {
+                // The starting point is a symbolic vertex.
+                // Suppose that we have this case, then w should not be left of the line segment v1 -> v2, as the hull would not be convex.
+                return checkRelativeSide(v1, v2, edge.twin.origin) <= 0;
+
+            } else if(edge.twin.origin instanceof Vertex.SymbolicBottomVertex) {
+                // The end point is a symbolic vertex.
+                // The same as above, but now the other way around, where we check illegality of the origin.
+                return checkRelativeSide(v2, v1, edge.origin) <= 0;
+
+            } else {
+                // The edge is not connected to symbolic vertices.
+                // In other words, the symbolic point will never be in the circum circle of the other triangle and vice versa.
+                // Thus, it is always legal.
+                return true;
+            }
+        } else {
+            // We have the bottom symbolic point in the triangle. Depending on whether we have a symbolic point in the edge...
+            if(edge.origin instanceof Vertex.SymbolicTopVertex) {
+                // The starting point is a symbolic vertex.
+                // Suppose that we have this case, then w should not be left of the line segment v2 -> v1, as the hull would not be convex.
+                return checkRelativeSide(v2, v1, edge.twin.origin) <= 0;
+
+            } else if(edge.twin.origin instanceof Vertex.SymbolicTopVertex) {
+                // The end point is a symbolic vertex.
+                // The same as above, but now the other way around, where we check illegality of the origin.
+                return checkRelativeSide(v1, v2, edge.origin) <= 0;
+
+            } else {
+                // The edge is not connected to symbolic vertices.
+                // In other words, the symbolic point will never be in the circum circle of the other triangle and vice versa.
+                // Thus, it is always legal.
+                return true;
+            }
+        }
+    }
+
+    /**
+     * Check whether the edge is part of the initial triangle.
+     *
+     * @param edge The edge we want to check for.
+     * @return True if both end points of the edge are either symbolic or point p0.
+     */
+    public boolean isEdgePartOfInitialTriangle(Edge<TriangleFace> edge, Vertex<TriangleFace> p) {
+        boolean p1 = edge.origin == p || edge.origin instanceof Vertex.SymbolicTopVertex || edge.origin instanceof Vertex.SymbolicBottomVertex;
+        boolean p2 = edge.twin.origin == p || edge.twin.origin instanceof Vertex.SymbolicTopVertex || edge.twin.origin instanceof Vertex.SymbolicBottomVertex;
+
+        // If both are true, it is part of the initial triangle.
+        return p1 && p2;
+    }
+
+    /**
+     * Get the edges of edges around this face.
+     *
+     * @return An arraylist of edges.
+     */
+    @Override
+    public ArrayList<Edge<TriangleFace>> edges() {
+        if(edges != null) {
+            return this.edges;
+        } else {
+            return super.edges();
+        }
+    }
+
+    /**
      * An enumeration that represents the position of a point relative to the triangle.
      */
     public enum Location {
-        INSIDE, BORDER, OUTSIDE, BORDER_FLAGGED
+        INSIDE, BORDER, OUTSIDE
     }
 
     /**
