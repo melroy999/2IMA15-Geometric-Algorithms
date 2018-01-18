@@ -269,6 +269,9 @@ public class GUI {
     public void updateGameStateCounters(int redCount, int blueCount, double redArea) {
         redPointsCountLabel.setText(String.valueOf(redCount));
         bluePointsCountLabel.setText(String.valueOf(blueCount));
+        if(redCount == blueCount + 1 && blueCount != 0) {
+            System.out.println("Score: " + redArea + ", " + (100d - redArea));
+        }
         redBoardControlLabel.setText(String.format( "%.1f", redArea) + "%");
         blueBoardControlLabel.setText(String.format( "%.1f", redArea == 0d ? 0 : 100d - redArea) + "%");
     }

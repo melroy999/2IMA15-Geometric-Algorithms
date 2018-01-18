@@ -10,10 +10,9 @@ import java.awt.*;
 import java.util.List;
 import java.util.ArrayList;
 
-public class EquilateralTriangleGridPlayer extends AIPlayer {
+public class EquilateralTriangleGridPlayer extends TriangleGridPlayer {
 
     // Whether we are done or not, obviously.
-    private boolean done;
     private JPanel rootPanel;
     private JTextField edgeSize;
 
@@ -28,111 +27,17 @@ public class EquilateralTriangleGridPlayer extends AIPlayer {
         super(controller, player, turn);
     }
 
-    /**
-     * Run the AI of this player.
-     *
-     * @param state The game state to read data from.
-     */
-    @Override
-    protected void runAI(GameState state) {
-        int edgeLength;
-
-        try {
-            edgeLength = Integer.parseInt(edgeSize.getText());
-        } catch (NumberFormatException n){
-            System.out.println("Please tell me the size of the triangle edges.");
-            done = true;
-            return;
-        }
-
-        if(edgeLength < 30) {
-            System.out.println("The triangle should be at least 30 in size.");
-            done = true;
-            return;
-        }
-
-        // Lets start with a pythagoras tiling.
-        // The dimensions of the playing field.
-        Dimension dimension = GUI.createAndShow().getGamePanelDimensions();
-
-        // We will maintain a set of points, such that we will not end up with duplicate points.
-        List<Point2d> points = new ArrayList<>();
-
-        // We start in the center of the screen.
-        Point2d p = new Point2d(dimension.width / 2d, dimension.height / 2d);
-
-        // The triangles will have the following height.
-        double triangleHeight = Math.tan(Math.toRadians(60)) * edgeLength / 2d;
-
-        // We use p as the center line, and move up and down simultaneously.
-        for (int i = 0; i < (dimension.height / 2d) / triangleHeight; i++) {
-            // If i is 0, we only draw one line. Otherwise we draw both.
-            if(i != 0) {
-                // Draw down.
-                for(int j = 0; j < (dimension.width / 2d) / edgeLength; j++) {
-                    if(j != 0 || i % 2 == 1) {
-                        // Draw to the left.
-                        Point2d pl = new Point2d(p.x - ((i % 2 == 1) ? edgeLength / 2d : 0) - j * edgeLength, p.y - i * triangleHeight);
-                        if(isWithinBounds(pl, dimension)) points.add(pl);
-                    }
-
-                    // Draw to the right.
-                    Point2d pr = new Point2d(p.x + ((i % 2 == 1) ? edgeLength / 2d : 0) + j * edgeLength, p.y - i * triangleHeight);
-                    if(isWithinBounds(pr, dimension)) points.add(pr);
-                }
-            }
-
-            // Draw up.
-            for(int j = 0; j < (dimension.width / 2d) / edgeLength; j++) {
-                if(j != 0 || i % 2 == 1) {
-                    // Draw to the left.
-                    Point2d pl = new Point2d(p.x - ((i % 2 == 1) ? edgeLength / 2d : 0) - j * edgeLength, p.y + i * triangleHeight);
-                    if(isWithinBounds(pl, dimension)) points.add(pl);
-                }
-
-                // Draw to the right.
-                Point2d pr = new Point2d(p.x + ((i % 2 == 1) ? edgeLength / 2d : 0) + j * edgeLength, p.y + i * triangleHeight);
-                if(isWithinBounds(pr, dimension)) points.add(pr);
-            }
-        }
-
-        // Add the points.
-        addPoints(points.toArray(new Point2d[0]));
-
-        // We are done.
-        done = true;
-    }
-
     public boolean isWithinBounds(Point2d p, Dimension dimension) {
         return p.x >= 0 && p.x < dimension.width && p.y >=0 && p.y < dimension.height;
     }
 
-    /**
-     * Check whether the ai player is done with his/her turns.
-     *
-     * @return True if done, false otherwise.
-     */
     @Override
-    public boolean isDone() {
-        return done;
+    protected double getTriangleHeight(int edgeLength) {
+        return Math.tan(Math.toRadians(60)) * edgeLength / 2d;
     }
 
-    /**
-     * Whether the AI has a random part.
-     *
-     * @return True if randomness is used, false otherwise.
-     */
-    @Override
-    public boolean isRandom() {
-        return false;
-    }
-
-    /**
-     * Reset the state of the AI so that we can use it again.
-     */
-    @Override
-    public void reset() {
-        done = false;
+    protected int getTriangleWidth() {
+        return Integer.parseInt(edgeSize.getText());
     }
 
     /**
