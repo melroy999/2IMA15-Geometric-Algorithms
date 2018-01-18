@@ -63,96 +63,16 @@ public class Triangle2d {
      * @return The circumcenter, I.e. the center of the circle that goes through all the corner points of the triangle.
      */
     private Point2d getCircumCenter() {
-        // Calculate the slopes of the two lines.
-        double s1 = (p2.y - p1.y) / (p2.x - p1.x + 10e-32);
-        double s2 = (p3.y - p2.y) / (p3.x - p2.x + 10e-32);
+        double a2 = p1.x * p1.x + p1.y * p1.y;
+        double b2 = p2.x * p2.x + p2.y * p2.y;
+        double c2 = p3.x * p3.x + p3.y * p3.y;
 
-        // Calculate x.
-        double x = 0.5d * (s1 * s2 * (p1.y - p3.y) + s2 * (p1.x + p2.x) - s1 * (p2.x + p3.x)) / (s2 - s1);
-        double y = -1/s1 * (x - 0.5d * (p1.x + p2.x)) + 0.5d * (p1.y + p2.y);
+        double det = 1 / (2 * (p1.x * (p2.y - p3.y) + p2.x * (p3.y - p1.y) + p3.x * (p1.y - p2.y)));
+        double x = det * (a2 * (p2.y - p3.y) + b2 * (p3.y - p1.y) + c2 * (p1.y - p2.y));
+        double y = det * (a2 * (p3.x - p2.x) + b2 * (p1.x - p3.x) + c2 * (p2.x - p1.x));
 
-        // If not a number, try something differently.
-        if(!Double.isFinite(y)) {
-            y = -1/s2 * (x - 0.5d * (p2.x + p3.x)) + 0.5d * (p2.y + p3.y);
-        }
-
-        if(!Double.isFinite(y)) {
-            System.out.println("Bad circum circle found.");
-            System.out.println("Circum center of " + p1 + " " + p2 + " " + p3 + " is at " + (new Point2d(x, y)));
-            System.out.println("s1=" + s1 + ", s2=" + s2 + ", s3=" + (p1.y - p3.y) / (p1.x - p3.x + 10e-32));
-        }
-
-        // Return the center.
         return new Point2d(x, y);
     }
-
-    /**
-     * Check where the given point is relatively to the triangle.
-     *
-     * @param p The point we want to query the location of.
-     * @return INSIDE if inside the triangle, BORDER if on the edge of the triangle, OUTSIDE otherwise.
-     */
-    public Location contains(Point2d p) {
-        // We have trouble with equal y searches, so hardcode it.
-        if(isOnVerticalLine(p, p1, p2)) return Location.BORDER;
-        if(isOnVerticalLine(p, p2, p3)) return Location.BORDER;
-        if(isOnVerticalLine(p, p3, p1)) return Location.BORDER;
-
-        // For this, we will use barycentric coordinates.
-        // The point p can be redefined in terms of p1, p2 and p3 together with scalars, such that:
-        //      p = a * p1 + b * p2 + c * p3
-        double div = 1d / ((p2.y - p3.y) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.y - p3.y) + 10e-32);
-        double a = div * ((p2.y - p3.y) * (p.x - p3.x) + (p3.x - p2.x) * (p.y - p3.y));
-        double b = div * ((p3.y - p1.y) * (p.x - p3.x) + (p1.x - p3.x) * (p.y - p3.y));
-        double c = 1.0d - a - b;
-
-        // Check the ranges for a, b, c to be in [0,1].
-        if(a >= 0d && a <= 1d && b >= 0d && b <= 1d && c >= 0d && c <= 1d) {
-            // The point is in the triangle if and only if a, b and c are in the range (0,1).
-            if(a > 0d && a < 1d && b > 0d && b < 1d && c > 0d && c < 1d) return Location.INSIDE;
-
-            // Otherwise, we are on the border if we are in the range [0,1] for a, b and c.
-            return Location.BORDER;
-        } else {
-            // If none of the above, it has to be outside.
-            return Location.OUTSIDE;
-        }
-    }
-
-    /**
-     * Check whether the given point p is on a horizontal line between p1 and p2.
-     *
-     * @param p The point we want to check the location of.
-     * @param p1 The start of the line segment.
-     * @param p2 The end of the line segment.
-     * @return Whether p shares the y-coordinate with p1 and p2, and p is between p1 and p2.
-     */
-    public boolean isOnVerticalLine(Point2d p, Point2d p1, Point2d p2) {
-        if(p.y == p1.y && p.y == p2.y) {
-            if(Math.min(p1.x, p2.x) == p1.x) {
-                if(Math.min(p1.x, p.x) == p1.x && Math.max(p2.x, p.x) == p2.x) {
-                    return true;
-                }
-            } else {
-                if(Math.min(p2.x, p.x) == p2.x && Math.max(p1.x, p.x) == p1.x) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     * In the worst case... use awt to check the contains, as it isn't error prone.
-     *
-     * @param p The point to check the existence of.
-     * @return Whether the point is contained in the shape.
-     */
-    public Location containsAlternative(Point2d p) {
-        return shape.contains(p.x, p.y) ? Location.INSIDE : Location.OUTSIDE;
-    }
-
 
     /**
      * Check if the given point is contained in the circumcircle.
@@ -161,12 +81,5 @@ public class Triangle2d {
      */
     public boolean circumCircleContains(Point2d p) {
         return cc.distance(p) < ccr;
-    }
-
-    /**
-     * An enumeration that represents the position of a point relative to the triangle.
-     */
-    public enum Location {
-        INSIDE, BORDER, OUTSIDE
     }
 }

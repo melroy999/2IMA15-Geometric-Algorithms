@@ -3,7 +3,6 @@ package geo.delaunay;
 import geo.store.halfedge.Edge;
 import geo.store.halfedge.Vertex;
 import geo.store.math.Triangle2d;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -13,7 +12,7 @@ import java.util.stream.Collectors;
  */
 public class DelaunayMesh {
     // The face hierarchy, such that we can easily find the face that contains a specific point.
-    private final FaceHierarchy faceIndex = new FaceHierarchy();
+    private final FaceSearcher faceIndex = new FaceSearcher();
 
     /**
      * Initialize the triangle mesh, with a very large triangle in the initial state.
@@ -60,32 +59,23 @@ public class DelaunayMesh {
      */
     public void insertVertex(Vertex<TriangleFace> v) throws PointInsertedInOuterFaceException, EdgeNotFoundException {
         // Start by finding the face that contains the vertex.
-        TriangleFace face = faceIndex.findFace(v);
+        TriangleFace.ContainsResult result = faceIndex.findFace(v);
 
         // If this face is the outer face, something is wrong and we should terminate.
-        if(face instanceof TriangleFace.OuterTriangleFace) {
+        if(result == null) {
             throw new PointInsertedInOuterFaceException(v);
         }
 
         // Now, we should find out of it is inside of the triangle, or on one of the edges.
-        if(face.contains(v) == Triangle2d.Location.INSIDE) {
+        if(result.location == TriangleFace.Location.INSIDE) {
 
 //            System.out.println("Inserting " + v + " in face " + face);
 
             // Use the insert into inside face insertion.
-            insertVertexInsideFace(v, face);
+            insertVertexInsideFace(v, result.face);
         } else {
-            // Find which edge the point is on.
-            Optional<Edge<TriangleFace>> edge = face.edges().stream().filter(e -> e.isPointOnEdge(v)).findAny();
-
-            if(!edge.isPresent()) {
-                throw new EdgeNotFoundException(v);
-            }
-
-//            System.out.println("Inserting " + v + " on edge " + edge);
-
             // Insert the vertex on the edge.
-            insertVertexOnEdge(v, edge.get());
+            insertVertexOnEdge(v, result.edge);
         }
     }
 

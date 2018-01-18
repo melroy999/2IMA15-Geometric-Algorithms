@@ -15,6 +15,16 @@ public class Vector2d extends Tuple2d<Vector2d> {
     }
 
     /**
+     * Define a vector by giving an x and y-coordinates.
+     *
+     * @param p1 The starting point of the vector.
+     * @param p2 The end point of the vector.
+     */
+    public Vector2d(Tuple2d p1, Tuple2d p2) {
+        super(p2.x - p1.x, p2.y - p1.y);
+    }
+
+    /**
      * Create a new instance of a tuple2d subclass.
      *
      * @param x The x-coordinate of the tuple.
