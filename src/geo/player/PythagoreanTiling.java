@@ -56,7 +56,7 @@ public class PythagoreanTiling extends AIPlayer {
         }
 
         if(smallTriangleSize < 30) {
-            System.out.println("The small triangle should be at least 20 in size.");
+            System.out.println("The small triangle should be at least 30 in size.");
             done = true;
             return;
         }

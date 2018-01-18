@@ -2,6 +2,7 @@ package geo.player;
 
 import geo.controller.GameController;
 import geo.state.GameState;
+import geo.store.math.Point2d;
 
 import javax.swing.*;
 import java.awt.*;
@@ -86,6 +87,66 @@ public abstract class AbstractPlayer {
      * @return Whether the removal of the point was successful.
      */
     protected final boolean removePoint(Point p) {
+        // Run the addition of a point on the event thread.
+        RunnableFuture<Boolean> runnable = new FutureTask<>(() -> controller.removePoint(p));
+        SwingUtilities.invokeLater(runnable);
+        try {
+            return runnable.get();
+        } catch (InterruptedException | ExecutionException ex) {
+            ex.printStackTrace();
+        }
+
+        // If we reach this point, the addition of the point would have failed.
+        return false;
+    }
+
+    /**
+     * Allow the player to add a point to the playing field.
+     *
+     * @param p The point the user wants to add.
+     * @return Whether the insertion of the point was successful or not.
+     */
+    protected final GameState.FaultStatus addPoint(Point2d p) {
+        // Run the addition of a point on the event thread.
+        RunnableFuture<GameState.FaultStatus> runnable = new FutureTask<>(() -> controller.addPoint(p));
+        SwingUtilities.invokeLater(runnable);
+        try {
+            return runnable.get();
+        } catch (InterruptedException | ExecutionException ex) {
+            ex.printStackTrace();
+        }
+
+        // If we reach this point, the addition of the point would have failed.
+        return GameState.FaultStatus.Error;
+    }
+
+    /**
+     * Allow the player to add multiple points to the playing field simultaniously.
+     *
+     * @param p The point the user wants to add.
+     * @return Whether the insertion of the point was successful or not.
+     */
+    protected final List<GameState.FaultStatus> addPoints(Point2d[] p) {
+        // Run the addition of a point on the event thread.
+        RunnableFuture<List<GameState.FaultStatus>> runnable = new FutureTask<>(() -> controller.addPoints(p));
+        SwingUtilities.invokeLater(runnable);
+        try {
+            return runnable.get();
+        } catch (InterruptedException | ExecutionException ex) {
+            ex.printStackTrace();
+        }
+
+        // If we reach this point, the addition of the point would have failed.
+        return Collections.singletonList(GameState.FaultStatus.Error);
+    }
+
+    /**
+     * Remove the point.
+     *
+     * @param p The point to remove.
+     * @return Whether the removal of the point was successful.
+     */
+    protected final boolean removePoint(Point2d p) {
         // Run the addition of a point on the event thread.
         RunnableFuture<Boolean> runnable = new FutureTask<>(() -> controller.removePoint(p));
         SwingUtilities.invokeLater(runnable);

@@ -7,6 +7,7 @@ import geo.delaunay.DelaunayTriangulator;
 import geo.delaunay.TriangleFace;
 import geo.player.AbstractPlayer;
 import geo.store.halfedge.Vertex;
+import geo.store.math.Point2d;
 import geo.voronoi.VoronoiDiagram;
 
 import java.awt.*;
@@ -51,7 +52,7 @@ public class GameState {
      * @param controller The controller that should receive the predicates.
      */
     public final void setPredicates(GameController controller) {
-        controller.setPredicates(this::addPoint, this::removePoint, this::reset, this::addPoints);
+        controller.setPredicates(this::addPoint, this::removePoint, this::reset, this::addPoints, this::addDoublePoint, this::removeDoublePoint, this::addDoublePoints);
     }
 
     /**
@@ -61,8 +62,29 @@ public class GameState {
      * @return Whether the insertion of the point was successful or not.
      */
     private FaultStatus addPoint(Point p) {
+        return addPoint(p.x, p.y);
+    }
+
+    /**
+     * Add a point to the state.
+     *
+     * @param p The point to add to the state.
+     * @return Whether the insertion of the point was successful or not.
+     */
+    private FaultStatus addDoublePoint(Point2d p) {
+        return addPoint(p.x, p.y);
+    }
+
+    /**
+     * Add a point to the state.
+     *
+     * @param x The x-coordinate of the point.
+     * @param y The y-coordinate of the point.
+     * @return Whether the insertion of the point was successful or not.
+     */
+    private FaultStatus addPoint(double x, double y) {
         // First, convert to our own vertex type.
-        Vertex<TriangleFace> vertex = new Vertex<>(p.x, p.y, currentPlayerTurn);
+        Vertex<TriangleFace> vertex = new Vertex<>(x, y, currentPlayerTurn);
 
         // If the point already exists, do nothing.
         if(checkPointExistence(vertex)) return FaultStatus.PointExists;
@@ -93,6 +115,28 @@ public class GameState {
      * @return Whether the insertion of all points was successful or not.
      */
     private List<FaultStatus> addPoints(Point[] points) {
+        // Convert all the points to double points.
+        Point2d[] point2ds = Arrays.stream(points).map(p -> new Point2d(p.x, p.y)).toArray(Point2d[]::new);
+        return addPoints(point2ds);
+    }
+
+    /**
+     * Add the points to the state.
+     *
+     * @param points The points to add to the state.
+     * @return Whether the insertion of all points was successful or not.
+     */
+    private List<FaultStatus> addDoublePoints(Point2d[] points) {
+        return addPoints(points);
+    }
+
+    /**
+     * Add the points to the state.
+     *
+     * @param points The points to add to the state.
+     * @return Whether the insertion of all points was successful or not.
+     */
+    private List<FaultStatus> addPoints(Point2d[] points) {
         // The collection of fault codes we want to return...
         List<FaultStatus> status = new ArrayList<>();
 
@@ -130,6 +174,26 @@ public class GameState {
 
         // Now, return None if status is empty, status otherwise.
         return status.isEmpty() ? Collections.singletonList(FaultStatus.None) : status;
+    }
+
+    /**
+     * Remove a point from the game state.
+     *
+     * @param p The point to remove.
+     * @return Whether the point was removed successfully or not.
+     */
+    private boolean removeDoublePoint(Point2d p) {
+        // First, convert to our own vertex type.
+        Vertex<TriangleFace> vertex = new Vertex<>(p.x, p.y, currentPlayerTurn);
+
+        // Remove the vertex, check if we removed any by checking the return value.
+        boolean hasMatch = (currentPlayerTurn == PlayerTurn.RED ? redPoints : bluePoints).removeIf(v -> v.equals(vertex));
+
+        // If we succeeded in removing, reconstruct. Otherwise return false.
+        if(hasMatch) {
+            reconstruct(union(redPoints, bluePoints));
+        }
+        return hasMatch;
     }
 
     /**

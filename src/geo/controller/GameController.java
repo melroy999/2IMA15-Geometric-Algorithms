@@ -2,6 +2,7 @@ package geo.controller;
 
 import geo.engine.GameEngine;
 import geo.state.GameState;
+import geo.store.math.Point2d;
 
 import java.awt.*;
 import java.io.*;
@@ -20,6 +21,9 @@ public class GameController {
     private Function<Point, GameState.FaultStatus> addPoint;
     private Function<Point[], List<GameState.FaultStatus>> addPoints;
     private Predicate<Point> removePoint;
+    private Function<Point2d, GameState.FaultStatus> addDoublePoint;
+    private Function<Point2d[], List<GameState.FaultStatus>> addDoublePoints;
+    private Predicate<Point2d> removeDoublePoint;
     private Runnable resetGame;
 
     // The two files in which we will log the player moves.
@@ -44,11 +48,14 @@ public class GameController {
      *
      * @param addPoint The predicate that adds points to the game state.
      */
-    public final void setPredicates(Function<Point, GameState.FaultStatus> addPoint, Predicate<Point> removePoint, Runnable resetGame, Function<Point[], List<GameState.FaultStatus>> addPoints) {
+    public final void setPredicates(Function<Point, GameState.FaultStatus> addPoint, Predicate<Point> removePoint, Runnable resetGame, Function<Point[], List<GameState.FaultStatus>> addPoints, Function<Point2d, GameState.FaultStatus> addDoublePoint, Predicate<Point2d> removeDoublePoint, Function<Point2d[], List<GameState.FaultStatus>> addDoublePoints) {
         this.addPoint = addPoint;
         this.removePoint = removePoint;
         this.resetGame = resetGame;
         this.addPoints = addPoints;
+        this.addDoublePoint = addDoublePoint;
+        this.addDoublePoints = addDoublePoints;
+        this.removeDoublePoint = removeDoublePoint;
     }
 
     /**
@@ -113,6 +120,74 @@ public class GameController {
         }
 
         if(removePoint.test(p)) {
+            engine.updatePlayerCounters();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Add the given point to the game state.
+     *
+     * @param p The point to add to the game state.
+     * @return Whether the insertion of the point was successful or not.
+     */
+    public GameState.FaultStatus addPoint(Point2d p) {
+        // Write the moves of the player to the log.
+        if(engine.getPlayerTurn() == GameState.PlayerTurn.RED) {
+            redWriter.println(p.toString());
+        } else {
+            blueWriter.println(p.toString());
+        }
+
+        GameState.FaultStatus status = addDoublePoint.apply(p);
+
+        if(status == GameState.FaultStatus.None) {
+            engine.updatePlayerCounters();
+        }
+
+        return status;
+    }
+
+    /**
+     * Add the given points to the game state.
+     *
+     * @param points The points to add to the game state.
+     * @return Whether the insertion of all points was successful or not.
+     */
+    public List<GameState.FaultStatus> addPoints(Point2d[] points) {
+        // Write the moves of the player to the log.
+        for(Point2d p : points) {
+            if(engine.getPlayerTurn() == GameState.PlayerTurn.RED) {
+                redWriter.println(p.toString());
+            } else {
+                blueWriter.println(p.toString());
+            }
+        }
+
+        List<GameState.FaultStatus> success = addDoublePoints.apply(points);
+
+        // Since we add multiple points, we probably have added single points anyhow.
+        engine.updatePlayerCounters();
+
+        return success;
+    }
+
+    /**
+     * Remove the given point.
+     *
+     * @param p The point to remove.
+     * @return Whether the point was removed successfully.
+     */
+    public boolean removePoint(Point2d p) {
+        // Write the moves of the player to the log.
+        if(engine.getPlayerTurn() == GameState.PlayerTurn.RED) {
+            redWriter.println("-" + p.toString());
+        } else {
+            blueWriter.println("-" + p.toString());
+        }
+
+        if(removeDoublePoint.test(p)) {
             engine.updatePlayerCounters();
             return true;
         }

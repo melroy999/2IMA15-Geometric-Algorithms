@@ -5,13 +5,13 @@ import geo.delaunay.TriangleFace;
 import geo.state.GameState;
 import geo.store.halfedge.Face;
 import geo.store.halfedge.Vertex;
+import geo.store.math.Point2d;
 import geo.store.math.Vector2d;
 import geo.gui.GUI;
 
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.awt.Point;
 import java.awt.Dimension;
 
@@ -50,6 +50,11 @@ public class LargestVoronoiFacePlayer extends AIPlayer {
             moves = 10;
             System.out.println("Bad input for number of moves, running with moves = 10.");
         }
+
+        // The faces that resulted in an error.
+        Set<Face> failures = new HashSet<>();
+
+
         //Do stuff. If we fail 3 moves in a row, give up (something is probably wrong).
         while (turn < moves){
             if (failedMoves > 2){
@@ -57,7 +62,7 @@ public class LargestVoronoiFacePlayer extends AIPlayer {
                 isDone = true;
                 return;
             }
-            doMove(state);
+            doMove(state, failures);
         }
 
         // We are done, set the done flag.
@@ -67,8 +72,9 @@ public class LargestVoronoiFacePlayer extends AIPlayer {
     /**
      * Find the best move to perform at this moment, and execute it.
      * @param state current GameState.
+     * @param failures The faces that lead to a failure.
      */
-    protected void doMove(GameState state){
+    protected void doMove(GameState state, Set<Face> failures){
         //Look at opponent's points.
         List<Vertex<TriangleFace>> opponentPoints = (getPlayer().color == GameState.PlayerTurn.RED ? state.getBluePoints() : state.getRedPoints());
 
@@ -86,20 +92,28 @@ public class LargestVoronoiFacePlayer extends AIPlayer {
             return;
         }
 
-        //First, find the largest Face and the point inside that face.
-        Face largestFace = findLargestFace(state);
-        Vertex<TriangleFace> largestPoint = largestFace.centerPoint;
-        //Then, find the nearest other point, since we wish to place our point away from it.
-        //Remove our largestPoint, obviously it would be closest.
-        Vertex<TriangleFace> nearestPoint = state.getPoints().stream()
-                .filter((a) -> a.id != largestPoint.id)
-                .min(Comparator.comparingDouble(a -> a.distance(largestPoint))).get();
-        //Find the Vector pointing from nearestPoint to largestPoint,
-        Vector2d direction = new Vector2d(largestPoint.x - nearestPoint.x, largestPoint.y - nearestPoint.y).normalize().scale(12);
-        // and place our move beside largestPoint in this direction.
-        int x = (int) (largestPoint.x + direction.x);
-        int y = (int) (largestPoint.y + direction.y);
-        GameState.FaultStatus status = addPoint(new Point(x, y));
+        GameState.FaultStatus status;
+        Face largestFace = null;
+        do {
+            if(largestFace != null) failures.add(largestFace);
+
+            //First, find the largest Face and the point inside that face.
+            largestFace = findLargestFace(state);
+            Vertex<TriangleFace> largestPoint = largestFace.centerPoint;
+
+            //Then, find the nearest other point, since we wish to place our point away from it.
+            //Remove our largestPoint, obviously it would be closest.
+            Vertex<TriangleFace> nearestPoint = state.getPoints().stream()
+                    .filter((a) -> a.id != largestPoint.id)
+                    .min(Comparator.comparingDouble(a -> a.distance(largestPoint))).get();
+
+            //Find the Vector pointing from nearestPoint to largestPoint,
+            Vector2d direction = new Vector2d(largestPoint.x - nearestPoint.x, largestPoint.y - nearestPoint.y).normalize().scale(12);
+
+            // and place our move beside largestPoint in this direction.
+            status = addPoint(new Point2d(largestPoint.x + direction.x, largestPoint.y + direction.y));
+
+        } while(status == GameState.FaultStatus.PointExists);
 
         if (status == GameState.FaultStatus.None){
             turn++;

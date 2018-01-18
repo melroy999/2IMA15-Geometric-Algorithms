@@ -55,7 +55,8 @@ public class GameEngine {
                 new ImportFilePlayer(controller, humanRed, GameState.PlayerTurn.RED),
                 new RandomPlayer(controller, humanRed, GameState.PlayerTurn.RED),
                 new GridPlayer(controller, humanRed, GameState.PlayerTurn.RED),
-                new PythagoreanTiling(controller, humanRed, GameState.PlayerTurn.RED)
+                new PythagoreanTiling(controller, humanRed, GameState.PlayerTurn.RED),
+                new EquilateralTriangleGridPlayer(controller, humanRed, GameState.PlayerTurn.RED)
         };
 
         // Do the same for player 2.
