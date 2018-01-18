@@ -2,6 +2,7 @@ package geo.store.halfedge;
 
 import geo.store.gui.Line;
 import geo.store.math.Point2d;
+import geo.store.math.Vector2d;
 
 import java.awt.*;
 
@@ -122,7 +123,7 @@ public class Edge<T> {
      * @return True when the numbers are extremely close to one another.
      */
     private static boolean almostEqual(double a, double b){
-        return Math.abs(a-b) < 10e-3 /*Math.max(Math.ulp(a), Math.ulp(b))*/;
+        return Math.abs(a-b) < 10e-5 /*Math.max(Math.ulp(a), Math.ulp(b))*/;
     }
 
     /**
@@ -151,5 +152,27 @@ public class Edge<T> {
     @Override
     public String toString() {
         return "e" + id + "(" + origin.toString() + "->" + twin.origin.toString() + ")";
+    }
+
+    /**
+     * Get the minimum distance between the line segment and the point.
+     *
+     * @param p The point to measure the distance to.
+     * @return The minimum distance between p and this edge.
+     */
+    public double getDistancePointToSegment(Point2d p) {
+        // Calculate the values we want to work with, which are the square length and dot product.
+        Point2d p1 = origin;
+        Point2d p2 = twin.origin;
+        double lengthSquared = (p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y);
+        if(lengthSquared == 0) return p1.distance(p);
+
+        // Now, we have the line through p1 and p2: p1 + x * (p2 - p1), we want to find the projection of p onto this line.
+        // This holds when x = [(p-p1) * (p2-p1)] / lengthSquared. Clamp x to the range 0-1, such that we cannot get out of the segment.
+        Vector2d v1 = new Vector2d(p1, p);
+        Vector2d v2 = new Vector2d(p1, p2);
+        double x = Math.max(0, Math.min(1, v1.dot(v2) / lengthSquared));
+        Point2d projection = p1.add(v2.scale(x));
+        return p.distance(projection);
     }
 }

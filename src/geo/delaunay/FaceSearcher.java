@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
  * A engine for point to face searches in the triangulation structure.
  * We extend the DAG data structure, as we need access to its data.
  */
-public class FaceHierarchy extends DAG<TriangleFace> {
+public class FaceSearcher extends DAG<TriangleFace> {
     // We keep a mapping of all faces from ids to instances... for easy replacements.
     private final HashMap<Integer, Node<TriangleFace>> idToFaceNode = new HashMap<>();
 
@@ -51,34 +51,12 @@ public class FaceHierarchy extends DAG<TriangleFace> {
     /**
      * Find the face that contains the given point.
      *
-     * @param p The point we want to find.
      * @return The corresponding face if it exists, the outer face otherwise.
      */
-    public TriangleFace findFace(Point2d p) {
-        // Recursively search through the nodes.
-        Node<TriangleFace> face = findFace(f -> f.value.contains(p));
-        if(face != null) {
-            return face.value;
-        }
-
-        face = findFace(f -> f.value.containsAlternative(p));
-        if(face != null) {
-            return face.value;
-        }
-
-        // If not found, we know that it is the outside face, so return the outside face.
-        return TriangleFace.outerFace;
-    }
-
-    /**
-     * Find the face that contains the given point.
-     *
-     * @return The corresponding face if it exists, the outer face otherwise.
-     */
-    private Node<TriangleFace> findFace(Function<Node<TriangleFace>, Triangle2d.Location> function) {
+    public TriangleFace.ContainsResult findFace(Point2d p) {
         // Recursively search through the nodes.
         for(Node<TriangleFace> node : roots) {
-            Node<TriangleFace> hit = findFace(node, function);
+            TriangleFace.ContainsResult hit = findFace(node, p);
             if(hit != null) return hit;
         }
 
@@ -92,18 +70,19 @@ public class FaceHierarchy extends DAG<TriangleFace> {
      * @param node The node we want to start the search at.
      * @return The corresponding face if it exists, null otherwise.
      */
-    private Node<TriangleFace> findFace(Node<TriangleFace> node, Function<Node<TriangleFace>, Triangle2d.Location> function) {
+    private TriangleFace.ContainsResult findFace(Node<TriangleFace> node, Point2d p) {
         // First, check if the point can be in this node, before proceeding checking the children.
-        Triangle2d.Location location = function.apply(node);
-        if(location != Triangle2d.Location.OUTSIDE) {
+        TriangleFace.ContainsResult result = node.value.contains(p);
+
+        if(result.location != TriangleFace.Location.OUTSIDE) {
             // Check if we have children, if not, this is a leaf node and we return it as a result.
             if(node.children.isEmpty()) {
-                return node;
+                return result;
             }
 
             // Otherwise, iterate over all children and do the same check.
             for(Node<TriangleFace> child : node.children) {
-                Node<TriangleFace> hit = findFace(child, function);
+                TriangleFace.ContainsResult hit = findFace(child, p);
                 if(hit != null) return hit;
             }
         }
