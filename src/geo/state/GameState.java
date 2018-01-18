@@ -301,6 +301,10 @@ public class GameState {
         }
     }
 
+    public int getNumberOfRedPoints() {
+        return redPoints.size();
+    }
+
     /**
      * Define the different players we have in the game, in this case by color.
      */

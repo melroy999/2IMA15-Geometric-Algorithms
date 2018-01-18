@@ -195,73 +195,79 @@ public class TriangleFace extends Face<TriangleFace> {
 
         // The vertices v2, v1 for our convenience.
         Vertex<TriangleFace> v2 = edge.twin.previous().origin;
-        Vertex<TriangleFace> v1 = edge.previous().origin;
 
-        if(!t.bottomSymbolicPoint && !t.topSymbolicPoint) {
-            // Now, if we have no symbolic points in the triangle, we should treat it has a normal triangle.
-            /* The situation is as follows
-                                    v1
-                                  /    \
-                                 /      \
-                               tl        tr
-                              /            \
-                             v -- e ------- w
-                             v -- e.twin -- w
-                              \            /
-                               bl        br
-                                 \      /
-                                  \    /
-                                    v2
-             */
-            return !(t.isInCircumCircle(v2) || ((TriangleFace) edge.twin.incidentFace).t.isInCircumCircle(v1));
-        }
+        return !t.isInCircumCircle(v2);
 
-        // Now, we might have that we have one of the symbolic points... I will have to think about this.
-        if(t.bottomSymbolicPoint && t.topSymbolicPoint) {
-            // We have both symbolic points, but not the largest point.
-            // We know that the edge cannot be connected to both symbolic points, so it is one or the other.
-            // This will only happen if the point is the bottom most point, which will thus have a circum circle of unlimited size.
-            // So only points below the point should be seen as illegal, which will not happen, so legal.
-            return true;
-        }
-
-        if(t.bottomSymbolicPoint) {
-            // We have the bottom symbolic point in the triangle. Depending on whether we have a symbolic point in the edge...
-            if(edge.origin instanceof Vertex.SymbolicBottomVertex) {
-                // The starting point is a symbolic vertex.
-                // Suppose that we have this case, then w should not be left of the line segment v1 -> v2, as the hull would not be convex.
-                return checkRelativeSide(v1, v2, edge.twin.origin) <= 0;
-
-            } else if(edge.twin.origin instanceof Vertex.SymbolicBottomVertex) {
-                // The end point is a symbolic vertex.
-                // The same as above, but now the other way around, where we check illegality of the origin.
-                return checkRelativeSide(v2, v1, edge.origin) <= 0;
-
-            } else {
-                // The edge is not connected to symbolic vertices.
-                // In other words, the symbolic point will never be in the circum circle of the other triangle and vice versa.
-                // Thus, it is always legal.
-                return true;
-            }
-        } else {
-            // We have the bottom symbolic point in the triangle. Depending on whether we have a symbolic point in the edge...
-            if(edge.origin instanceof Vertex.SymbolicTopVertex) {
-                // The starting point is a symbolic vertex.
-                // Suppose that we have this case, then w should not be left of the line segment v2 -> v1, as the hull would not be convex.
-                return checkRelativeSide(v2, v1, edge.twin.origin) <= 0;
-
-            } else if(edge.twin.origin instanceof Vertex.SymbolicTopVertex) {
-                // The end point is a symbolic vertex.
-                // The same as above, but now the other way around, where we check illegality of the origin.
-                return checkRelativeSide(v1, v2, edge.origin) <= 0;
-
-            } else {
-                // The edge is not connected to symbolic vertices.
-                // In other words, the symbolic point will never be in the circum circle of the other triangle and vice versa.
-                // Thus, it is always legal.
-                return true;
-            }
-        }
+//        if(!t.bottomSymbolicPoint && !t.topSymbolicPoint) {
+//            // Now, if we have no symbolic points in the triangle, we should treat it has a normal triangle.
+//            /* The situation is as follows
+//                                    v1
+//                                  /    \
+//                                 /      \
+//                               tl        tr
+//                              /            \
+//                             v -- e ------- w
+//                             v -- e.twin -- w
+//                              \            /
+//                               bl        br
+//                                 \      /
+//                                  \    /
+//                                    v2
+//             */
+//            return !(t.isInCircumCircle(v2) || ((TriangleFace) edge.twin.incidentFace).t.isInCircumCircle(v1));
+//        }
+//
+//        // Now, we might have that we have one of the symbolic points... I will have to think about this.
+//        if(t.bottomSymbolicPoint && t.topSymbolicPoint) {
+//            // We have both symbolic points, but not the largest point.
+//            // We know that the edge cannot be connected to both symbolic points, so it is one or the other.
+//            // This will only happen if the point is the bottom most point, which will thus have a circum circle of unlimited size.
+//            // So only points below the point should be seen as illegal, which will not happen, so legal.
+//            return true;
+//        }
+//
+//        if(t.bottomSymbolicPoint) {
+//            // TODO this is not working. Fix it. (Top vertex seems to work fine on illegality detection)
+//
+//            // DEBUG NOTE: Het lijkt erop dat vertices geplaatst worden zonder een error wanneer er eigenlijk een edge swap hoort plaats te vinden.
+//            // Indien de insertion geen edge swap triggert, krijgen we een counter clockwise order exception.
+//
+//            // We have the bottom symbolic point in the triangle. Depending on whether we have a symbolic point in the edge...
+//            if(edge.origin instanceof Vertex.SymbolicBottomVertex) {
+//                // The starting point is a symbolic vertex.
+//                // Suppose that we have this case, then w should not be left of the line segment v1 -> v2, as the hull would not be convex.
+//                return checkRelativeSide(v1, v2, edge.twin.origin) <= 0;
+//
+//            } else if(edge.twin.origin instanceof Vertex.SymbolicBottomVertex) {
+//                // The end point is a symbolic vertex.
+//                // The same as above, but now the other way around, where we check illegality of the origin.
+//                return checkRelativeSide(v2, v1, edge.origin) <= 0;
+//
+//            } else {
+//                // The edge is not connected to symbolic vertices.
+//                // In other words, the symbolic point will never be in the circum circle of the other triangle and vice versa.
+//                // Thus, it is always legal.
+//                return true;
+//            }
+//        } else {
+//            // We have the bottom symbolic point in the triangle. Depending on whether we have a symbolic point in the edge...
+//            if(edge.origin instanceof Vertex.SymbolicTopVertex) {
+//                // The starting point is a symbolic vertex.
+//                // Suppose that we have this case, then w should not be left of the line segment v2 -> v1, as the hull would not be convex.
+//                return checkRelativeSide(v2, v1, edge.twin.origin) <= 0;
+//
+//            } else if(edge.twin.origin instanceof Vertex.SymbolicTopVertex) {
+//                // The end point is a symbolic vertex.
+//                // The same as above, but now the other way around, where we check illegality of the origin.
+//                return checkRelativeSide(v1, v2, edge.origin) <= 0;
+//
+//            } else {
+//                // The edge is not connected to symbolic vertices.
+//                // In other words, the symbolic point will never be in the circum circle of the other triangle and vice versa.
+//                // Thus, it is always legal.
+//                return true;
+//            }
+//        }
     }
 
     /**

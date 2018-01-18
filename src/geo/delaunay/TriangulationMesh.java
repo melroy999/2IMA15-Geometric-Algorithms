@@ -61,8 +61,6 @@ public class TriangulationMesh {
         // Check if v is equal to the p0, as we don't want to add it twice.
         if(v == p0) return;
 
-        System.out.println("Attempting insertion of point " + v);
-
         // First, we should determine where to insert the vertex.
         TriangleFace.ContainsResult result = searcher.findFace(v);
 
@@ -76,7 +74,7 @@ public class TriangulationMesh {
         }
 
         // Legalize when we are done with insertions.
-//        legalize(v);
+        legalize(v);
     }
 
     /**
@@ -86,16 +84,11 @@ public class TriangulationMesh {
      * @param face The face we want to insert the vertex into.
      */
     public void insertVertexInFace(Vertex<TriangleFace> v, TriangleFace face) {
-        System.out.println("Inserting " + v + " into the face " + face);
-
         // We simply have to create edges to all surrounding vertices in the face, making sure we do it in CCW order.
         createNewFaces(v, face.edges(), Collections.singletonList(face));
-        System.out.println();
     }
 
     public void insertVertexOnEdge(Vertex<TriangleFace> v, Edge<TriangleFace> edge) {
-        System.out.println("Inserting " + v + " onto the edge " + edge + " bordering " + edge.incidentFace + " and " + edge.twin.incidentFace);
-
         // First, find the two faces, and the edges they have.
         List<TriangleFace> faces = Arrays.asList(
                 (TriangleFace) edge.incidentFace,
@@ -112,7 +105,6 @@ public class TriangulationMesh {
 
         // Create the faces and edges.
         createNewFaces(v, edges, faces);
-        System.out.println();
     }
 
     /**
@@ -123,8 +115,6 @@ public class TriangulationMesh {
      * @param originalFaces The original faces, a list of side 1 or 2, having the same order as the edges.
      */
     private void createNewFaces(Vertex<TriangleFace> v, List<Edge<TriangleFace>> edges, List<TriangleFace> originalFaces) {
-        System.out.println("Converting the faces " + originalFaces + " to faces having the corner edges " + edges);
-
         // First, make sure that all the edges have their next and previous pointers correct.
         for(int i = 0; i < edges.size(); i++) {
             // Set the pointers.
@@ -151,13 +141,10 @@ public class TriangulationMesh {
         if(originalFaces.size() == 1) {
             // We replace one face by the three new faces.
             searcher.replaceFaces(originalFaces, faces);
-            System.out.println("Replaced the face " + originalFaces.get(0) + " by the faces " + faces);
         } else {
             // We replace the first face by the first two new faces, and the other by the latter two.
             searcher.replaceFaces(originalFaces.subList(0, 1), faces.subList(0, 2));
-            System.out.println("Replaced the face " + originalFaces.get(0) + " by the faces " + faces.subList(0, 2));
             searcher.replaceFaces(originalFaces.subList(1, 2), faces.subList(2, 4));
-            System.out.println("Replaced the face " + originalFaces.get(1) + " by the faces " + faces.subList(2, 4));
         }
     }
 
@@ -167,9 +154,6 @@ public class TriangulationMesh {
      * @param e The edge we want to swap.
      */
     private void swapEdge(Edge<TriangleFace> e) {
-        System.out.println("Swapping edge " + e + " concerning faces " + e.incidentFace + " and " + e.twin.incidentFace);
-        System.out.println();
-
         // First, a sketch of the situation.
         /* We want to replace "e" with an edge from v1 to v2.
                                 v1
@@ -200,20 +184,11 @@ public class TriangulationMesh {
         Edge<TriangleFace> v2_v1 = new Edge<>(v2, v1);
 
         // Create the new faces.
-        try {
-            TriangleFace f1 = new TriangleFace(Arrays.asList(v2_v1, tl, bl));
-            TriangleFace f2 = new TriangleFace(Arrays.asList(v2_v1.twin, br, tr));
+        TriangleFace f1 = new TriangleFace(Arrays.asList(v2_v1, tl, bl));
+        TriangleFace f2 = new TriangleFace(Arrays.asList(v2_v1.twin, br, tr));
 
-            // We replace the original faces with two other faces.
-            searcher.replaceFaces(Arrays.asList((TriangleFace) e.incidentFace, (TriangleFace) e.twin.incidentFace), Arrays.asList(f1, f2));
-        } catch(Triangle2d.ClockwiseException ex) {
-            System.out.println("Edge: " + e + ", faces " + e.incidentFace + " and " + e.twin.incidentFace);
-            System.out.println("v1: " + v1 + ", v2: " + v2);
-            System.out.println("e: " + e + ", tr: " + tr + ", tl: " + tl);
-            System.out.println("e.twin: " + e.twin + ", bl: " + bl + ", br: " + br);
-            System.out.println("v2_v1: " + v2_v1);
-            throw ex;
-        }
+        // We replace the original faces with two other faces.
+        searcher.replaceFaces(Arrays.asList((TriangleFace) e.incidentFace, (TriangleFace) e.twin.incidentFace), Arrays.asList(f1, f2));
     }
 
     /**
@@ -259,7 +234,7 @@ public class TriangulationMesh {
 
         // Set the lines to be 3 pixels wide.
         g.setStroke(new BasicStroke(3));
-        g.setColor(Color.gray);
+        g.setColor(new Color(125, 125, 125, 50));
 
         // Draw all the edges.
         for (TriangleFace face : faces) {

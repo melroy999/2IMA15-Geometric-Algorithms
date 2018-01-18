@@ -44,7 +44,7 @@ public class Triangle2d {
         bottomSymbolicPoint = points.stream().anyMatch(p -> p instanceof Vertex.SymbolicBottomVertex);
 
         // Check for illegal cases.
-        checkIllegality();
+//        checkIllegality();
 
         // Calculate the circum center.
         circumCenter = calculateCircumCenter();
@@ -167,7 +167,8 @@ public class Triangle2d {
 
                 // In any case, the points should be left of the line in question.
                 if (points.get(i) instanceof Vertex.SymbolicTopVertex || points.get(i) instanceof Vertex.SymbolicBottomVertex) {
-                    return checkRelativeSide(p1, p2, p) <= 0;
+                    // Here, we check for strict left, as we do not want to flip edges that are perpendicular.
+                    return checkRelativeSide(p1, p2, p) < 0;
                 }
             }
 
