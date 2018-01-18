@@ -122,7 +122,7 @@ public class Edge<T> {
      * @return True when the numbers are extremely close to one another.
      */
     private static boolean almostEqual(double a, double b){
-        return Math.abs(a-b) < 10e-3 /*Math.max(Math.ulp(a), Math.ulp(b))*/;
+        return Math.abs(a-b) < 10e-5 /*Math.max(Math.ulp(a), Math.ulp(b))*/;
     }
 
     /**
