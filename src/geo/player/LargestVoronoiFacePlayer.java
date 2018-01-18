@@ -92,13 +92,26 @@ public class LargestVoronoiFacePlayer extends AIPlayer {
             return;
         }
 
+        // Calculate the move and get the status.
+        GameState.FaultStatus status = calculateMove(state, failures);
+
+        if (status == GameState.FaultStatus.None){
+            turn++;
+            failedMoves = 0;
+        }   else {
+            System.out.println(status);
+            failedMoves ++;
+        }
+    }
+
+    protected GameState.FaultStatus calculateMove(GameState state, Set<Face> failures) {
         GameState.FaultStatus status;
         Face largestFace = null;
         do {
             if(largestFace != null) failures.add(largestFace);
 
             //First, find the largest Face and the point inside that face.
-            largestFace = findLargestFace(state);
+            largestFace = findLargestFace(state, failures);
             Vertex<TriangleFace> largestPoint = largestFace.centerPoint;
 
             //Then, find the nearest other point, since we wish to place our point away from it.
@@ -115,13 +128,7 @@ public class LargestVoronoiFacePlayer extends AIPlayer {
 
         } while(status == GameState.FaultStatus.PointExists);
 
-        if (status == GameState.FaultStatus.None){
-            turn++;
-            failedMoves = 0;
-        }   else {
-            System.out.println(status);
-            failedMoves ++;
-        }
+        return status;
     }
 
     /**
@@ -129,10 +136,10 @@ public class LargestVoronoiFacePlayer extends AIPlayer {
      * @param state current GameState.
      * @return Face that has the largest area.
      */
-    private Face findLargestFace(GameState state){
+    protected Face findLargestFace(GameState state, Set<Face> failures){
         return state.getVoronoiDiagram().getFaces()
                 .stream()
-                .filter((a) -> a.centerPoint.player != getPlayer().color)
+                .filter((a) -> a.centerPoint.player != getPlayer().color && !failures.contains(a))
                 .max(Comparator.comparingDouble(Face::getArea))
                 .get();
     }

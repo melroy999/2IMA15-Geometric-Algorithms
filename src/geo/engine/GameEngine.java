@@ -66,6 +66,7 @@ public class GameEngine {
                 new ImportFilePlayer(controller, humanBlue, GameState.PlayerTurn.BLUE),
                 new RandomPlayer(controller, humanRed, GameState.PlayerTurn.BLUE),
                 new LargestVoronoiFacePlayer(controller, humanBlue, GameState.PlayerTurn.BLUE),
+                new LargestVoronoiFacePlayerAlt(controller, humanBlue, GameState.PlayerTurn.BLUE),
                 new LargestDelaunayEdgePlayer(controller, humanBlue, GameState.PlayerTurn.BLUE)
         };
 
@@ -179,7 +180,7 @@ public class GameEngine {
         gui.changeStartButtonEnabled(true);
         gui.changeNextButtonEnabled(false);
         gui.changeResetButtonEnabled(false);
-        gui.updateGameStateCounters(0, 0, 0, 0);
+        gui.updateGameStateCounters(0, 0, 0);
 
         // Set the player label to be empty.
         gui.changeCurrentPlayerLabel(null);
@@ -205,10 +206,9 @@ public class GameEngine {
         // First, calculate the area in percentages.
         Dimension dim = gui.getGamePanelDimensions();
         int t = dim.width * dim.height;
-        int redArea = (int) Math.round(100 * (d.getAreaRed() / t));
-        int blueArea = (int) Math.round(100 * (d.getAreaBlue() / t));
+        double redArea = 100 * d.getAreaRed() / t;
 
-        gui.updateGameStateCounters(state.getNumberOfRedPoints(), state.getNumberOfBluePoints(), redArea, blueArea);
+        gui.updateGameStateCounters(state.getNumberOfRedPoints(), state.getNumberOfBluePoints(), redArea);
         gui.redrawGamePanel();
     }
 

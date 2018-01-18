@@ -265,13 +265,12 @@ public class GUI {
      * @param redCount The amount of red points.
      * @param blueCount The amount of blue points.
      * @param redArea The area the red player possesses.
-     * @param blueArea The area the blue player possesses.
      */
-    public void updateGameStateCounters(int redCount, int blueCount, int redArea, int blueArea) {
+    public void updateGameStateCounters(int redCount, int blueCount, double redArea) {
         redPointsCountLabel.setText(String.valueOf(redCount));
         bluePointsCountLabel.setText(String.valueOf(blueCount));
-        redBoardControlLabel.setText(redArea + "%");
-        blueBoardControlLabel.setText(blueArea + "%");
+        redBoardControlLabel.setText(String.format( "%.1f", redArea) + "%");
+        blueBoardControlLabel.setText(String.format( "%.1f", redArea == 0d ? 0 : 100d - redArea) + "%");
     }
 
     /**
