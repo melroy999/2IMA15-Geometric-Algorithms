@@ -9,7 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.Random;
 
-public class RandomAIPlayer extends AIPlayer {
+public class RandomPlayer extends AIPlayer {
 
     private JPanel rootPanel;
     private JTextField seed;
@@ -26,7 +26,7 @@ public class RandomAIPlayer extends AIPlayer {
      * @param player The human player we should follow up with when the AI is done.
      * @param turn The turn this player should be active in.
      */
-    public RandomAIPlayer(GameController controller, HumanPlayer player, GameState.PlayerTurn turn){
+    public RandomPlayer(GameController controller, HumanPlayer player, GameState.PlayerTurn turn){
         super(controller, player, turn);
     }
 

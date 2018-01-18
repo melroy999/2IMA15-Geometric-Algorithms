@@ -20,7 +20,7 @@ import java.awt.Dimension;
  * Goal is to place a point just beside the opponent's point,
  * away from Voronoi Edges.
  */
-public class LargestFacePlayer extends AIPlayer {
+public class LargestVoronoiFacePlayer extends AIPlayer {
 
     private JPanel rootPanel;
     private JTextField numPoints;
@@ -32,7 +32,7 @@ public class LargestFacePlayer extends AIPlayer {
     //Counter to see whether we're making bad moves (preventing eternal loops).
     private int failedMoves = 0;
 
-    public LargestFacePlayer(GameController controller, HumanPlayer player, GameState.PlayerTurn turn){
+    public LargestVoronoiFacePlayer(GameController controller, HumanPlayer player, GameState.PlayerTurn turn){
         super(controller, player, turn);
     }
 

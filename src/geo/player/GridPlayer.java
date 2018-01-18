@@ -9,7 +9,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GridAIPlayer extends AIPlayer  {
+public class GridPlayer extends AIPlayer  {
     private JPanel rootPanel;
     private JTextField numPoints;
 
@@ -22,7 +22,7 @@ public class GridAIPlayer extends AIPlayer  {
      * @param player     The human player we should follow up with when the AI is done.
      * @param turn       The turn this player should be active in.
      */
-    public GridAIPlayer(GameController controller, HumanPlayer player, GameState.PlayerTurn turn) {
+    public GridPlayer(GameController controller, HumanPlayer player, GameState.PlayerTurn turn) {
         super(controller, player, turn);
     }
 

@@ -8,15 +8,13 @@ import geo.store.halfedge.Edge;
 import geo.store.halfedge.Vertex;
 import geo.store.math.Vector2d;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.*;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.Point;
 import java.awt.Dimension;
 
-public class LargestEdgePlayer extends AIPlayer {
+public class LargestDelaunayEdgePlayer extends AIPlayer {
 
     private JPanel rootPanel;
     private JTextField numPoints;
@@ -30,7 +28,7 @@ public class LargestEdgePlayer extends AIPlayer {
     //List with the Edges that we have used before (so we do not re-use them in later turns).
     List<Edge> visitedEdges = new ArrayList();
 
-    public LargestEdgePlayer(GameController controller, HumanPlayer player, GameState.PlayerTurn turn){
+    public LargestDelaunayEdgePlayer(GameController controller, HumanPlayer player, GameState.PlayerTurn turn){
         super(controller, player, turn);
     }
 
@@ -43,6 +41,10 @@ public class LargestEdgePlayer extends AIPlayer {
             moves = 10;
             System.out.println("Bad input for number of moves, running with moves = 10.");
         }
+
+        // A list of edges we failed to add a point on.
+        Set<Edge> failures = new HashSet<>();
+
         //Perform moves.
         while (turn < moves){
             if (failedMoves > 2){
@@ -50,7 +52,7 @@ public class LargestEdgePlayer extends AIPlayer {
                 isDone = true;
                 return;
             }
-            doMove(state);
+            doMove(state, failures);
         }
     }
 
@@ -58,18 +60,27 @@ public class LargestEdgePlayer extends AIPlayer {
      * Performs a move.
      * @param state The game state to read data from.
      */
-    public void doMove(GameState state){
-        //Obtain the largest edge.
-        Edge largestEdge = findLargestEdge(state);
+    public void doMove(GameState state, Set<Edge> failures){
+        GameState.FaultStatus status;
+        Edge largestEdge = null;
+        do {
+            if(largestEdge != null) failures.add(largestEdge);
 
-        //Interpolate the middle of this Edge.
-        Vertex start = largestEdge.origin;
-        Vertex end = largestEdge.twin.origin;
+            //Obtain the largest edge.
+            largestEdge = findLargestEdge(state, failures);
 
-        Point centre = new Point((int)(start.x + end.x)/2, (int)(start.y + end.y)/2);
+            //Interpolate the middle of this Edge.
+            Vertex start = largestEdge.origin;
+            Vertex end = largestEdge.twin.origin;
 
-        GameState.FaultStatus status = addPoint(centre);
+            // Find the central point of the edge.
+            Point centre = new Point((int)(start.x + end.x)/2, (int)(start.y + end.y)/2);
 
+            // Add the point and observe the status.
+            status = addPoint(centre);
+        } while (status == GameState.FaultStatus.PointExists);
+
+        // Check if we were successful.
         if (status == GameState.FaultStatus.None){
             visitedEdges.add(largestEdge);
             visitedEdges.add(largestEdge.twin);
@@ -85,7 +96,7 @@ public class LargestEdgePlayer extends AIPlayer {
      * @param state Gamestate to look at.
      * @return Edge for which edge.origin().distance(edge.next().origin) is maximised.
      */
-    private Edge findLargestEdge(GameState state){
+    private Edge findLargestEdge(GameState state, Set<Edge> failures){
         //Put all Edges into one list
         List<Edge<TriangleFace>> edges = new ArrayList();
         state.getTriangulatedFaces()
@@ -95,7 +106,7 @@ public class LargestEdgePlayer extends AIPlayer {
         //Find the largest Edge in this list.
         return edges
                 .stream()
-                .filter(a -> isValidEdge(a))
+                .filter(a -> isValidEdge(a) && !failures.contains(a))
                 .max(Comparator.comparingDouble(a -> a.origin.distance(a.twin.origin))).get();
     }
 

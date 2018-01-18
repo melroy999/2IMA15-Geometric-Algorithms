@@ -90,22 +90,6 @@ public class Edge<T> {
     }
 
     /**
-     * Check if the given point is on this edge.
-     *
-     * @param p The point we want to check the existence of on the line.
-     * @return True if the point is on the line, otherwise false.
-     */
-    public boolean isPointOnEdge(Point2d p) {
-//        if(p.y == origin.y && p.y == twin.origin.y || p.x == origin.x && p.x == twin.origin.x) {
-//            return true;
-//        }
-
-        // Check if the sum of the lengths of a -> b + b -> c == a -> c.
-        return almostEqual(this.origin.distance(p) + p.distance(this.twin.origin),
-                this.origin.distance(this.twin.origin));
-    }
-
-    /**
      * Draw the object.
      *
      * @param g     The graphics object to use.
@@ -113,17 +97,6 @@ public class Edge<T> {
     public void drawEdge(Graphics2D g) {
         // Draw the shape stored in the object.
         shape.draw(g);
-    }
-
-    /**
-     * Check whether the two numbers are almost equal, using the smallest distance between one double and the next.
-     *
-     * @param a The left side of the equation.
-     * @param b The right side of the equation.
-     * @return True when the numbers are extremely close to one another.
-     */
-    private static boolean almostEqual(double a, double b){
-        return Math.abs(a-b) < 10e-5 /*Math.max(Math.ulp(a), Math.ulp(b))*/;
     }
 
     /**
@@ -174,5 +147,20 @@ public class Edge<T> {
         double x = Math.max(0, Math.min(1, v1.dot(v2) / lengthSquared));
         Point2d projection = p1.add(v2.scale(x));
         return p.distance(projection);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Edge<?> edge = (Edge<?>) o;
+
+        return id == edge.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
     }
 }

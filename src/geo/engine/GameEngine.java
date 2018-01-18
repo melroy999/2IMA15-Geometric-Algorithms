@@ -53,8 +53,9 @@ public class GameEngine {
         AbstractPlayer[] players = new AbstractPlayer[]{
                 humanRed,
                 new ImportFilePlayer(controller, humanRed, GameState.PlayerTurn.RED),
-                new RandomAIPlayer(controller, humanRed, GameState.PlayerTurn.RED),
-                new GridAIPlayer(controller, humanRed, GameState.PlayerTurn.RED),
+                new RandomPlayer(controller, humanRed, GameState.PlayerTurn.RED),
+                new GridPlayer(controller, humanRed, GameState.PlayerTurn.RED),
+                new PythagoreanTiling(controller, humanRed, GameState.PlayerTurn.RED)
         };
 
         // Do the same for player 2.
@@ -62,9 +63,9 @@ public class GameEngine {
         AbstractPlayer[] players2 = new AbstractPlayer[] {
                 humanBlue,
                 new ImportFilePlayer(controller, humanBlue, GameState.PlayerTurn.BLUE),
-                new RandomAIPlayer(controller, humanRed, GameState.PlayerTurn.BLUE),
-                new LargestFacePlayer(controller, humanBlue, GameState.PlayerTurn.BLUE),
-                new LargestEdgePlayer(controller, humanBlue, GameState.PlayerTurn.BLUE)
+                new RandomPlayer(controller, humanRed, GameState.PlayerTurn.BLUE),
+                new LargestVoronoiFacePlayer(controller, humanBlue, GameState.PlayerTurn.BLUE),
+                new LargestDelaunayEdgePlayer(controller, humanBlue, GameState.PlayerTurn.BLUE)
         };
 
         // Create the gui.
