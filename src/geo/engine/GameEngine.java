@@ -57,6 +57,7 @@ public class GameEngine {
                 new GridPlayer(controller, humanRed, GameState.PlayerTurn.RED),
                 new PythagoreanTiling(controller, humanRed, GameState.PlayerTurn.RED),
                 new TriangleGridPlayer(controller, humanRed, GameState.PlayerTurn.RED),
+                new TriangleStarGridPlayer(controller, humanRed, GameState.PlayerTurn.RED),
                 new EquilateralTriangleGridPlayer(controller, humanRed, GameState.PlayerTurn.RED)
         };
 

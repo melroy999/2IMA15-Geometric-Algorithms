@@ -272,8 +272,8 @@ public class GUI {
         if(redCount == blueCount + 1 && blueCount != 0) {
             System.out.println("Score: " + redArea + ", " + (100d - redArea));
         }
-        redBoardControlLabel.setText(String.format( "%.1f", redArea) + "%");
-        blueBoardControlLabel.setText(String.format( "%.1f", redArea == 0d ? 0 : 100d - redArea) + "%");
+        redBoardControlLabel.setText(String.format( "%.1f", Math.min(redArea, 100)) + "%");
+        blueBoardControlLabel.setText(String.format( "%.1f", Math.max(redArea == 0d ? 0 : 100d - redArea, 0)) + "%");
     }
 
     /**
