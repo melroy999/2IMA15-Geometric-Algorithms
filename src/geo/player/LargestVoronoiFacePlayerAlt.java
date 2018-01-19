@@ -56,7 +56,16 @@ public class LargestVoronoiFacePlayerAlt extends LargestVoronoiFacePlayer {
                 // and place our move beside largestPoint in this direction.
                 status = addPoint(new Point2d(largestPoint.x - direction.x, largestPoint.y - direction.y));
             } else {
-                status = GameState.FaultStatus.Error;
+                // Attempt the original strategy.
+                Vertex<TriangleFace> nearestPoint = state.getPoints().stream()
+                        .filter((a) -> a.id != largestPoint.id)
+                        .min(Comparator.comparingDouble(a -> a.distance(largestPoint))).get();
+
+                //Find the Vector pointing from nearestPoint to largestPoint,
+                direction = new Vector2d(largestPoint.x - nearestPoint.x, largestPoint.y - nearestPoint.y).normalize().scale(12);
+
+                // and place our move beside largestPoint in this direction.
+                status = addPoint(new Point2d(largestPoint.x + direction.x, largestPoint.y + direction.y));
             }
 
         } while(status == GameState.FaultStatus.PointExists || status == GameState.FaultStatus.Error);
