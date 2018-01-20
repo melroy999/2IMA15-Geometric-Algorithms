@@ -31,7 +31,8 @@ public class Vertex<T> extends Point2d implements Iterable<Edge<T>> {
     private final Point shape;
 
     // The static radius of a vertex.
-    private final static int radius = 10;
+    private final static int visualRadius = 8;
+    public final static int staticRadius = 3;
 
     /**
      * Create a vertex at the given coordinates.
@@ -51,7 +52,7 @@ public class Vertex<T> extends Point2d implements Iterable<Edge<T>> {
 
         // Create a drawable figures.
         label = new Label(x, y, "v" + id);
-        shape = new Point(x, y, player == GameState.PlayerTurn.RED ? Color.RED : Color.BLUE, radius);
+        shape = new Point(x, y, player == GameState.PlayerTurn.RED ? Color.RED : Color.BLUE, visualRadius);
     }
 
     /**
@@ -154,7 +155,7 @@ public class Vertex<T> extends Point2d implements Iterable<Edge<T>> {
         if (obj instanceof Vertex) {
             // Points are equal if the distance between them is less than the radius.
             Vertex<T> v = (Vertex<T>) obj;
-            return Math.sqrt(Math.pow(x - v.x, 2) + Math.pow(y - v.y, 2)) <= radius;
+            return Math.sqrt(Math.pow(x - v.x, 2) + Math.pow(y - v.y, 2)) < staticRadius;
         }
         return super.equals(obj);
     }

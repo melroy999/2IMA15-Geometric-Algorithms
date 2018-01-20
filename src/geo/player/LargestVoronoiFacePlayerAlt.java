@@ -46,7 +46,7 @@ public class LargestVoronoiFacePlayerAlt extends LargestVoronoiFacePlayer {
             Point2d center = new Point2d(vertices.stream().mapToDouble(v -> v.x).average().orElse(0), vertices.stream().mapToDouble(v -> v.y).average().orElse(0));
 
             //Find the Vector pointing from the face center point to the average point.
-            Vector2d direction = new Vector2d(largestPoint.x - center.x, largestPoint.y - center.y).normalize().scale(12);
+            Vector2d direction = new Vector2d(largestPoint.x - center.x, largestPoint.y - center.y).normalize().scale(Vertex.staticRadius * 1.1d);
 
             // The new point we are about to add...
             Point2d newPoint = new Point2d(largestPoint.x - direction.x, largestPoint.y - direction.y);
@@ -62,10 +62,14 @@ public class LargestVoronoiFacePlayerAlt extends LargestVoronoiFacePlayer {
                         .min(Comparator.comparingDouble(a -> a.distance(largestPoint))).get();
 
                 //Find the Vector pointing from nearestPoint to largestPoint,
-                direction = new Vector2d(largestPoint.x - nearestPoint.x, largestPoint.y - nearestPoint.y).normalize().scale(12);
+                direction = new Vector2d(largestPoint.x - nearestPoint.x, largestPoint.y - nearestPoint.y).normalize().scale(Vertex.staticRadius * 1.1d);
 
                 // and place our move beside largestPoint in this direction.
                 status = addPoint(new Point2d(largestPoint.x + direction.x, largestPoint.y + direction.y));
+            }
+
+            if(status == GameState.FaultStatus.PointExists) {
+                System.out.println("Point exists.");
             }
 
         } while(status == GameState.FaultStatus.PointExists || status == GameState.FaultStatus.Error);

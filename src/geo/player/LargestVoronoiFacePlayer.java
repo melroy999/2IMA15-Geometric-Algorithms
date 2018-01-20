@@ -121,10 +121,14 @@ public class LargestVoronoiFacePlayer extends AIPlayer {
                     .min(Comparator.comparingDouble(a -> a.distance(largestPoint))).get();
 
             //Find the Vector pointing from nearestPoint to largestPoint,
-            Vector2d direction = new Vector2d(largestPoint.x - nearestPoint.x, largestPoint.y - nearestPoint.y).normalize().scale(12);
+            Vector2d direction = new Vector2d(largestPoint.x - nearestPoint.x, largestPoint.y - nearestPoint.y).normalize().scale(Vertex.staticRadius * 1.1d);
 
             // and place our move beside largestPoint in this direction.
             status = addPoint(new Point2d(largestPoint.x + direction.x, largestPoint.y + direction.y));
+
+            if(status == GameState.FaultStatus.PointExists) {
+                System.out.println("Point exists.");
+            }
 
         } while(status == GameState.FaultStatus.PointExists);
 
