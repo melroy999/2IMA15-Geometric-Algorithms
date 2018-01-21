@@ -168,4 +168,14 @@ public class TriangleGridPlayer extends AIPlayer {
     public JPanel getPanel() {
         return rootPanel;
     }
+
+    /**
+     * Get the name of the player as a string.
+     *
+     * @return The simple name of the class.
+     */
+    @Override
+    public String toString() {
+        return super.toString() + "_" + edgeWidth.getText() + "_" + edgeHeight.getText();
+    }
 }

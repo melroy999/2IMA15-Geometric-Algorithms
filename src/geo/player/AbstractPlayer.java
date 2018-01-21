@@ -173,7 +173,7 @@ public abstract class AbstractPlayer {
      * @return The simple name of the class.
      */
     @Override
-    public final String toString() {
+    public String toString() {
         return this.getClass().getSimpleName();
     }
 }

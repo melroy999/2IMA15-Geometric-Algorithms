@@ -3,6 +3,7 @@ package geo.player;
 import geo.controller.GameController;
 import geo.gui.GUI;
 import geo.state.GameState;
+import geo.store.math.Point2d;
 
 import javax.swing.*;
 import java.awt.*;
@@ -37,7 +38,7 @@ public class GridPlayer extends AIPlayer  {
         int rows = (int) Math.ceil((Math.sqrt((double) numPoints)));
 
         // The points we want to add.
-        Point[] points = new Point[numPoints];
+        Point2d[] points = new Point2d[numPoints];
         int num = 0;
 
         // The amount of points we still have to place
@@ -47,19 +48,19 @@ public class GridPlayer extends AIPlayer  {
         for (int i = 0; i < rows; i++){
             // y-coord of point is the height of a voronoi face * row a point is in -1 +
             // half of the height of a voronoi face
-            int y = (int) Math.floor(GUI.createAndShow().getGamePanelDimensions().height / (rows))*(i) +
-                    (int) (Math.floor(GUI.createAndShow().getGamePanelDimensions().height) / (rows) * 0.5);
+            double y = GUI.createAndShow().getGamePanelDimensions().height / ((double) rows)*(i) +
+                    (GUI.createAndShow().getGamePanelDimensions().height) / ((double) rows) * 0.5;
             // The amount of points to be placed in a row
             int columns = (int) Math.ceil( (double)remainingPoints / remainingRows);
 
             for (int j = 0; j < columns; j++) {
                 // x-coord of point is the width of a voronoi face * column a point is in -1 +
                 // half of the width of a voronoi face
-                int x = (int) (Math.floor(GUI.createAndShow().getGamePanelDimensions().width / (columns))*(j)) +
-                        (int) (Math.floor(GUI.createAndShow().getGamePanelDimensions().width / (columns)) * 0.5);
+                double x = GUI.createAndShow().getGamePanelDimensions().width / ((double) columns)*(j) +
+                        (GUI.createAndShow().getGamePanelDimensions().width / ((double) columns)) * 0.5;
                 // Add the point
 //                addPoint(new Point(x, y));
-                points[num++] = new Point(x, y);
+                points[num++] = new Point2d(x, y);
             }
             // Decrease the amount of points remaining and the amount of rows remaining
             remainingPoints -= columns;
@@ -126,4 +127,13 @@ public class GridPlayer extends AIPlayer  {
         return rootPanel;
     }
 
+    /**
+     * Get the name of the player as a string.
+     *
+     * @return The simple name of the class.
+     */
+    @Override
+    public String toString() {
+        return super.toString() + "_" + numPoints.getText();
+    }
 }

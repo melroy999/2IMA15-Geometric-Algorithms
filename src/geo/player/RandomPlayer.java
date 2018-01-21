@@ -2,11 +2,16 @@ package geo.player;
 
 import com.sun.org.apache.xpath.internal.SourceTree;
 import geo.controller.GameController;
+import geo.delaunay.TriangleFace;
 import geo.state.GameState;
 import geo.gui.GUI;
+import geo.store.halfedge.Vertex;
+import geo.store.math.Point2d;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class RandomPlayer extends AIPlayer {
@@ -38,6 +43,13 @@ public class RandomPlayer extends AIPlayer {
      */
     private void generateRandomMoves(long seed, int numPoints, GameState state){
         Random generator = new Random(seed);
+
+        // The dimensions.
+        Dimension dimensions = GUI.createAndShow().getGamePanelDimensions();
+
+        // The list of points we like to add.
+        List<Vertex<TriangleFace>> points = new ArrayList<>();
+
         int i = 0;
         // While there are not enough points, generate new random coordinates and try to add them
         while (i < numPoints ) {
@@ -45,17 +57,21 @@ public class RandomPlayer extends AIPlayer {
             if (state.getCurrentPlayerTurn() == GameState.PlayerTurn.BLUE && state.getNumberOfRedPoints() < i+2){
                 break;
             }
-            int x = (int) Math.floor(generator.nextDouble()*GUI.createAndShow().getGamePanelDimensions().width);
-            int y = (int) Math.floor(generator.nextDouble()*GUI.createAndShow().getGamePanelDimensions().height);
+            int x = (int) Math.floor(generator.nextDouble() * dimensions.width);
+            int y = (int) Math.floor(generator.nextDouble() * dimensions.height);
 
-            // Check if the point can be placed
-            GameState.FaultStatus status = addPoint(new Point(x, y));
+            Vertex<TriangleFace> point = new Vertex<>(x, y, null);
 
             // If the random point can be placed
-            if (status == GameState.FaultStatus.None) {
+            if (!points.contains(point) && !state.checkPointExistence(point)) {
+                points.add(point);
                 i++;
             }
         }
+
+        // Add all points.
+        addPoints(points.toArray(new Point2d[0]));
+
         turn++;
     }
 
@@ -117,5 +133,15 @@ public class RandomPlayer extends AIPlayer {
     @Override
     public JPanel getPanel() {
         return rootPanel;
+    }
+
+    /**
+     * Get the name of the player as a string.
+     *
+     * @return The simple name of the class.
+     */
+    @Override
+    public String toString() {
+        return super.toString() + "_" + numPoints.getText();
     }
 }

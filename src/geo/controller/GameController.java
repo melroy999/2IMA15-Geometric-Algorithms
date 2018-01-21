@@ -27,8 +27,8 @@ public class GameController {
     private Runnable resetGame;
 
     // The two files in which we will log the player moves.
-    private PrintWriter redWriter;
-    private PrintWriter blueWriter;
+//    private PrintWriter redWriter;
+//    private PrintWriter blueWriter;
 
     /**
      * Create a game controller, which will execute its actions on the given game state.
@@ -66,11 +66,11 @@ public class GameController {
      */
     public GameState.FaultStatus addPoint(Point p) {
         // Write the moves of the player to the log.
-        if(engine.getPlayerTurn() == GameState.PlayerTurn.RED) {
-            redWriter.println(p.toString());
-        } else {
-            blueWriter.println(p.toString());
-        }
+//        if(engine.getPlayerTurn() == GameState.PlayerTurn.RED) {
+//            redWriter.println(p.toString());
+//        } else {
+//            blueWriter.println(p.toString());
+//        }
 
         GameState.FaultStatus status = addPoint.apply(p);
 
@@ -89,13 +89,13 @@ public class GameController {
      */
     public List<GameState.FaultStatus> addPoints(Point[] points) {
         // Write the moves of the player to the log.
-        for(Point p : points) {
-            if(engine.getPlayerTurn() == GameState.PlayerTurn.RED) {
-                redWriter.println(p.toString());
-            } else {
-                blueWriter.println(p.toString());
-            }
-        }
+//        for(Point p : points) {
+//            if(engine.getPlayerTurn() == GameState.PlayerTurn.RED) {
+//                redWriter.println(p.toString());
+//            } else {
+//                blueWriter.println(p.toString());
+//            }
+//        }
 
         List<GameState.FaultStatus> success = addPoints.apply(points);
 
@@ -113,11 +113,11 @@ public class GameController {
      */
     public boolean removePoint(Point p) {
         // Write the moves of the player to the log.
-        if(engine.getPlayerTurn() == GameState.PlayerTurn.RED) {
-            redWriter.println("-" + p.toString());
-        } else {
-            blueWriter.println("-" + p.toString());
-        }
+//        if(engine.getPlayerTurn() == GameState.PlayerTurn.RED) {
+//            redWriter.println("-" + p.toString());
+//        } else {
+//            blueWriter.println("-" + p.toString());
+//        }
 
         if(removePoint.test(p)) {
             engine.updatePlayerCounters();
@@ -134,11 +134,11 @@ public class GameController {
      */
     public GameState.FaultStatus addPoint(Point2d p) {
         // Write the moves of the player to the log.
-        if(engine.getPlayerTurn() == GameState.PlayerTurn.RED) {
-            redWriter.println(p.toString());
-        } else {
-            blueWriter.println(p.toString());
-        }
+//        if(engine.getPlayerTurn() == GameState.PlayerTurn.RED) {
+//            redWriter.println(p.toString());
+//        } else {
+//            blueWriter.println(p.toString());
+//        }
 
         GameState.FaultStatus status = addDoublePoint.apply(p);
 
@@ -157,13 +157,13 @@ public class GameController {
      */
     public List<GameState.FaultStatus> addPoints(Point2d[] points) {
         // Write the moves of the player to the log.
-        for(Point2d p : points) {
-            if(engine.getPlayerTurn() == GameState.PlayerTurn.RED) {
-                redWriter.println(p.toString());
-            } else {
-                blueWriter.println(p.toString());
-            }
-        }
+//        for(Point2d p : points) {
+//            if(engine.getPlayerTurn() == GameState.PlayerTurn.RED) {
+//                redWriter.println(p.toString());
+//            } else {
+//                blueWriter.println(p.toString());
+//            }
+//        }
 
         List<GameState.FaultStatus> success = addDoublePoints.apply(points);
 
@@ -181,11 +181,11 @@ public class GameController {
      */
     public boolean removePoint(Point2d p) {
         // Write the moves of the player to the log.
-        if(engine.getPlayerTurn() == GameState.PlayerTurn.RED) {
-            redWriter.println("-" + p.toString());
-        } else {
-            blueWriter.println("-" + p.toString());
-        }
+//        if(engine.getPlayerTurn() == GameState.PlayerTurn.RED) {
+//            redWriter.println("-" + p.toString());
+//        } else {
+//            blueWriter.println("-" + p.toString());
+//        }
 
         if(removeDoublePoint.test(p)) {
             engine.updatePlayerCounters();
@@ -199,11 +199,11 @@ public class GameController {
      */
     public void endTurn() {
         // Write an empty line in the log of the player that is currently active.
-        if(engine.getPlayerTurn() == GameState.PlayerTurn.RED) {
-            redWriter.println();
-        } else {
-            blueWriter.println();
-        }
+//        if(engine.getPlayerTurn() == GameState.PlayerTurn.RED) {
+//            redWriter.println();
+//        } else {
+//            blueWriter.println();
+//        }
 
         engine.endPlayerTurn();
     }
@@ -214,19 +214,19 @@ public class GameController {
     public void startGame() {
         // On the start of the game, create two new writers.
         // First make the directory in which we will store results.
-        File directory = new File("runs");
-        if (! directory.exists()) directory.mkdir();
-
-        // Determine the unique file quantifier.
-        String fileQuantifier = "" + System.currentTimeMillis();
+//        File directory = new File("runs");
+//        if (! directory.exists()) directory.mkdir();
+//
+//        // Determine the unique file quantifier.
+//        String fileQuantifier = "" + System.currentTimeMillis();
 
         // Create the file writers.
-        try {
-            redWriter = new PrintWriter(new FileWriter("runs/" + fileQuantifier + "-red.txt"));
-            blueWriter = new PrintWriter(new FileWriter("runs/" + fileQuantifier + "-blue.txt"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            redWriter = new PrintWriter(new FileWriter("runs/" + fileQuantifier + "-red.txt"));
+//            blueWriter = new PrintWriter(new FileWriter("runs/" + fileQuantifier + "-blue.txt"));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         engine.startGame();
     }
@@ -236,8 +236,8 @@ public class GameController {
      */
     public void resetGame() {
         // Close the file writers.
-        redWriter.close();
-        blueWriter.close();
+//        redWriter.close();
+//        blueWriter.close();
 
         // Ask the engine to reset the GUI related components.
         engine.resetGame();

@@ -167,4 +167,8 @@ public class LargestVoronoiFacePlayer extends AIPlayer {
     @Override
     public JPanel getPanel(){ return rootPanel; }
 
+    @Override
+    public String toString() {
+        return super.toString() + "_" + numPoints.getText();
+    }
 }

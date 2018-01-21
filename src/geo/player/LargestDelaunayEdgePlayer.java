@@ -54,6 +54,7 @@ public class LargestDelaunayEdgePlayer extends AIPlayer {
             }
             doMove(state, failures);
         }
+        isDone = true;
     }
 
     /**
@@ -106,7 +107,7 @@ public class LargestDelaunayEdgePlayer extends AIPlayer {
         //Find the largest Edge in this list.
         return edges
                 .stream()
-                .filter(a -> isValidEdge(a) && !failures.contains(a))
+                .filter(a -> isValidEdge(a) && (getPlayer().color != a.origin.player || getPlayer().color != a.twin.origin.player) && !failures.contains(a))
                 .max(Comparator.comparingDouble(a -> a.origin.distance(a.twin.origin))).get();
     }
 
@@ -126,6 +127,7 @@ public class LargestDelaunayEdgePlayer extends AIPlayer {
 
         Vertex start = e.origin;
         Vertex end = e.twin.origin;
+
         Dimension boardSize = GUI.createAndShow().getGamePanelDimensions();
 
         //Check if this edge's start and end are within bounds.
@@ -146,4 +148,9 @@ public class LargestDelaunayEdgePlayer extends AIPlayer {
 
     @Override
     public boolean isDone(){ return isDone; }
+
+    @Override
+    public String toString() {
+        return super.toString() + "_" + numPoints.getText();
+    }
 }

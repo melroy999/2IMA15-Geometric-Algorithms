@@ -229,7 +229,7 @@ public class GameEngine {
         double blueArea = d.getAreaBlue() / t;
 
         // Now, build the string.
-        return state.getNumberOfRedPoints() + "; " + state.getNumberOfBluePoints() + "; " + redArea + "; " + blueArea;
+        return state.getNumberOfRedPoints() + ", " + state.getNumberOfBluePoints() + ", " + redArea + ", " + blueArea;
     }
 
     public void startTrials() {
@@ -243,40 +243,44 @@ public class GameEngine {
         AIPlayer blue = (AIPlayer) gui.getCurrentBluePlayer();
 
         // Now, at least one of the players should be random.
-        if(!red.isRandom() && !blue.isRandom()) {
-            System.out.println("The definition of insanity is doing the same thing over and over and expecting different results. Please add an AI that has randomness...");
-            return;
+        int trials = 1;
+        if(red.isRandom() || blue.isRandom()) {
+            // Check if the number of runs field is filled in...
+            trials = gui.getNumberOfTrials();
+
+            if(trials == -1) {
+                System.out.println("Please give the number of trials.");
+                return;
+            }
         }
 
-        // Check if the number of runs field is filled in...
-        int trials = gui.getNumberOfTrials();
-
-        if(trials == -1) {
-            System.out.println("Please give the number of trials.");
-            return;
-        }
-
+        int finalTrials = trials;
         experimentPool.execute(() -> {
             try {
                 // Start by creating a file to store the results in.
-                PrintWriter pw = new PrintWriter(new File(gui.getCurrentRedPlayer() + "_" + gui.getCurrentBluePlayer() + "_" + trials + ".csv"));
+                PrintWriter pw = new PrintWriter(new File(/*"Z:\\geo_data\\" +*/ gui.getCurrentRedPlayer() + "_" + gui.getCurrentBluePlayer() + ".csv"));
                 StringBuilder sb = new StringBuilder();
 
-                sb.append("\"sep=;\"\n");
-                sb.append("#RED; #BLUE; AREA_RED; AREA_BLUE \n");
-
                 // Repeat the trial.
-                for (int i = 0; i < trials; i++) {
+                for (int i = 0; i < finalTrials; i++) {
+                    System.out.println("Starting game");
                     engine.getControllerHack().startGame();
 
                     // Now wait for as long as required to get the expected number of points.
                     do {
                         try {
-                            Thread.sleep(500);
+                            Thread.sleep(100);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
                     } while (!red.isDone() || !blue.isDone());
+
+                    // Make sure that the game gets a chance to calculate the areas...
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
 
                     // Note down the score.
                     sb.append(engine.getScoreDataAsString()).append('\n');
@@ -284,6 +288,7 @@ public class GameEngine {
                     // Reset the game.
                     engine.getControllerHack().resetGame();
                 }
+                System.out.println("Done");
 
                 pw.write(sb.toString());
                 pw.close();
